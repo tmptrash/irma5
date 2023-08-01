@@ -1,0 +1,40 @@
+{
+  "name": "irma5",
+  "version": "1.0.0",
+  "description": "'irma5' is an Artificial Life simulator, where organisms are created from complex molecules/programs and atoms/instructions",
+  "private": false,
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "start": "webpack serve --open",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "irma5",
+    "digital organisms",
+    "evolution",
+    "javascript",
+    "js",
+    "Artificial life",
+    "ALife",
+    "virtual Machine",
+    "simulation",
+    "molecules",
+    "atoms",
+    "instructions"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "panzoom": "^9.4.0"
+  },
+  "devDependencies": {
+    "css-loader": "^6.7.3",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.0",
+    "webpack-dev-server": "^4.11.1"
+  }
+}
