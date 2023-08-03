@@ -75,7 +75,7 @@ export function title(w, t) {
 function initDom(w) {
   w.ctx.font = "18px Consolas"
   w.ctx.fillStyle = "white"
-  w.ctx.style.imageRendering = 'pixelated'
+  w.canvas.style.imageRendering = 'pixelated'
 }
 
 function initHandlers(w) {
@@ -92,7 +92,7 @@ function initHandlers(w) {
 }
 
 function initPanZoom(w) {
-  w.panZoom = Panzoom(w.ctx, {
+  w.panZoom = Panzoom(w.canvas, {
     zoomSpeed   : CFG.zoomSpeed,
     smoothScroll: false,
     minZoom     : 1,
