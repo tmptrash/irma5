@@ -1,3 +1,4 @@
+import './styles.css'
 import World, { Canvas } from './world'
 import VM, { tick } from './vm'
 

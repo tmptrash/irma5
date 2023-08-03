@@ -1,306 +1,178 @@
 import CFG from './cfg'
 import Panzoom from 'panzoom'
-import { setStyles } from './helper'
 
-const BODY = document.body
-const HTML = document.querySelector('html')
+const $ = document.querySelector.bind(document)
 
 export default function World() {
-  return {
+  const ctx = $('canvas').getContext('2d')
+  const imgData = ctx.getImageData(0, 0, CFG.width, CFG.height)
 
+  const w = {
+    doc: document,
+    canvas: $('canvas'),
+    title: $('.title'),
+    ctx,
+    imgData,
+    visualize: $('.visualize'),
+    data: imgData.data,
+    animateFn: null,
+    visualizeOn: true,
+    panZoom: null,
+    zoomObserver: null,
+    xDataOffs: 0,
+    yDataOffs: 0,
+    visibleWidth: CFG.width,
+    visibleHeight: CFG.height
   }
+
+  initDom(w)
+  initHandlers(w)
+  initPanZoom(w)
+  setTransparency(w)
+  onFullscreen(w)
+  onAnimate(w)
+
+  return w
 }
 
 export function atom(w, offs) {}
 
 export function typeByOffs(w, offs) {}
 
-export class Canvas {
-    constructor(options = {}) {
-      // TODO: options should be removed
-        this._options       = options;
-        this._canvasEl      = this._createCanvas()
-        this._headerEl      = this._createHeader()
-        this._ctx           = this._canvasEl.getContext('2d');
-        //this._imgData       = this._ctx.createImageData(CFG.width, CFG.height);
-        this._imgData       = this._ctx.getImageData(0, 0, CFG.width, CFG.height);
-        this._data          = this._imgData.data;
-        this._animate       = this._onAnimate.bind(this);
-        this._visualize     = true;
-        this._panZoom       = null;
-        this._zoomObserver  = null;
-        this._fullEl        = this._createFullScreenBtn()
-        this._visualizeEl   = this._createVisualizeBtn()
-        this._xDataOffs     = 0
-        this._yDataOffs     = 0
-        this._visibleWidth  = CFG.width
-        this._visibleHeight = CFG.height
+export function destroy(w) {
+  w.panZoom.dispose()
+  w.ctx     = null
+  w.imgData = null
+  w.data    = null
+  w.panZoom = null
+}
 
-        this._prepareDom();
-        this._initPanZoomLib();
-        this.clear();
-        this._onFullscreen();
-        this._onAnimate()
-    }
+export function visualize(w, visualize = true) {
+  w.visualizeOn = visualize
+  onVisualize(w, visualize)
+  onAnimate(w)
+}
 
-    destroy() {
-        this._panZoom.dispose();
-        BODY.removeChild(this._canvasEl);
-        BODY.removeChild(this._fullEl);
-        BODY.removeChild(this._visualizeEl);
-        BODY.removeChild(this._headerEl);
-        this._headerEl    = null;
-        this._canvasEl    = null;
-        this._fullEl      = null;
-        this._visualizeEl = null;
-        this._ctx         = null;
-        this._imgData     = null;
-        this._data        = null;
-        this._panZoom     = null;
-    }
+export function dot(w, offs, color) {
+  const d = w.data
+  offs <<= 2
 
-    visualize(visualize = true) {
-        this._visualize = visualize;
-        this._onVisualize(visualize);
-        this._onAnimate();
-    }
+  d[offs    ] = (color >>> 16) & 0xff
+  d[offs + 1] = (color >>> 8)  & 0xff
+  d[offs + 2] = color & 0xff
+}
 
-    /**
-     * Sets pixel to specified color with specified coordinates.
-     * Color should contain red, green and blue components in one
-     * decimal number. For example: 16777215 is #FFFFFF - white.
-     * In case of invalid coordinates 0 value for x, color and y will
-     * be used.
-     * @param {Number} offs Absolute dot offset
-     * @param {Number} color Decimal color
-     */
-    dot(offs, color) {
-        const data = this._data;
-        offs <<= 2;
+export function clear(w, offs) {
+  const d = w.data
+  offs <<= 2
+  d[offs] = d[offs + 1] = d[offs + 2] = 0
+}
 
-        data[offs    ] = (color >>> 16) & 0xff;
-        data[offs + 1] = (color >>> 8)  & 0xff;
-        data[offs + 2] = color & 0xff;
-    }
+export function title(w, t) {
+  w.title.textContent = t
+}
 
-    /**
-     * Sets pixel with 0 color with specified coordinates.
-     * @param {Number} offs Absolute dot affset
-     */
-    empty(offs) {
-        const data = this._data;
-        offs <<= 2;
-        data[offs] = data[offs + 1] = data[offs + 2] = 0;
-    }
+function initDom(w) {
+  w.ctx.font = "18px Consolas"
+  w.ctx.fillStyle = "white"
+  w.ctx.style.imageRendering = 'pixelated'
+}
 
-    /**
-     * Clears canvas with black color
-     */
-    clear() {
-        const size = CFG.width * CFG.height * 4;
-        const data = this._data;
+function initHandlers(w) {
+  w.zoomObserver = new MutationObserver(onZoom.bind(w))
+  w.zoomObserver.observe(w.canvas, {
+    attributes     : true,
+    childList      : false,
+    attributeFilter: ['style']
+  })
+  w.animateFn = onAnimate.bind(w)
+  w.doc.onkeydown = onKeyDown.bind(w)
+  w.visualize.onclick = onVisualize.bind(w)
+  $('.fullscreen > div').onclick = $('.fullscreen').onclick = onFullscreen.bind(w)
+}
 
-        for (let i = 0; i < size; i += 4) {
-            data[i + 3] = 0xff;
-        }
-    }
+function initPanZoom(w) {
+  w.panZoom = Panzoom(w.ctx, {
+    zoomSpeed   : CFG.zoomSpeed,
+    smoothScroll: false,
+    minZoom     : 1,
+    // TODO: check if we need this
+    //filterKey   : this._options.scroll
+  })
+  w.panZoom.zoomAbs(0, 0, 1.0)
+}
 
-    header(text) {
-        this._headerEl.textContent = text;
-    }
- 
-    update() {
-        this._ctx.putImageData(this._imgData, 0, 0, this._xDataOffs, this._yDataOffs, this._visibleWidth, this._visibleHeight);
-    }
+function setTransparency(w) {
+  const d = w.data
+  for (let i = 0, l = d.length * 4; i < l; i += 4) d[i + 3] = 0xff
+}
 
-    _prepareDom() {
-        // TODO: put all styles into css file and include it with import()
-        setStyles(BODY, {
-            width          : '100%',
-            height         : '100%',
-            margin         : 0,
-            backgroundColor: '#9e9e9e'
-        });
-        setStyles(HTML, {
-            width          : '100%',
-            height         : '100%',
-            margin         : 0
-        });
+function updateCanvas(w) {
+  w.ctx.putImageData(w.imgData, 0, 0, w.xDataOffs, w.yDataOffs, w.visibleWidth, w.visibleHeight)
+}
 
-        this._ctx.font      = "18px Consolas";
-        this._ctx.fillStyle = "white";
-        //
-        // This style hides scroll bars on full screen 2d canvas
-        //
-        HTML.style.overflow = 'hidden';
-        //
-        // Adds listener to change of canvas transform matrix. We need it
-        // to handle zooming of the canvas
-        //
-        this._zoomObserver = new MutationObserver(this._onZoom.bind(this));
-        this._zoomObserver.observe(this._canvasEl, {
-            attributes     : true,
-            childList      : false,
-            attributeFilter: ['style']
-        });
-        //
-        // Global keyup event handler
-        //
-        document.addEventListener('keydown', this._onKeyDown.bind(this));
-    }
+function onFullscreen(w) {
+  w.panZoom.zoomAbs(0, 0, 1.0)
+  w.panZoom.moveTo(0, 0)
+  w.canvas.style.width  = '100%'
+  w.canvas.style.height = '100%'
+}
 
-    _createFullScreenBtn() {
-        const el = BODY.appendChild(setStyles('DIV', {
-            position       : 'absolute',
-            width          : '20px',
-            height         : '20px',
-            top            : '7px',
-            left           : '7px',
-            border         : '1px #000 solid',
-            backgroundColor: '#f7ed0e',
-            borderRadius   : '6px',
-            cursor         : 'pointer'
-        }));
-        //
-        // Inner div
-        //
-        const innerEl = el.appendChild(setStyles('DIV', {
-            position       : 'absolute',
-            width          : '12px',
-            height         : '12px',
-            top            : '8px',
-            left           : '8px',
-            border         : '1px #000 solid',
-            backgroundColor: '#f7ed0e',
-            borderRadius   : '3px',
-            cursor         : 'pointer'
-        }));
+function onVisualize(w, visualize) {
+  w.visualizeOn = typeof(visualize) === 'boolean' ? visualize : !w.visualizeOn;
+  w.visualize.style.backgroundColor = w.visualizeOn ? '#FFEB3B' : '#000';
+  onAnimate(w)
+}
 
-        el.title        = 'fullscreen (Ctrl-F)';
-        el.onclick      = this._onFullscreen.bind(this);
-        innerEl.onclick = this._onFullscreen.bind(this);
+function onAnimate(w) {
+  updateCanvas(w)
+  // TODO: remove these lines
+  w.ctx.beginPath()
+  w.ctx.lineWidth = 10
+  w.ctx.strokeStyle = '#ff0000'
+  w.ctx.moveTo(30, 50)
+  w.ctx.lineTo(150, 100)
+  w.ctx.stroke()
 
-        return el;
-    }
+  w.visualizeOn && window.requestAnimationFrame(w.animateFn)
+}
 
-    _createVisualizeBtn() {
-        const el = BODY.appendChild(setStyles('DIV', {
-            position       : 'absolute',
-            width          : '20px',
-            height         : '20px',
-            top            : '7px',
-            left           : '34px',
-            border         : '1px #FFEB3B solid',
-            backgroundSize : '8px 8px',
-            borderRadius   : '6px',
-            background     : 'radial-gradient(#F44336 15%, transparent 16%) 0 0, radial-gradient(#F44336 15%, transparent 16%) 4px 4px, radial-gradient(rgba(255,255,253,.1) 15%, transparent 20%) 0 1px, radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 8px',
-            backgroundColor: '#FFEB3B',
-            cursor         : 'pointer'
-        }));
+function onKeyDown(w, event) {
+  if (event.ctrlKey && (event.key === 'V' || event.key === 'v')) {
+    onVisualize(w)
+    event.preventDefault()
+    return false
+  }
+  if (event.ctrlKey && (event.key === 'F' || event.key === 'f')) {
+    onFullscreen(w)
+    event.preventDefault()
+    return false
+  }
+}
 
-        el.title   = 'visualize (Ctrl-V)';
-        el.onclick = this._onVisualize.bind(this);
+function onZoom(w) {
+  if (!w.ctx) {return}
+  const matrix        = getZoomMatrix(w)
+  if (!matrix) {return}
+  const dx            = +matrix[4];
+  const dy            = +matrix[5];
+  const coef          = +matrix[0];
+  const windowWidth   = window.innerWidth;
+  const windowHeight  = window.innerHeight;
+  const viewWidth     = windowWidth  * coef;
+  const viewHeight    = windowHeight * coef;
+  const xCoef         = CFG.width  / windowWidth;
+  const yCoef         = CFG.height / windowHeight;
 
-        return el;
-    }
+  w.xDataOffs = (dx < 0 ? (coef > 1 ? -dx / coef : -dx * coef) : 0) * xCoef;
+  w.yDataOffs = (dy < 0 ? (coef > 1 ? -dy / coef : -dy * coef) : 0) * yCoef;
 
-    _onFullscreen() {
-        this._panZoom.zoomAbs(0, 0, 1.0);
-        this._panZoom.moveTo(0, 0);
-        this._canvasEl.style.width  = '100%';
-        this._canvasEl.style.height = '100%';
-    }
+  w.visibleWidth  = (viewWidth  + dx > windowWidth  ? (coef > 1 ? (windowWidth  - (dx > 0 ? dx : 0)) / coef : (windowWidth  - (dx > 0 ? dx : 0)) * coef) : windowWidth ) * xCoef;
+  w.visibleHeight = (viewHeight + dy > windowHeight ? (coef > 1 ? (windowHeight - (dy > 0 ? dy : 0)) / coef : (windowHeight - (dy > 0 ? dy : 0)) * coef) : windowHeight) * yCoef;
+}
 
-    _onVisualize(visualize) {
-        this._visualize = typeof(visualize) === 'boolean' ? visualize : !this._visualize;
-        this._visualizeEl.style.backgroundColor = this._visualize ? '#FFEB3B' : '#000';
-        this._onAnimate();
-    }
-
-    _onAnimate() {
-        this.update();
-        this._visualize && window.requestAnimationFrame(this._animate)
-    }
-
-    _createCanvas() {
-        const canvas = document.createElement('CANVAS');
-
-        canvas.setAttribute('width', CFG.width);
-        canvas.setAttribute('height', CFG.height);
-
-        return BODY.appendChild(canvas);
-    }
-
-    _createHeader() {
-        return BODY.appendChild(setStyles('DIV', {
-            position  : 'absolute',
-            top       : '7px',
-            left      : '60px',
-            color     : '#fff',
-            fontSize  : '18px',
-            fontFamily: 'Consolas'
-        }));
-    }
-
-    _onKeyDown(event) {
-        if (event.ctrlKey && (event.key === 'V' || event.key === 'v')) {
-            this._onVisualize()
-            event.preventDefault()
-            return false
-        }
-        if (event.ctrlKey && (event.key === 'F' || event.key === 'f')) {
-            this._onFullscreen()
-            event.preventDefault()
-            return false
-        }
-    }
-
-    /**
-     * Initializes 'panzoom' library, which adds possibility to
-     * zoom and scroll canvas by mouse. imageRendering css property
-     * removes smooth effect while zooming
-     */
-    _initPanZoomLib() {
-        this._canvasEl.style.imageRendering = 'pixelated';
-        this._panZoom   = Panzoom(this._canvasEl, {
-            zoomSpeed   : CFG.zoomSpeed,
-            smoothScroll: false,
-            minZoom     : 1,
-            // TODO: check if we need this
-            //filterKey   : this._options.scroll
-        });
-        this._panZoom.zoomAbs(0, 0, 1.0);
-    }
-
-    /**
-     * Is called on canvas zoom/move change. This method improves rendering
-     * speed of big canvases. It copies only visible part of the canvas from
-     * memory (see this._imgData).
-     */
-    _onZoom() {
-        if (!this._canvasEl) {return}
-        const matrix        = this._getZoomMatrix();
-        if (!matrix) {return}
-        const dx            = +matrix[4];
-        const dy            = +matrix[5];
-        const coef          = +matrix[0];
-        const windowWidth   = window.innerWidth;
-        const windowHeight  = window.innerHeight;
-        const viewWidth     = windowWidth  * coef;
-        const viewHeight    = windowHeight * coef;
-        const xCoef         = CFG.width  / windowWidth;
-        const yCoef         = CFG.height / windowHeight;
-
-        this._xDataOffs = (dx < 0 ? (coef > 1 ? -dx / coef : -dx * coef) : 0) * xCoef;
-        this._yDataOffs = (dy < 0 ? (coef > 1 ? -dy / coef : -dy * coef) : 0) * yCoef;
-
-        this._visibleWidth  = (viewWidth  + dx > windowWidth  ? (coef > 1 ? (windowWidth  - (dx > 0 ? dx : 0)) / coef : (windowWidth  - (dx > 0 ? dx : 0)) * coef) : windowWidth ) * xCoef;
-        this._visibleHeight = (viewHeight + dy > windowHeight ? (coef > 1 ? (windowHeight - (dy > 0 ? dy : 0)) / coef : (windowHeight - (dy > 0 ? dy : 0)) * coef) : windowHeight) * yCoef;
-    }
-
-    _getZoomMatrix() {
-        const transform = window.getComputedStyle(this._canvasEl, null).getPropertyValue('transform');
-        if (!transform || transform === 'none') {return null}
-        return (transform.split('(')[1].split(')')[0].split(',')).map((e) => +e);
-    }
+function getZoomMatrix(w) {
+  const transform = window.getComputedStyle(w.ctx, null).getPropertyValue('transform');
+  if (!transform || transform === 'none') {return null}
+  return (transform.split('(')[1].split(')')[0].split(',')).map((e) => +e);
 }
