@@ -1,51 +1,51 @@
 html {
-  width           : '100%';
-  height          : '100%';
+  width           : 100%;
+  height          : 100%;
   margin          : 0;
   overflow        : hidden;
 }
 
 body {
-  width           : '100%';
-  height          : '100%';
+  width           : 100%;
+  height          : 100%;
   margin          : 0;
-  background-color: '#9e9e9e';
+  background-color: #9e9e9e;
 }
 
 .fullscreen {
-  position        : 'absolute';
-  width           : '20px';
-  height          : '20px';
-  top             : '7px';
-  left            : '7px';
-  border          : '1px #000 solid';
-  background-color: '#f7ed0e';
-  border-radius   : '6px';
-  cursor          : 'pointer';
+  position        : absolute;
+  width           : 20px;
+  height          : 20px;
+  top             : 7px;
+  left            : 7px;
+  border          : 1px #000 solid;
+  background-color: #f7ed0e;
+  border-radius   : 6px;
+  cursor          : pointer;
 }
 
 .fullscreen > div {
-  position        : 'absolute';
-  width           : '12px';
-  height          : '12px';
-  top             : '8px';
-  left            : '8px';
-  border          : '1px #000 solid';
-  background-color: '#f7ed0e';
-  border-radius   : '3px';
-  cursor          : 'pointer';
+  position        : absolute;
+  width           : 12px;
+  height          : 12px;
+  top             : 8px;
+  left            : 8px;
+  border          : 1px #000 solid;
+  background-color: #f7ed0e;
+  border-radius   : 3px;
+  cursor          : pointer;
 }
 
 .visualize {
-  position        : 'absolute';
-  width           : '20px';
-  height          : '20px';
-  top             : '7px';
-  left            : '34px';
-  border          : '1px #FFEB3B solid';
-  background-size : '8px 8px';
-  border-radius   : '6px';
-  background      : 'radial-gradient(#F44336 15%, transparent 16%) 0 0, radial-gradient(#F44336 15%, transparent 16%) 4px 4px, radial-gradient(rgba(255,255,253,.1) 15%, transparent 20%) 0 1px, radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 8px';
-  background-color: '#FFEB3B';
-  cursor          : 'pointer';
+  position        : absolute;
+  width           : 20px;
+  height          : 20px;
+  top             : 7px;
+  left            : 34px;
+  border          : 1px #FFEB3B solid;
+  background-size : 8px 8px;
+  border-radius   : 6px;
+  background      : radial-gradient(#F44336 15%, transparent 16%) 0 0, radial-gradient(#F44336 15%, transparent 16%) 4px 4px, radial-gradient(rgba(255,255,253,.1) 15%, transparent 20%) 0 1px, radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 8px;
+  background-color: #FFEB3B;
+  cursor          : pointer;
 }

@@ -1,9 +1,8 @@
 import CFG from './cfg'
 import Panzoom from 'panzoom'
 
-const $ = document.querySelector.bind(document)
-
 export default function World() {
+  const $ = document.querySelector.bind(document)
   const ctx = $('canvas').getContext('2d')
   const imgData = ctx.getImageData(0, 0, CFG.width, CFG.height)
 
@@ -11,41 +10,42 @@ export default function World() {
     doc: document,
     canvas: $('canvas'),
     title: $('.title'),
+    visualize: $('.visualize'),
+    fullscreen: $('.fullscreen'),
+
     ctx,
     imgData,
-    visualize: $('.visualize'),
     data: imgData.data,
-    animateFn: null,
-    visualizeOn: true,
-    panZoom: null,
+    zoom: null,
     zoomObserver: null,
-    xDataOffs: 0,
-    yDataOffs: 0,
-    visibleWidth: CFG.width,
-    visibleHeight: CFG.height
+    visualizeOn: true,
+    animateFn: null,
+
+    x: 0,
+    y: 0,
+    w: CFG.width,
+    h: CFG.height
   }
 
   initDom(w)
   initHandlers(w)
-  initPanZoom(w)
-  setTransparency(w)
+  initZoom(w)
+  initTransparency(w)
   onFullscreen(w)
   onAnimate(w)
 
   return w
 }
 
+export function destroy(w) {
+  w.zoom.dispose()
+  w.zoomObserver.disconnect()
+  w.ctx = w.imgData = w.data = w.zoom = w.zoomObserver = w.animateFn = null
+}
+
 export function atom(w, offs) {}
 
 export function typeByOffs(w, offs) {}
-
-export function destroy(w) {
-  w.panZoom.dispose()
-  w.ctx     = null
-  w.imgData = null
-  w.data    = null
-  w.panZoom = null
-}
 
 export function visualize(w, visualize = true) {
   w.visualizeOn = visualize
@@ -62,7 +62,7 @@ export function dot(w, offs, color) {
   d[offs + 2] = color & 0xff
 }
 
-export function clear(w, offs) {
+export function undot(w, offs) {
   const d = w.data
   offs <<= 2
   d[offs] = d[offs + 1] = d[offs + 2] = 0
@@ -85,35 +85,35 @@ function initHandlers(w) {
     childList      : false,
     attributeFilter: ['style']
   })
-  w.animateFn = onAnimate.bind(w)
+  w.animateFn = () => onAnimate(w)
   w.doc.onkeydown = onKeyDown.bind(w)
-  w.visualize.onclick = onVisualize.bind(w)
-  $('.fullscreen > div').onclick = $('.fullscreen').onclick = onFullscreen.bind(w)
+  w.visualize.onclick = () => onVisualize(w)
+  w.fullscreen.onclick = w.fullscreen.firstChild.onclick = () => onFullscreen(w)
 }
 
-function initPanZoom(w) {
-  w.panZoom = Panzoom(w.canvas, {
+function initZoom(w) {
+  w.zoom = Panzoom(w.canvas, {
     zoomSpeed   : CFG.zoomSpeed,
     smoothScroll: false,
     minZoom     : 1,
     // TODO: check if we need this
     //filterKey   : this._options.scroll
   })
-  w.panZoom.zoomAbs(0, 0, 1.0)
+  w.zoom.zoomAbs(0, 0, 1.0)
 }
 
-function setTransparency(w) {
+function initTransparency(w) {
   const d = w.data
   for (let i = 0, l = d.length * 4; i < l; i += 4) d[i + 3] = 0xff
 }
 
 function updateCanvas(w) {
-  w.ctx.putImageData(w.imgData, 0, 0, w.xDataOffs, w.yDataOffs, w.visibleWidth, w.visibleHeight)
+  w.ctx.putImageData(w.imgData, 0, 0, w.x, w.y, w.w, w.h)
 }
 
 function onFullscreen(w) {
-  w.panZoom.zoomAbs(0, 0, 1.0)
-  w.panZoom.moveTo(0, 0)
+  w.zoom.zoomAbs(0, 0, 1.0)
+  w.zoom.moveTo(0, 0)
   w.canvas.style.width  = '100%'
   w.canvas.style.height = '100%'
 }
@@ -164,11 +164,11 @@ function onZoom(w) {
   const xCoef         = CFG.width  / windowWidth;
   const yCoef         = CFG.height / windowHeight;
 
-  w.xDataOffs = (dx < 0 ? (coef > 1 ? -dx / coef : -dx * coef) : 0) * xCoef;
-  w.yDataOffs = (dy < 0 ? (coef > 1 ? -dy / coef : -dy * coef) : 0) * yCoef;
+  w.x = (dx < 0 ? (coef > 1 ? -dx / coef : -dx * coef) : 0) * xCoef;
+  w.y = (dy < 0 ? (coef > 1 ? -dy / coef : -dy * coef) : 0) * yCoef;
 
-  w.visibleWidth  = (viewWidth  + dx > windowWidth  ? (coef > 1 ? (windowWidth  - (dx > 0 ? dx : 0)) / coef : (windowWidth  - (dx > 0 ? dx : 0)) * coef) : windowWidth ) * xCoef;
-  w.visibleHeight = (viewHeight + dy > windowHeight ? (coef > 1 ? (windowHeight - (dy > 0 ? dy : 0)) / coef : (windowHeight - (dy > 0 ? dy : 0)) * coef) : windowHeight) * yCoef;
+  w.w = (viewWidth  + dx > windowWidth  ? (coef > 1 ? (windowWidth  - (dx > 0 ? dx : 0)) / coef : (windowWidth  - (dx > 0 ? dx : 0)) * coef) : windowWidth ) * xCoef;
+  w.h = (viewHeight + dy > windowHeight ? (coef > 1 ? (windowHeight - (dy > 0 ? dy : 0)) / coef : (windowHeight - (dy > 0 ? dy : 0)) * coef) : windowHeight) * yCoef;
 }
 
 function getZoomMatrix(w) {
