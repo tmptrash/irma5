@@ -86,7 +86,7 @@ function initHandlers(w) {
     attributeFilter: ['style']
   })
   w.animateFn = () => onAnimate(w)
-  w.doc.onkeydown = onKeyDown.bind(w)
+  w.doc.onkeydown = e => onKeyDown(w, e)
   w.visualize.onclick = () => onVisualize(w)
   w.fullscreen.onclick = w.fullscreen.firstChild.onclick = () => onFullscreen(w)
 }
