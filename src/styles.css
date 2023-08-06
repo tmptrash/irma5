@@ -49,3 +49,12 @@ body {
   background-color: #FFEB3B;
   cursor          : pointer;
 }
+
+.title {
+  position   : absolute;
+  top        : 7px;
+  left       : 60px;
+  color      : #fff;
+  font-size  : 18px;
+  font-family: Consolas;
+}

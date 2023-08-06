@@ -47,11 +47,11 @@ export function atom(w, offs) {}
 
 export function typeByOffs(w, offs) {}
 
-export function visualize(w, visualize = true) {
-  w.visualizeOn = visualize
-  onVisualize(w, visualize)
-  onAnimate(w)
-}
+// export function visualize(w, visualize = true) {
+//   w.visualizeOn = visualize
+//   onVisualize(w, visualize)
+//   onAnimate(w)
+// }
 
 export function dot(w, offs, color) {
   const d = w.data
@@ -99,7 +99,6 @@ function initZoom(w) {
     // TODO: check if we need this
     //filterKey   : this._options.scroll
   })
-  w.zoom.zoomAbs(0, 0, 1.0)
 }
 
 function initTransparency(w) {

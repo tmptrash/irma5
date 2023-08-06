@@ -13,9 +13,9 @@ export default function VM(w) {
 }
 
 export function tick(vm) {
-  for (let round = 0, roundl = CFG.rpi; round < roundl; r++)
-    for (let i = 0, l = vm.vmOffs.length; i < l; i++)
-      CMDS[typeByOffs(vm.w, vm.vmOffs[i] & OFFS_MSK)](vm)
+  for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
+    for (let i = 0, l = vm.vmOffs.length; i < l; i++) {}
+      //CMDS[typeByOffs(vm.w, vm.vmOffs[i] & OFFS_MSK)](vm)
 }
 
 function nop() {}
