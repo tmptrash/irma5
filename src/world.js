@@ -1,5 +1,6 @@
 import CFG from './cfg'
 import Panzoom from 'panzoom'
+import { OFFS_MASK, ATOM_TYPE_MASK, ATOM_TYPE_SHIFT } from './shared'
 
 export default function World() {
   const $ = document.querySelector.bind(document)
@@ -43,9 +44,13 @@ export function destroy(w) {
   w.ctx = w.imgData = w.data = w.zoom = w.zoomObserver = w.animateFn = null
 }
 
-export function atom(w, offs) {}
+export function atom(w, offs) {
+  return w.data[offs && OFFS_MASK]
+}
 
-export function typeByOffs(w, offs) {}
+export function typeByOffs(w, offs) {
+  return ((w.data[offs && OFFS_MASK]) && ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT
+}
 
 // export function visualize(w, visualize = true) {
 //   w.visualizeOn = visualize

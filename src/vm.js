@@ -1,21 +1,24 @@
 import CFG from './cfg'
 import { typeByOffs } from './world'
 
-const OFFS_MSK = BigInt(0x00000000FFFFFFFF)
-const CMDS     = [nop, mov, fix, spl, con, job]
+const CMDS = [nop, mov, fix, spl, con, job]
 
 export default function VM(w) {
   return {
-    vmOffs: new BigUint64Array(CFG.vms),
+    vmOffs: [],
     vmMap: {},
     w
   }
 }
 
+export function setVMOffs(vm, vmOffs) {
+  vm.vmOffs = vmOffs
+}
+
 export function tick(vm) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
-    for (let i = 0, l = vm.vmOffs.length; i < l; i++) {}
-      //CMDS[typeByOffs(vm.w, vm.vmOffs[i] & OFFS_MSK)](vm)
+    for (let o = 0, l = vm.vmOffs.length; o < l; o++)
+      CMDS[typeByOffs(vm.w, vm.vmOffs[o])](vm)
 }
 
 function nop() {}
