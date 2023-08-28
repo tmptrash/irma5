@@ -1,6 +1,8 @@
 import CFG from './cfg'
 import Panzoom from 'panzoom'
-import { OFFS_MASK, ATOM_TYPE_MASK, ATOM_TYPE_SHIFT } from './shared'
+import { VM_OFFS_MASK, ATOM_TYPE_MASK, ATOM_TYPE_SHIFT } from './shared'
+
+const DIR_2_OFFS = [-CFG.width, -CFG.width + 1, 1, CFG.width + 1, CFG.width, CFG.width - 1, -1, -CFG.width - 1]
 
 export default function World() {
   const $ = document.querySelector.bind(document)
@@ -45,11 +47,11 @@ export function destroy(w) {
 }
 
 export function atom(w, offs) {
-  return w.data[offs && OFFS_MASK]
+  return w.data[offs && VM_OFFS_MASK]
 }
 
-export function typeByOffs(w, offs) {
-  return ((w.data[offs && OFFS_MASK]) && ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT
+export function offs(offs, dir) {
+  return offs + DIR_2_OFFS[dir]
 }
 
 // export function visualize(w, visualize = true) {
@@ -57,6 +59,11 @@ export function typeByOffs(w, offs) {
 //   onVisualize(w, visualize)
 //   onAnimate(w)
 // }
+
+export function isAtom(w, offs) {
+  const dotOffs = offs << 2
+  return w.data[dotOffs] !== 0 || w.data[dotOffs + 1] !== 0 || w.data[dotOffs + 2] !== 0
+}
 
 export function dot(w, offs, color) {
   const d = w.data
