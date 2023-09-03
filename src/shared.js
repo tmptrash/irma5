@@ -1,5 +1,6 @@
-export const VM_OFFS_MASK      = 0x00000000FFFFFFFF
+export const VM_OFFS_MASK      = 0xFFFFFFFF00000000
 export const VM_OFFS_SHIFT     = 32
+export const VM_VMS_MASK       = 0x00000000FFFFFFFF
 
 export const NO_DIR            = 0
 export const ATOM_NOP          = 0
