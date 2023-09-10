@@ -1,5 +1,5 @@
 import CFG from './cfg'
-import { type, atom, offs, isAtom } from './world'
+import { type, atom, offs, offs4, isAtom } from './world'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir } from './atom'
 import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON } from './shared'
 
@@ -34,7 +34,7 @@ function nop() {}
 function mov(vm, a) {}
 
 function fix(vm, a, vmIdx) {
-  const vmOffs  = vm.vmsOffs[vmIdx]
+  const vmOffs  = offs4(vm.vmsOffs[vmIdx])
   const b1d     = b1Dir(a)
   const a1      = atom(vm.w, offs(vmOffs, b1d))
   if (a1 === 0) return
@@ -47,11 +47,11 @@ function fix(vm, a, vmIdx) {
   else if (!a2VmDir && type(a2) !== ATOM_CON) setVmDir(a2, b1d)
 
   // move vm to the next atom offset
-  moveVM(vm.w, a, vm.vmsOffs, vmIdx, vmOffs)
+  moveVM(vm, a, vmIdx, vmOffs)
 }
 
 function spl(vm, a, vmIdx) {
-  const vmOffs  = vm.vmsOffs[vmIdx]
+  const vmOffs  = offs4(vm.vmsOffs[vmIdx])
   const a1      = atom(vm.w, offs(vmOffs, b1Dir(a)))
   if (a1 === 0) return
   const a2      = atom(vm.w, offs(vmOffs, b2Dir(a)))
@@ -63,26 +63,26 @@ function spl(vm, a, vmIdx) {
   else if (a2VmDir && type(a2) !== ATOM_CON) setVmDir(a2, NO_DIR)
 
   // move vm to the next atom offset
-  moveVM(vm.w, a, vm.vmsOffs, vmIdx, vmOffs)
+  moveVM(vm, a, vmIdx, vmOffs)
 }
 
 function con(vm, a, vmIdx) {
   const dir3 = b3Dir(a)
-  const vmOffs = vm.vmsOffs[vmIdx]
+  const vmOffs = offs4(vm.vmsOffs[vmIdx])
   const ifOffs = offs(vmOffs, ifDir(a))
   // if then else mode
   if (!dir3) {
     const atom = isAtom(w, ifOffs)
-    moveVM(vm, a, vm.vmsOffs, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
+    moveVM(vm, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
     return
   }
   // atoms compare mode
   const similar = type(atom(vm.w, ifOffs)) === type(atom(vm.w, offs(vmOffs, dir3)))
-  moveVM(vm, a, vm.vmsOffs, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
+  moveVM(vm, a, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
 }
 
 function job(vm, a, vmIdx) {
-  const vmOffs    = vm.vmsOffs[vmIdx]
+  const vmOffs    = offs4(vm.vmsOffs[vmIdx])
   const newVmOffs = offs(vmOffs, b1Dir(a))
   if (!isAtom(w, newVmOffs)) {
     const offsIdx = findIdx(vm, newVmOffs)
@@ -90,24 +90,31 @@ function job(vm, a, vmIdx) {
   }
 
   // move vm to the next atom offset
-  moveVM(vm.w, a, vm.vmsOffs, vmIdx, vmOffs)
+  moveVM(vm, a, vmIdx, vmOffs)
 }
 
-function rep(vm, a) {}
+function rep(vm, a, vmIdx) {
+  const vmOffs = offs4(vm.vmsOffs[vmIdx])
+  const a1     = atom(vm.w, offs(vmOffs, b1Dir(a)))
+  const a2Offs = offs(vmOffs, b2Dir(a))
+  a1 !== 0 && isAtom(vm.w, a2Offs) && putAtom(vm.w, a2Offs, a1)
+  // move vm to the next atom offset
+  moveVM(vm, a, vmIdx, vmOffs)
+}
 
 /**
  * Moves VM from one atom to another if possible and updates
  * related vm.vmsOffs array
  */
-function moveVM(vm, a, vmsOffs, offsIdx, offs, dir = NO_DIR) {
+function moveVM(vm, a, offsIdx, offs, dir = NO_DIR) {
   let nextDir = dir || vmDir(a)
   if (nextDir === NO_DIR && dir !== NO_DIR) return
   nextDir--
-  const vms      = getVms(vmsOffs, offsIdx)
-  const offsIdx1 = findIdx(vm, offs(vmsOffs, nextDir))
+  const vms      = getVms(vm.vmsOffs, offsIdx)
+  const offsIdx1 = findIdx(vm, offs(vm.vmsOffs, nextDir))
   if (offsIdx1 === -1) return
-  vms && addVm(vmsOffs, offsIdx, -1)
-  vms && addVm(vmsOffs, offsIdx1, 1)
+  vms && addVm(vm.vmsOffs, offsIdx, -1)
+  vms && addVm(vm.vmsOffs, offsIdx1, 1)
 }
 
 /**

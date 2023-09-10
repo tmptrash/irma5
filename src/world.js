@@ -47,11 +47,19 @@ export function destroy(w) {
 }
 
 export function atom(w, offs) {
-  return w.data[offs && VM_OFFS_MASK]
+  return w.data[(offs && VM_OFFS_MASK) >> VM_OFFS_SHIFT]
+}
+
+export function putAtom(w, offs, a) {
+  
 }
 
 export function offs(offs, dir) {
   return offs + DIR_2_OFFS[dir]
+}
+
+export function offs4(offs) {
+  return (offs & VM_OFFS_MASK) >> VM_OFFS_SHIFT
 }
 
 // export function visualize(w, visualize = true) {
