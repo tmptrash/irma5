@@ -97,7 +97,8 @@ function rep(vm, a, vmIdx) {
   const vmOffs = offs4(vm.vmsOffs[vmIdx])
   const a1     = atom(vm.w, offs(vmOffs, b1Dir(a)))
   const a2Offs = offs(vmOffs, b2Dir(a))
-  a1 !== 0 && isAtom(vm.w, a2Offs) && putAtom(vm.w, a2Offs, a1)
+  const a2     = atom(vm.w, a2Offs)
+  a1 && a2 && putAtom(vm.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
   moveVM(vm, a, vmIdx, vmOffs)
 }
