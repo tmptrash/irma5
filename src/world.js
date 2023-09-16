@@ -1,6 +1,6 @@
 import CFG from './cfg'
 import Panzoom from 'panzoom'
-import { VM_OFFS_MASK, ATOM_TYPE_MASK, ATOM_TYPE_SHIFT } from './shared'
+import { VM_OFFS_MASK } from './shared'
 
 const DIR_2_OFFS = [-CFG.width, -CFG.width + 1, 1, CFG.width + 1, CFG.width, CFG.width - 1, -1, -CFG.width - 1]
 

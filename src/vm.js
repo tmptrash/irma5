@@ -4,6 +4,7 @@ import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir } from '.
 import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON } from './shared'
 
 const CMDS = [nop, mov, fix, spl, con, job, rep]
+const DIR_REV = [4, 5, 6, 7, 0, 1, 2, 3]
 
 export default function VM(w) {
   return {
@@ -40,12 +41,8 @@ function fix(vm, a, vmIdx) {
   if (a1 === 0) return
   const a2      = atom(vm.w, offs(vmOffs, b2Dir(a)))
   if (a2 === 0) return
-  const a1VmDir = vmDir(a1)
-  const a2VmDir = vmDir(a2)
-  if (!a1VmDir && type(a1) !== ATOM_CON) setVmDir(a1, b1d)
-  // TODO: we should get inverse direction to a1 from a2
-  else if (!a2VmDir && type(a2) !== ATOM_CON) setVmDir(a2, b1d)
-
+  if (!vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, b1d)
+  else if (!vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, DIR_REV[b1d])
   // move vm to the next atom offset
   moveVM(vm, a, vmIdx, vmOffs)
 }
@@ -56,12 +53,8 @@ function spl(vm, a, vmIdx) {
   if (a1 === 0) return
   const a2      = atom(vm.w, offs(vmOffs, b2Dir(a)))
   if (a2 === 0) return
-  const a1VmDir = vmDir(a1)
-  const a2VmDir = vmDir(a2)
-  if (a1VmDir && type(a1) !== ATOM_CON) setVmDir(a1, NO_DIR)
-  // TODO: we should get inverse direction to a1 from a2
-  else if (a2VmDir && type(a2) !== ATOM_CON) setVmDir(a2, NO_DIR)
-
+  if (vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, NO_DIR)
+  else if (vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, NO_DIR)
   // move vm to the next atom offset
   moveVM(vm, a, vmIdx, vmOffs)
 }
