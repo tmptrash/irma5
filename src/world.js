@@ -2,12 +2,12 @@ import CFG from './cfg'
 import Panzoom from 'panzoom'
 import { VM_OFFS_MASK } from './shared'
 
-const DIR_2_OFFS = [-CFG.width, -CFG.width + 1, 1, CFG.width + 1, CFG.width, CFG.width - 1, -1, -CFG.width - 1]
+const DIR_2_OFFS = [-CFG.WORLD.width, -CFG.WORLD.width + 1, 1, CFG.WORLD.width + 1, CFG.WORLD.width, CFG.WORLD.width - 1, -1, -CFG.WORLD.width - 1]
 
 export default function World() {
   const $ = document.querySelector.bind(document)
   const ctx = $('canvas').getContext('2d')
-  const imgData = ctx.getImageData(0, 0, CFG.width, CFG.height)
+  const imgData = ctx.getImageData(0, 0, CFG.WORLD.width, CFG.WORLD.height)
 
   const w = {
     doc: document,
@@ -26,8 +26,8 @@ export default function World() {
 
     x: 0,
     y: 0,
-    w: CFG.width,
-    h: CFG.height
+    w: CFG.WORLD.width,
+    h: CFG.WORLD.height
   }
 
   initDom(w)
@@ -82,6 +82,11 @@ export function dot(w, offs, color) {
   d[offs + 2] = color & 0xff
 }
 
+export function move(w, offs1, offs2) {
+  dot(w, offs2, atom(w, offs1))
+  dot(w, offs2, 0)
+}
+
 export function undot(w, offs) {
   const d = w.data
   offs <<= 2
@@ -113,7 +118,7 @@ function initHandlers(w) {
 
 function initZoom(w) {
   w.zoom = Panzoom(w.canvas, {
-    zoomSpeed   : CFG.zoomSpeed,
+    zoomSpeed   : CFG.WORLD.zoom,
     smoothScroll: false,
     minZoom     : 1,
     // TODO: check if we need this
@@ -180,8 +185,8 @@ function onZoom(w) {
   const windowHeight  = window.innerHeight;
   const viewWidth     = windowWidth  * coef;
   const viewHeight    = windowHeight * coef;
-  const xCoef         = CFG.width  / windowWidth;
-  const yCoef         = CFG.height / windowHeight;
+  const xCoef         = CFG.WORLD.width  / windowWidth;
+  const yCoef         = CFG.WORLD.height / windowHeight;
 
   w.x = (dx < 0 ? (coef > 1 ? -dx / coef : -dx * coef) : 0) * xCoef;
   w.y = (dy < 0 ? (coef > 1 ? -dy / coef : -dy * coef) : 0) * yCoef;

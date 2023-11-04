@@ -1,10 +1,31 @@
 import CFG from './cfg'
-import { type, atom, offs, offs4, isAtom } from './world'
+import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK } from './shared'
+import { type, atom, offs, offs4, isAtom, move } from './world'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir } from './atom'
-import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON } from './shared'
 
 const CMDS = [nop, mov, fix, spl, con, job, rep]
 const DIR_REV = [4, 5, 6, 7, 0, 1, 2, 3]
+//
+// Directions map for the atom, which is moving. Is used for updating it's bonds
+//
+const DIR_MOV_ATOM = [
+  [NO_DIR,      7,      0, NO_DIR, NO_DIR, NO_DIR,      2,      3],
+  [     3, NO_DIR,      1, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
+  [     4,      5, NO_DIR,      1,      2, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      5, NO_DIR,      3, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      6,      7, NO_DIR,      3,      4, NO_DIR],
+  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      7, NO_DIR,      5, NO_DIR],
+  [     6, NO_DIR, NO_DIR, NO_DIR,      0,      1, NO_DIR,      5],
+  [     7, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      1, NO_DIR]
+]
+//
+// Left bit of every number is a flag, which means - "possible to break". It means
+// that we may break mov command running and continue next time. Break is only possible,
+// if all previous flags are equal to 1
+//
+const STACK = new BigInt64Array(CFG.ATOM.moveBufSize)
+let stackIdx = 0
+let MOVED = {}
 
 export default function VM(w) {
   return {
@@ -32,7 +53,30 @@ export function tick(vm) {
 
 function nop() {}
 
-function mov(vm, a) {}
+function mov(vm, a, vmIdx) {
+  STACK[stackIdx++] = offs4(vm.vmsOffs[vmIdx]) // put mov atom offs into the stack
+  const d = b1Dir(a)
+  for (; stackIdx > -1; stackIdx--) {
+    const last = STACK[stackIdx - 1]           // last offs in stack (not pop)
+    if (MOVED[last]) { stackIdx--; continue }  // this offs was already moved
+    const dstOffs = offs(last, d)              // dest offset we are goint to move
+    const a = atom(dstOffs)
+    if (a === 0) {                             // dest place is not free
+      STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK
+      continue
+    }
+    stackIdx--                                 // dest place is free, move atom
+    move(vm.w, last, dstOffs)
+    MOVED[dstOffs] = true
+    if (type(a) === ATOM_CON) {                // update bonds of if atom
+      if (atom(offs(last, thenDir(a)))) {
+
+      }
+    } else {                                   // update bonds of not if atom
+      
+    }
+  }
+}
 
 function fix(vm, a, vmIdx) {
   const vmOffs  = offs4(vm.vmsOffs[vmIdx])

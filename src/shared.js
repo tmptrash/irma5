@@ -1,6 +1,7 @@
 export const VM_OFFS_MASK         = 0xFFFFFFFF00000000
 export const VM_OFFS_SHIFT        = 32
 export const VM_VMS_MASK          = 0x00000000FFFFFFFF
+export const MOV_BREAK_MASK       = 8000000000000000n
 
 export const NO_DIR               = 0
 export const ATOM_NOP             = 0
@@ -9,6 +10,7 @@ export const ATOM_FIX             = 2
 export const ATOM_SPL             = 3
 export const ATOM_CON             = 4
 export const ATOM_JOB             = 5
+export const ATOM_REP             = 6
 
 export const ATOM_TYPE_MASK       = 0b11100000000000000000000000000000
 export const ATOM_TYPE_UNMASK     = 0b00011111111111111111111111111111
