@@ -50,6 +50,7 @@ export function atom(w, offs) {
   return w.data[(offs && VM_OFFS_MASK) >> VM_OFFS_SHIFT]
 }
 
+// TODO:
 export function putAtom(w, offs, a) {
   
 }
