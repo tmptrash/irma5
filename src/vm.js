@@ -96,7 +96,7 @@ function fix(vm, a, vmIdx) {
   if (!vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, b1d)
   else if (!vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, DIR_REV[b1d])
   // move vm to the next atom offset
-  moveVM(vm, a, vmIdx, vmOffs)
+  moveVm(vm, a, vmIdx, vmOffs)
 }
 
 function spl(vm, a, vmIdx) {
@@ -108,7 +108,7 @@ function spl(vm, a, vmIdx) {
   if (vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, NO_DIR)
   else if (vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, NO_DIR)
   // move vm to the next atom offset
-  moveVM(vm, a, vmIdx, vmOffs)
+  moveVm(vm, a, vmIdx, vmOffs)
 }
 
 function con(vm, a, vmIdx) {
@@ -118,12 +118,12 @@ function con(vm, a, vmIdx) {
   // if then else mode
   if (!dir3) {
     const atom = isAtom(w, ifOffs)
-    moveVM(vm, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
+    moveVm(vm, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
     return
   }
   // atoms compare mode
   const similar = type(atom(vm.w, ifOffs)) === type(atom(vm.w, offs(vmOffs, dir3)))
-  moveVM(vm, a, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
+  moveVm(vm, a, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
 }
 
 function job(vm, a, vmIdx) {
@@ -135,7 +135,7 @@ function job(vm, a, vmIdx) {
   }
 
   // move vm to the next atom offset
-  moveVM(vm, a, vmIdx, vmOffs)
+  moveVm(vm, a, vmIdx, vmOffs)
 }
 
 function rep(vm, a, vmIdx) {
@@ -145,14 +145,14 @@ function rep(vm, a, vmIdx) {
   const a2     = atom(vm.w, a2Offs)
   a1 && a2 && putAtom(vm.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
-  moveVM(vm, a, vmIdx, vmOffs)
+  moveVm(vm, a, vmIdx, vmOffs)
 }
 
 /**
  * Moves VM from one atom to another if possible and updates
  * related vm.vmsOffs array
  */
-function moveVM(vm, a, offsIdx, offs, dir = NO_DIR) {
+function moveVm(vm, a, offsIdx, offs, dir = NO_DIR) {
   let nextDir = dir || vmDir(a)
   if (nextDir === NO_DIR && dir !== NO_DIR) return
   nextDir--
