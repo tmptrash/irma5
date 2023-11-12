@@ -63,6 +63,8 @@ function mov(vm, a, vmIdx) {
     rebond2(vm.w, offs, movDir)                        // update near atoms bonds
     oldA !== a && dot(vm.w, dstOffs, a)                // put updated atom back to the world
   }
+  MOVED = {}                                           // reset moved and stack sets
+  stackIdx = 0
 }
 
 function fix(vm, a, vmIdx) {
