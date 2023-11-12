@@ -1,6 +1,6 @@
 import CFG from './cfg'
 import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, DMA, DMD, DIR_REV } from './shared'
-import { type, atom, offs, offs4, isAtom, move, dot } from './world'
+import { type, get, offs, toOffs, isAtom, move, put } from './world'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, elseDir, setThenDir, setElseDir } from './atom'
 
 const CMDS = [nop, mov, fix, spl, con, job, rep]
@@ -32,7 +32,7 @@ export function setVMs(vm, vmsOffs) {
 export function tick(vm) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
     for (let vmIdx = 0, l = vm.vmsOffs.length; vmIdx < l; vmIdx++) {
-      const a = atom(vm.w, vm.vmsOffs[vmIdx])
+      const a = get(vm.w, toOffs(vm.vmsOffs[vmIdx]))
       CMDS[type(a)](vm, a, vmIdx)
     }
 }
@@ -40,13 +40,13 @@ export function tick(vm) {
 function nop() {}
 
 function mov(vm, a, vmIdx) {
-  STACK[stackIdx++] = offs4(vm.vmsOffs[vmIdx])         // put mov atom offs into the stack
+  STACK[stackIdx++] = toOffs(vm.vmsOffs[vmIdx])        // put mov atom offs into the stack
   const movDir = b1Dir(a)                              // mov direction
   for (; stackIdx > -1; stackIdx--) {                  // go for all items in stack
     const offs = STACK[stackIdx - 1]                   // last offs in stack (not pop)
     if (MOVED[offs]) { stackIdx--; continue }          // this offs was already moved
     const dstOffs = offs(offs, movDir)                 // dest offset we are goint to move
-    let a = atom(dstOffs)                              // destination position of moved atom
+    let a = get(dstOffs)                              // destination position of moved atom
     if (a) {                                           // dest place is not free
       STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK     // MOV_BREAK_MASK means "we may interrupt mov here"
       continue
@@ -61,18 +61,18 @@ function mov(vm, a, vmIdx) {
     }
     a = rebond(a, offs, movDir, vmDir, setVmDir)       // update vm bond of moved atom
     rebond2(vm.w, offs, movDir)                        // update near atoms bonds
-    oldA !== a && dot(vm.w, dstOffs, a)                // put updated atom back to the world
+    oldA !== a && put(vm.w, dstOffs, a)                // put updated atom back to the world
   }
   MOVED = {}                                           // reset moved and stack sets
   stackIdx = 0
 }
 
 function fix(vm, a, vmIdx) {
-  const vmOffs  = offs4(vm.vmsOffs[vmIdx])
+  const vmOffs  = toOffs(vm.vmsOffs[vmIdx])
   const b1d     = b1Dir(a)
-  const a1      = atom(vm.w, offs(vmOffs, b1d))
+  const a1      = get(vm.w, offs(vmOffs, b1d))
   if (a1 === 0) return
-  const a2      = atom(vm.w, offs(vmOffs, b2Dir(a)))
+  const a2      = get(vm.w, offs(vmOffs, b2Dir(a)))
   if (a2 === 0) return
   if (!vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, b1d)
   else if (!vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, DIR_REV[b1d])
@@ -81,10 +81,10 @@ function fix(vm, a, vmIdx) {
 }
 
 function spl(vm, a, vmIdx) {
-  const vmOffs  = offs4(vm.vmsOffs[vmIdx])
-  const a1      = atom(vm.w, offs(vmOffs, b1Dir(a)))
+  const vmOffs  = toOffs(vm.vmsOffs[vmIdx])
+  const a1      = get(vm.w, offs(vmOffs, b1Dir(a)))
   if (a1 === 0) return
-  const a2      = atom(vm.w, offs(vmOffs, b2Dir(a)))
+  const a2      = get(vm.w, offs(vmOffs, b2Dir(a)))
   if (a2 === 0) return
   if (vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, NO_DIR)
   else if (vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, NO_DIR)
@@ -94,7 +94,7 @@ function spl(vm, a, vmIdx) {
 
 function con(vm, a, vmIdx) {
   const dir3 = b3Dir(a)
-  const vmOffs = offs4(vm.vmsOffs[vmIdx])
+  const vmOffs = toOffs(vm.vmsOffs[vmIdx])
   const ifOffs = offs(vmOffs, ifDir(a))
   // if then else mode
   if (!dir3) {
@@ -103,12 +103,12 @@ function con(vm, a, vmIdx) {
     return
   }
   // atoms compare mode
-  const similar = type(atom(vm.w, ifOffs)) === type(atom(vm.w, offs(vmOffs, dir3)))
+  const similar = type(get(vm.w, ifOffs)) === type(get(vm.w, offs(vmOffs, dir3)))
   moveVm(vm, a, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
 }
 
 function job(vm, a, vmIdx) {
-  const vmOffs    = offs4(vm.vmsOffs[vmIdx])
+  const vmOffs    = toOffs(vm.vmsOffs[vmIdx])
   const newVmOffs = offs(vmOffs, b1Dir(a))
   if (!isAtom(w, newVmOffs)) {
     const offsIdx = findIdx(vm, newVmOffs)
@@ -120,10 +120,10 @@ function job(vm, a, vmIdx) {
 }
 
 function rep(vm, a, vmIdx) {
-  const vmOffs = offs4(vm.vmsOffs[vmIdx])
-  const a1     = atom(vm.w, offs(vmOffs, b1Dir(a)))
+  const vmOffs = toOffs(vm.vmsOffs[vmIdx])
+  const a1     = get(vm.w, offs(vmOffs, b1Dir(a)))
   const a2Offs = offs(vmOffs, b2Dir(a))
-  const a2     = atom(vm.w, a2Offs)
+  const a2     = get(vm.w, a2Offs)
   a1 && a2 && putAtom(vm.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
   moveVm(vm, a, vmIdx, vmOffs)
@@ -173,7 +173,7 @@ function findIdx(vm, offs) {
 function rebond(a, o, mdir, dirFn, setDirFn) {
   const dir = dirFn(a)                    // gets direction of near atom
   const dstOffs = offs(o, dir)            // near atom offset
-  if (atom(dstOffs)) {                    // atom, where the bond points exists
+  if (get(dstOffs)) {                    // atom, where the bond points exists
     const newDir = DMA[dir][mdir]         // updated direction for near atom bond to moved
     if (newDir === NO_DIR) {              // if distance between moved atom and the bond atom is > 1
       STACK[stackIdx++] = dstOffs         // handle this atom later
@@ -191,7 +191,7 @@ function rebond2(w, o, mdir) {
     const d = dirs[i]                     // current direction of near atom
     if (d === mdir) continue              // exclude direction of moved atom
     const dstOffs = offs(o, d)            // near atom affset
-    let a = atom(dstOffs)                 // near atom
+    let a = get(dstOffs)                 // near atom
     if (a) {                              // near atom doesn't exist
       const revDir = vmDir(a)             // vm bond of near atom
       const rDir = DIR_REV[d]             // opposite direction of near atom
@@ -202,7 +202,7 @@ function rebond2(w, o, mdir) {
           if (thenDir(a) === rDir) a = setThenDir(a, DNA[revDir][mdir])
           else if (elseDir(a) === rDir) a = setElseDir(a, DNA[revDir][mdir])
         }
-        oldA !== a && dot(w, dstOffs, a)  // update near atom's bond
+        oldA !== a && put(w, dstOffs, a)  // update near atom's bond
       } else {                            // distance between moved atom and near > 1
         if (revDir == rDir || type(a) === ATOM_CON && (thenDir(a) === rDir || elseDir(a) === rDir)) {
           STACK[stackIdx++] = dstOffs

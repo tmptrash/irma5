@@ -1,16 +1,19 @@
 import './styles.css'
 import World from './world'
 import VM, { setVMs, tick } from './vm'
-import Title, { update } from './title'
+import Title from './plugins/title'
 
 function run() {
   tick(vm)
-  update(title)
+  for (let p = 0; p < plugins.length; p++) {
+    const plugin = plugins[p]
+    plugin.update && plugin.update(plugin)
+  }
   window.postMessage(0, '*');
 }
 
 const w = World()
-const title = Title(w)
+const plugins = [Title(w)]
 // TODO:
 const vmOffs = new BigUint64Array(10)
 const vm = VM(w)

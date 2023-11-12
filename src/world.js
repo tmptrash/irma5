@@ -2,19 +2,21 @@ import CFG from './cfg'
 import Panzoom from 'panzoom'
 import { VM_OFFS_MASK } from './shared'
 
-const DIR_2_OFFS = [-CFG.WORLD.width, -CFG.WORLD.width + 1, 1, CFG.WORLD.width + 1, CFG.WORLD.width, CFG.WORLD.width - 1, -1, -CFG.WORLD.width - 1]
+const DIR_2_OFFS = [
+  -CFG.WORLD.width, -CFG.WORLD.width + 1, 1, CFG.WORLD.width + 1,
+  CFG.WORLD.width, CFG.WORLD.width - 1, -1, -CFG.WORLD.width - 1
+]
 
 export default function World() {
   const $ = document.querySelector.bind(document)
-  const ctx = $('canvas').getContext('2d')
+  const ctx = $(CFG.HTML.canvasQuery).getContext('2d')
   const imgData = ctx.getImageData(0, 0, CFG.WORLD.width, CFG.WORLD.height)
 
   const w = {
     doc: document,
-    canvas: $('canvas'),
-    title: $('.title'),
-    visualize: $('.visualize'),
-    fullscreen: $('.fullscreen'),
+    canvas: $(CFG.HTML.canvasQuery),
+    visualize: $(CFG.HTML.visualizeBtnQuery),
+    fullscreen: $(CFG.HTML.fullscreenBtnQuery),
 
     ctx,
     imgData,
@@ -43,23 +45,39 @@ export default function World() {
 export function destroy(w) {
   w.zoom.dispose()
   w.zoomObserver.disconnect()
-  w.ctx = w.imgData = w.data = w.zoom = w.zoomObserver = w.animateFn = null
+  w.fullscreen = w.visualize = w.canvas = w.doc = w.ctx = null
+  w.imgData = w.data = w.zoom = w.zoomObserver = w.animateFn = null
 }
 
-export function atom(w, offs) {
-  return w.data[(offs && VM_OFFS_MASK) >> VM_OFFS_SHIFT]
+/**
+ * Returns atom or 0, if no atom
+ */
+export function get(w, offs) {
+  return w.data[offs << 2]
 }
 
-// TODO:
-export function putAtom(w, offs, a) {
-  
+export function put(w, offs, color) {
+  const d = w.data
+  offs <<= 2
+
+  d[offs    ] = (color >>> 16) & 0xff
+  d[offs + 1] = (color >>> 8)  & 0xff
+  d[offs + 2] = color & 0xff
 }
 
+/**
+ * Returns 32bit offset for direction
+ */
 export function offs(offs, dir) {
   return offs + DIR_2_OFFS[dir]
 }
 
-export function offs4(offs) {
+/**
+ * Returns 32bit offset obtained from vmsOffs 64 bit array
+ * @param offs 64bit Offset
+ * @returns 32bit offset
+ */
+export function toOffs(offs) {
   return (offs & VM_OFFS_MASK) >> VM_OFFS_SHIFT
 }
 
@@ -74,28 +92,9 @@ export function isAtom(w, offs) {
   return w.data[dotOffs] !== 0 || w.data[dotOffs + 1] !== 0 || w.data[dotOffs + 2] !== 0
 }
 
-export function dot(w, offs, color) {
-  const d = w.data
-  offs <<= 2
-
-  d[offs    ] = (color >>> 16) & 0xff
-  d[offs + 1] = (color >>> 8)  & 0xff
-  d[offs + 2] = color & 0xff
-}
-
 export function move(w, offs1, offs2) {
-  dot(w, offs2, atom(w, offs1))
-  dot(w, offs2, 0)
-}
-
-export function undot(w, offs) {
-  const d = w.data
-  offs <<= 2
-  d[offs] = d[offs + 1] = d[offs + 2] = 0
-}
-
-export function title(w, t) {
-  w.title.textContent = t
+  put(w, offs2, get(w, offs1))
+  put(w, offs2, 0)
 }
 
 function initDom(w) {
