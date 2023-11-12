@@ -27,6 +27,38 @@ export const ATOM_BOND3_SHIFT     = 16
 export const ATOM_IF_BOND_MASK    = 0b00011100000000000000000000000000
 export const ATOM_IF_BOND_SHIFT   = 26
 export const ATOM_THEN_BOND_MASK  = 0b00000011100000000000000000000000
+export const ATOM_THEN_BOND_MASK1 = 0b11111100011111111111111111111111
 export const ATOM_THEN_BOND_SHIFT = 23
 export const ATOM_ELSE_BOND_MASK  = 0b00000000011100000000000000000000
+export const ATOM_ELSE_BOND_MASK1 = 0b11111111100011111111111111111111
 export const ATOM_ELSE_BOND_SHIFT = 20
+
+export const DIR_REV = [4, 5, 6, 7, 0, 1, 2, 3]
+//
+// Dir Mov Atom - Directions map for the atom, which is moving. Is used for updating it's bonds
+//
+export const DMA = [
+  [NO_DIR,      7,      0, NO_DIR, NO_DIR, NO_DIR,      2,      3],
+  [     3, NO_DIR,      1, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
+  [     4,      5, NO_DIR,      1,      2, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      5, NO_DIR,      3, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      6,      7, NO_DIR,      3,      4, NO_DIR],
+  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      7, NO_DIR,      5, NO_DIR],
+  [     6, NO_DIR, NO_DIR, NO_DIR,      0,      1, NO_DIR,      5],
+  [     7, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      1, NO_DIR]
+]
+//
+// Directions maps for checking possible near atoms which may have a
+// bond with current. We use this map in "mov" atom. You should use
+// mov atom direction as an index here
+//
+export const DMD = [
+  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      4,      5,      6, NO_DIR],
+  [     0, NO_DIR, NO_DIR, NO_DIR,      4,      5,      6,      7],
+  [     0, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      6,      7],
+  [     0,      1,      2, NO_DIR, NO_DIR, NO_DIR,      6,      7],
+  [     0,      1,      2, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
+  [     0,      1,      2,      3,      4, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      2,      3,      4, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      2,      3,      4,      5,      6, NO_DIR]
+]

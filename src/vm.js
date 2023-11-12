@@ -1,23 +1,9 @@
 import CFG from './cfg'
-import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK } from './shared'
+import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, DMA, DMD, DIR_REV } from './shared'
 import { type, atom, offs, offs4, isAtom, move, dot } from './world'
-import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir } from './atom'
+import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, elseDir, setThenDir, setElseDir } from './atom'
 
 const CMDS = [nop, mov, fix, spl, con, job, rep]
-const DIR_REV = [4, 5, 6, 7, 0, 1, 2, 3]
-//
-// Dir Mov Atom - Directions map for the atom, which is moving. Is used for updating it's bonds
-//
-const DMA = [
-  [NO_DIR,      7,      0, NO_DIR, NO_DIR, NO_DIR,      2,      3],
-  [     3, NO_DIR,      1, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
-  [     4,      5, NO_DIR,      1,      2, NO_DIR, NO_DIR, NO_DIR],
-  [NO_DIR, NO_DIR,      5, NO_DIR,      3, NO_DIR, NO_DIR, NO_DIR],
-  [NO_DIR, NO_DIR,      6,      7, NO_DIR,      3,      4, NO_DIR],
-  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      7, NO_DIR,      5, NO_DIR],
-  [     6, NO_DIR, NO_DIR, NO_DIR,      0,      1, NO_DIR,      5],
-  [     7, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      1, NO_DIR]
-]
 //
 // Left bit of every number is a flag, which means - "possible to break". It means
 // that we may break mov command running and continue next time. Break is only possible,
@@ -54,35 +40,29 @@ export function tick(vm) {
 function nop() {}
 
 function mov(vm, a, vmIdx) {
-  STACK[stackIdx++] = offs4(vm.vmsOffs[vmIdx]) // put mov atom offs into the stack
-  const movDir = b1Dir(a)                      // mov direction
-  for (; stackIdx > -1; stackIdx--) {          // go for all items in stack
-    const offs = STACK[stackIdx - 1]           // last offs in stack (not pop)
-    if (MOVED[offs]) { stackIdx--; continue }  // this offs was already moved
-    const dstOffs = offs(offs, movDir)         // dest offset we are goint to move
-    const a = atom(dstOffs)                    // destination position of moved atom
-    if (a === 0) {                             // dest place is not free
-      STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK
+  STACK[stackIdx++] = offs4(vm.vmsOffs[vmIdx])         // put mov atom offs into the stack
+  const movDir = b1Dir(a)                              // mov direction
+  for (; stackIdx > -1; stackIdx--) {                  // go for all items in stack
+    const offs = STACK[stackIdx - 1]                   // last offs in stack (not pop)
+    if (MOVED[offs]) { stackIdx--; continue }          // this offs was already moved
+    const dstOffs = offs(offs, movDir)                 // dest offset we are goint to move
+    let a = atom(dstOffs)                              // destination position of moved atom
+    if (a) {                                           // dest place is not free
+      STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK     // MOV_BREAK_MASK means "we may interrupt mov here"
       continue
     }
-    stackIdx--                                 // pop atom offs from stack
-    move(vm.w, offs, dstOffs)                  // dest place is free, move atom
-    MOVED[dstOffs] = true                      // add moved atom to moved store
-    if (type(a) === ATOM_CON) {                // update bonds of if atom
-      const trueDir = thenDir(a)               // update then direction of "if" atom
-      const trueOffs = offs(offs, trueDir)
-      if (atom(trueOffs)) {                    // atom, where then bond points exists
-        const newDir = DMA[trueDir][movDir]    // updated direction for then atom bond to moved
-        if (DMA[trueDir][movDir] === NO_DIR) { // if distance between moved atom and then bond atom is > 1
-          STACK[stackIdx++] = trueOffs         // handle this atom later
-        } else {
-          setVmDir(a, newDir)                  // update moved atom then bond
-          dot(vm.w, dstOffs, a)                // put atom back to the world
-        }
-      }
-    } else {                                   // update bonds of not "if" atom
-      
+    const oldA = a
+    stackIdx--                                         // pop atom offs from stack
+    move(vm.w, offs, dstOffs)                          // dest place is free, move atom
+    MOVED[dstOffs] = true                              // add moved atom to moved store
+    if (type(a) === ATOM_CON) {                        // update bonds of if atom. we don't neet to update spl, fix
+      a = rebond(a, offs, movDir, thenDir, setThenDir) // update then bond of moved atom
+      a = rebond(a, offs, movDir, elseDir, setElseDir) // update else bond of moved atom
     }
+    a = rebond(a, offs, movDir, vmDir, setVmDir)       // update vm bond of moved atom
+    rebond2(offs, movDir)
+
+    oldA !== a && dot(vm.w, dstOffs, a)                // put updated atom back to the world
   }
 }
 
@@ -184,4 +164,44 @@ function findIdx(vm, offs) {
   if (vm.vmsLast >= vm.vmsOffs.length || !isAtom(vm, offs)) return -1
   vmsOffs[vm.vmsLast++] = (offs << VM_OFFS_SHIFT)
   return vm.vmsLast
+}
+
+/**
+ * Updates moved atom bonds
+ */
+function rebond(a, o, mdir, dirFn, setDirFn) {
+  const dir = dirFn(a)                    // gets direction of near atom
+  const dstOffs = offs(o, dir)            // near atom offset
+  if (atom(dstOffs)) {                    // atom, where the bond points exists
+    const newDir = DMA[dir][mdir]         // updated direction for near atom bond to moved
+    if (newDir === NO_DIR) {              // if distance between moved atom and the bond atom is > 1
+      STACK[stackIdx++] = dstOffs         // handle this atom later
+    } else a = setDirFn(a, newDir)        // update moved atom's bond
+  }
+  return a
+}
+
+/**
+ * Updates near atoms bonds
+ */
+function rebond2(o, mdir) {
+  const dirs = DMD[mdir]
+  const l = dirs.length
+  for (let i = 0; i < l; i++) {           // go through all near atoms
+    const d = dirs[i]
+    const dstOffs = offs(o, d)
+    let a = atom(dstOffs)
+    if (a) {
+      const revDir = vmDir(a)
+      const rDir = DIR_REV[d]
+      // TODO: we should check all directions for bonds and update them
+      if (d === NO_DIR) {
+
+      } else {
+        if (revDir == rDir || type(a) === ATOM_CON && (thenDir(a) === rDir || elseDir(a) === rDir)) {
+          STACK[stackIdx++] = dstOffs
+        }
+      }
+    }
+  }
 }
