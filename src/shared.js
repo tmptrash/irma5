@@ -33,10 +33,14 @@ export const ATOM_ELSE_BOND_MASK  = 0b00000000011100000000000000000000
 export const ATOM_ELSE_BOND_MASK1 = 0b11111111100011111111111111111111
 export const ATOM_ELSE_BOND_SHIFT = 20
 
+/**
+ * Reverted directions
+ */
 export const DIR_REV = [4, 5, 6, 7, 0, 1, 2, 3]
-//
-// Dir Mov Atom - Directions map for the atom, which is moving. Is used for updating it's bonds
-//
+/**
+ * Dir Mov Atom - Directions map for the atom, which is moving.
+ * Is used for updating it's bonds
+ */
 export const DMA = [
   [NO_DIR,      7,      0, NO_DIR, NO_DIR, NO_DIR,      2,      3],
   [     3, NO_DIR,      1, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
@@ -47,11 +51,12 @@ export const DMA = [
   [     6, NO_DIR, NO_DIR, NO_DIR,      0,      1, NO_DIR,      5],
   [     7, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      1, NO_DIR]
 ]
-//
-// Directions maps for checking possible near atoms which may have a
-// bond with current. We use this map in "mov" atom. You should use
-// mov atom direction as an index here
-//
+/**
+ * Dir Mov Disconnected
+ * Directions maps for checking possible near atoms which may have a
+ * bond with current. We use this map in "mov" atom. You should use
+ * mov atom direction as an index here
+ */
 export const DMD = [
   [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      4,      5,      6, NO_DIR],
   [     0, NO_DIR, NO_DIR, NO_DIR,      4,      5,      6,      7],
@@ -61,4 +66,19 @@ export const DMD = [
   [     0,      1,      2,      3,      4, NO_DIR, NO_DIR, NO_DIR],
   [NO_DIR, NO_DIR,      2,      3,      4, NO_DIR, NO_DIR, NO_DIR],
   [NO_DIR, NO_DIR,      2,      3,      4,      5,      6, NO_DIR]
+]
+/**
+ * Dir Near Atom
+ * Directions map for the atom, which is near the moved atom. Is 
+ * used for updating it's (near) bonds
+ */
+export const DNA = [
+  [DIR_NO, DIR_NO,      0, DIR_NO,      6, DIR_NO, DIR_NO, DIR_NO],
+  [DIR_NO, DIR_NO,      1,      2, DIR_NO,      6,      7, DIR_NO],
+  [DIR_NO, DIR_NO, DIR_NO, DIR_NO,      2, DIR_NO,      0, DIR_NO],
+  [     1, DIR_NO, DIR_NO, DIR_NO,      3,      4, DIR_NO,      0],
+  [     2, DIR_NO, DIR_NO, DIR_NO, DIR_NO, DIR_NO,      4, DIR_NO],
+  [DIR_NO,      2,      3, DIR_NO, DIR_NO, DIR_NO,      5,      6],
+  [     6, DIR_NO,      4, DIR_NO, DIR_NO, DIR_NO, DIR_NO, DIR_NO],
+  [     7,      0, DIR_NO,      4,      5, DIR_NO, DIR_NO, DIR_NO]
 ]

@@ -60,8 +60,7 @@ function mov(vm, a, vmIdx) {
       a = rebond(a, offs, movDir, elseDir, setElseDir) // update else bond of moved atom
     }
     a = rebond(a, offs, movDir, vmDir, setVmDir)       // update vm bond of moved atom
-    rebond2(offs, movDir)
-
+    rebond2(vm.w, offs, movDir)                        // update near atoms bonds
     oldA !== a && dot(vm.w, dstOffs, a)                // put updated atom back to the world
   }
 }
@@ -184,20 +183,25 @@ function rebond(a, o, mdir, dirFn, setDirFn) {
 /**
  * Updates near atoms bonds
  */
-function rebond2(o, mdir) {
-  const dirs = DMD[mdir]
-  const l = dirs.length
-  for (let i = 0; i < l; i++) {           // go through all near atoms
-    const d = dirs[i]
-    const dstOffs = offs(o, d)
-    let a = atom(dstOffs)
-    if (a) {
-      const revDir = vmDir(a)
-      const rDir = DIR_REV[d]
-      // TODO: we should check all directions for bonds and update them
-      if (d === NO_DIR) {
-
-      } else {
+function rebond2(w, o, mdir) {
+  const dirs = DMD[mdir]                  // array of all near atoms directions
+  for (let i = 0; i < 8; i++) {           // go through all near atoms
+    const d = dirs[i]                     // current direction of near atom
+    if (d === mdir) continue              // exclude direction of moved atom
+    const dstOffs = offs(o, d)            // near atom affset
+    let a = atom(dstOffs)                 // near atom
+    if (a) {                              // near atom doesn't exist
+      const revDir = vmDir(a)             // vm bond of near atom
+      const rDir = DIR_REV[d]             // opposite direction of near atom
+      if (d !== NO_DIR) {                 // means that distance between moved and near atom still == 1
+        const oldA = a
+        if (revDir === rDir) a = setVmDir(a, DNA[revDir][mdir])
+        else if (type(a) === ATOM_CON) {  // for "if" atom update then, else bonds
+          if (thenDir(a) === rDir) a = setThenDir(a, DNA[revDir][mdir])
+          else if (elseDir(a) === rDir) a = setElseDir(a, DNA[revDir][mdir])
+        }
+        oldA !== a && dot(w, dstOffs, a)  // update near atom's bond
+      } else {                            // distance between moved atom and near > 1
         if (revDir == rDir || type(a) === ATOM_CON && (thenDir(a) === rDir || elseDir(a) === rDir)) {
           STACK[stackIdx++] = dstOffs
         }
