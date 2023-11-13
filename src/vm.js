@@ -173,7 +173,7 @@ function findIdx(vm, offs) {
 function rebond(a, o, mdir, dirFn, setDirFn) {
   const dir = dirFn(a)                    // gets direction of near atom
   const dstOffs = offs(o, dir)            // near atom offset
-  if (get(dstOffs)) {                    // atom, where the bond points exists
+  if (get(dstOffs)) {                     // atom, where the bond points exists
     const newDir = DMA[dir][mdir]         // updated direction for near atom bond to moved
     if (newDir === NO_DIR) {              // if distance between moved atom and the bond atom is > 1
       STACK[stackIdx++] = dstOffs         // handle this atom later
@@ -191,7 +191,7 @@ function rebond2(w, o, mdir) {
     const d = dirs[i]                     // current direction of near atom
     if (d === mdir) continue              // exclude direction of moved atom
     const dstOffs = offs(o, d)            // near atom affset
-    let a = get(dstOffs)                 // near atom
+    let a = get(dstOffs)                  // near atom
     if (a) {                              // near atom doesn't exist
       const revDir = vmDir(a)             // vm bond of near atom
       const rDir = DIR_REV[d]             // opposite direction of near atom
