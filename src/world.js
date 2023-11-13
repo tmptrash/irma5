@@ -1,11 +1,5 @@
 import CFG from './cfg'
 import Panzoom from 'panzoom'
-import { VM_OFFS_MASK } from './shared'
-
-const DIR_2_OFFS = [
-  -CFG.WORLD.width, -CFG.WORLD.width + 1, 1, CFG.WORLD.width + 1,
-  CFG.WORLD.width, CFG.WORLD.width - 1, -1, -CFG.WORLD.width - 1
-]
 
 export default function World() {
   const $ = document.querySelector.bind(document)
@@ -15,15 +9,12 @@ export default function World() {
   const w = {
     doc: document,
     canvas: $(CFG.HTML.canvasQuery),
-    visualize: $(CFG.HTML.visualizeBtnQuery),
-    fullscreen: $(CFG.HTML.fullscreenBtnQuery),
 
     ctx,
     imgData,
     data: imgData.data,
     zoom: null,
     zoomObserver: null,
-    visualizeOn: true,
     animateFn: null,
 
     x: 0,
@@ -36,7 +27,6 @@ export default function World() {
   initHandlers(w)
   initZoom(w)
   initTransparency(w)
-  onFullscreen(w)
   onAnimate(w)
 
   return w
@@ -45,7 +35,7 @@ export default function World() {
 export function destroy(w) {
   w.zoom.dispose()
   w.zoomObserver.disconnect()
-  w.fullscreen = w.visualize = w.canvas = w.doc = w.ctx = null
+  w.canvas = w.doc = w.ctx = null
   w.imgData = w.data = w.zoom = w.zoomObserver = w.animateFn = null
 }
 
@@ -59,33 +49,10 @@ export function get(w, offs) {
 export function put(w, offs, color) {
   const d = w.data
   offs <<= 2
-
   d[offs    ] = (color >>> 16) & 0xff
   d[offs + 1] = (color >>> 8)  & 0xff
   d[offs + 2] = color & 0xff
 }
-
-/**
- * Returns 32bit offset for direction
- */
-export function offs(offs, dir) {
-  return offs + DIR_2_OFFS[dir]
-}
-
-/**
- * Returns 32bit offset obtained from vmsOffs 64 bit array
- * @param offs 64bit Offset
- * @returns 32bit offset
- */
-export function toOffs(offs) {
-  return (offs & VM_OFFS_MASK) >> VM_OFFS_SHIFT
-}
-
-// export function visualize(w, visualize = true) {
-//   w.visualizeOn = visualize
-//   onVisualize(w, visualize)
-//   onAnimate(w)
-// }
 
 export function isAtom(w, offs) {
   const dotOffs = offs << 2
@@ -111,16 +78,13 @@ function initHandlers(w) {
     attributeFilter: ['style']
   })
   w.animateFn = () => onAnimate(w)
-  w.doc.onkeydown = e => onKeyDown(w, e)
-  w.visualize.onclick = () => onVisualize(w)
-  w.fullscreen.onclick = w.fullscreen.firstChild.onclick = () => onFullscreen(w)
 }
 
 function initZoom(w) {
   w.zoom = Panzoom(w.canvas, {
     zoomSpeed   : CFG.WORLD.zoom,
     smoothScroll: false,
-    minZoom     : 1,
+    minZoom     : 1
     // TODO: check if we need this
     //filterKey   : this._options.scroll
   })
@@ -135,19 +99,6 @@ function updateCanvas(w) {
   w.ctx.putImageData(w.imgData, 0, 0, w.x, w.y, w.w, w.h)
 }
 
-function onFullscreen(w) {
-  w.zoom.zoomAbs(0, 0, 1.0)
-  w.zoom.moveTo(0, 0)
-  w.canvas.style.width  = '100%'
-  w.canvas.style.height = '100%'
-}
-
-function onVisualize(w, visualize) {
-  w.visualizeOn = typeof(visualize) === 'boolean' ? visualize : !w.visualizeOn;
-  w.visualize.style.backgroundColor = w.visualizeOn ? '#FFEB3B' : '#000';
-  onAnimate(w)
-}
-
 function onAnimate(w) {
   updateCanvas(w)
   // TODO: remove these lines
@@ -158,20 +109,7 @@ function onAnimate(w) {
   w.ctx.lineTo(150, 100)
   w.ctx.stroke()
 
-  w.visualizeOn && window.requestAnimationFrame(w.animateFn)
-}
-
-function onKeyDown(w, event) {
-  if (event.ctrlKey && (event.key === 'V' || event.key === 'v')) {
-    onVisualize(w)
-    event.preventDefault()
-    return false
-  }
-  if (event.ctrlKey && (event.key === 'F' || event.key === 'f')) {
-    onFullscreen(w)
-    event.preventDefault()
-    return false
-  }
+  w.animateFn && window.requestAnimationFrame(w.animateFn)
 }
 
 function onZoom(w) {

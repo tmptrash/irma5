@@ -1,7 +1,7 @@
 import CFG from './cfg'
 import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, DMA, DMD, DIR_REV } from './shared'
-import { type, get, offs, toOffs, isAtom, move, put } from './world'
-import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, elseDir, setThenDir, setElseDir } from './atom'
+import { type, get, isAtom, move, put } from './world'
+import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, elseDir, setThenDir, setElseDir, offs, toOffs } from './atom'
 
 const CMDS = [nop, mov, fix, spl, con, job, rep]
 //
@@ -46,7 +46,7 @@ function mov(vm, a, vmIdx) {
     const offs = STACK[stackIdx - 1]                   // last offs in stack (not pop)
     if (MOVED[offs]) { stackIdx--; continue }          // this offs was already moved
     const dstOffs = offs(offs, movDir)                 // dest offset we are goint to move
-    let a = get(dstOffs)                              // destination position of moved atom
+    let a = get(dstOffs)                               // destination position of moved atom
     if (a) {                                           // dest place is not free
       STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK     // MOV_BREAK_MASK means "we may interrupt mov here"
       continue

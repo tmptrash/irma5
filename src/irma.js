@@ -2,6 +2,7 @@ import './styles.css'
 import World from './world'
 import VM, { setVMs, tick } from './vm'
 import Title from './plugins/title'
+import Buttons from './plugins/buttons'
 
 function run() {
   tick(vm)
@@ -13,7 +14,7 @@ function run() {
 }
 
 const w = World()
-const plugins = [Title(w)]
+const plugins = [Title(w), Buttons(w)]
 // TODO:
 const vmOffs = new BigUint64Array(10)
 const vm = VM(w)
