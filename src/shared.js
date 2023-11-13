@@ -33,6 +33,10 @@ export const ATOM_ELSE_BOND_MASK  = 0b00000000011100000000000000000000
 export const ATOM_ELSE_BOND_MASK1 = 0b11111111100011111111111111111111
 export const ATOM_ELSE_BOND_SHIFT = 20
 
+export const DIR_2_OFFS = [
+  -CFG.WORLD.width, -CFG.WORLD.width + 1, 1, CFG.WORLD.width + 1,
+  CFG.WORLD.width, CFG.WORLD.width - 1, -1, -CFG.WORLD.width - 1
+]
 /**
  * Reverted directions
  */

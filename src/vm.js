@@ -26,7 +26,7 @@ export function setVMs(vm, vmsOffs) {
   vm.vmsOffs = vmsOffs
   const l = vm.vmsLast = vmsOffs.length
   const map = vm.vmMap
-  for (let i = 0; i < l; i++) map[(vmsOffs[i] & VM_OFFS_MASK) >> VM_OFFS_SHIFT] = i
+  for (let i = 0; i < l; i++) map[toOffs(vmsOffs[i])] = i
 }
 
 export function tick(vm) {
