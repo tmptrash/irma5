@@ -1,7 +1,9 @@
 import CFG from './cfg'
-import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, DMA, DMD, DIR_REV } from './shared'
-import { type, get, isAtom, move, put } from './world'
-import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, elseDir, setThenDir, setElseDir, offs, toOffs } from './atom'
+import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK,
+  DMA, DMD, DIR_REV } from './shared'
+import { get, isAtom, move, put } from './world'
+import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
+  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom'
 
 const CMDS = [nop, mov, fix, spl, con, job, rep]
 //
@@ -148,7 +150,7 @@ function moveVm(vm, a, offsIdx, offs, dir = NO_DIR) {
  * Adds a number n to amount of vms in vmsOffs[idx]
  */
 function addVm(vmsOffs, idx, n) {
-  vmsOffs[idx] = (vmsOffs[idx] & VM_VMS_MASK) | (((vmsOffs[idx] & VM_OFFS_MASK) >> VM_OFFS_SHIFT) + n)
+  vmsOffs[idx] = (vmsOffs[idx] & VM_VMS_MASK) | (toOffs(vmsOffs[idx]) + n)
 }
 
 function getVms(vmsOffs, idx) {

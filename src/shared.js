@@ -1,5 +1,7 @@
-export const VM_OFFS_MASK         = 0xFFFFFFFF00000000
-export const VM_OFFS_SHIFT        = 32
+import CFG from './cfg'
+
+export const VM_OFFS_MASK         = 0xFFFFFFFF00000000n
+export const VM_OFFS_SHIFT        = 32n
 export const VM_VMS_MASK          = 0x00000000FFFFFFFF
 export const MOV_BREAK_MASK       = 8000000000000000n
 
@@ -77,12 +79,12 @@ export const DMD = [
  * used for updating it's (near) bonds
  */
 export const DNA = [
-  [DIR_NO, DIR_NO,      0, DIR_NO,      6, DIR_NO, DIR_NO, DIR_NO],
-  [DIR_NO, DIR_NO,      1,      2, DIR_NO,      6,      7, DIR_NO],
-  [DIR_NO, DIR_NO, DIR_NO, DIR_NO,      2, DIR_NO,      0, DIR_NO],
-  [     1, DIR_NO, DIR_NO, DIR_NO,      3,      4, DIR_NO,      0],
-  [     2, DIR_NO, DIR_NO, DIR_NO, DIR_NO, DIR_NO,      4, DIR_NO],
-  [DIR_NO,      2,      3, DIR_NO, DIR_NO, DIR_NO,      5,      6],
-  [     6, DIR_NO,      4, DIR_NO, DIR_NO, DIR_NO, DIR_NO, DIR_NO],
-  [     7,      0, DIR_NO,      4,      5, DIR_NO, DIR_NO, DIR_NO]
+  [NO_DIR, NO_DIR,      0, NO_DIR,      6, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      1,      2, NO_DIR,      6,      7, NO_DIR],
+  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      2, NO_DIR,      0, NO_DIR],
+  [     1, NO_DIR, NO_DIR, NO_DIR,      3,      4, NO_DIR,      0],
+  [     2, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      4, NO_DIR],
+  [NO_DIR,      2,      3, NO_DIR, NO_DIR, NO_DIR,      5,      6],
+  [     6, NO_DIR,      4, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
+  [     7,      0, NO_DIR,      4,      5, NO_DIR, NO_DIR, NO_DIR]
 ]

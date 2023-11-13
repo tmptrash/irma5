@@ -7,7 +7,6 @@ export default function World() {
   const imgData = ctx.getImageData(0, 0, CFG.WORLD.width, CFG.WORLD.height)
 
   const w = {
-    doc: document,
     canvas: $(CFG.HTML.canvasQuery),
 
     ctx,
@@ -35,7 +34,7 @@ export default function World() {
 export function destroy(w) {
   w.zoom.dispose()
   w.zoomObserver.disconnect()
-  w.canvas = w.doc = w.ctx = null
+  w.canvas = w.ctx = null
   w.imgData = w.data = w.zoom = w.zoomObserver = w.animateFn = null
 }
 
@@ -43,7 +42,7 @@ export function destroy(w) {
  * Returns atom or 0, if no atom
  */
 export function get(w, offs) {
-  return w.data[offs << 2]
+  return w.data[offs << 2n]
 }
 
 export function put(w, offs, color) {

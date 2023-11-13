@@ -1,6 +1,7 @@
 import CFG from '../cfg'
 
 export default function Title(w) {
+  const $ = document.querySelector.bind(document)
   return {
     w,
     title: '',
@@ -20,7 +21,7 @@ function update(t) {
   t.ticks++
   if (now - t.t > 1000) {
     t.t = now
-    t.w.title.textContent = t.ticks
+    t.titleEl.textContent = t.ticks
     t.ticks = 0
   }
 }

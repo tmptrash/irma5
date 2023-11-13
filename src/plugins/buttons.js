@@ -1,21 +1,23 @@
 import CFG from '../cfg'
 
 export default function Title(w) {
+  const $ = document.querySelector.bind(document)
   const b = {
     w,
+    doc: document,
     visualize: $(CFG.HTML.visualizeBtnQuery),
     fullscreen: $(CFG.HTML.fullscreenBtnQuery),
     animateFn: w.animateFn
   }
   b.visualize.onclick = () => onVisualize(w)
-  b.w.doc.onkeydown = e => onKeyDown(b.w, e)
-  b.w.fullscreen.onclick = b.w.fullscreen.firstChild.onclick = () => onFullscreen(b.w)
+  b.doc.onkeydown = e => onKeyDown(b.w, e)
+  b.fullscreen.onclick = b.fullscreen.firstChild.onclick = () => onFullscreen(b.w)
   onFullscreen(b.w)
   return b
 }
 
 export function destroy(b) {
-  b.fullscreen = b.visualize = null
+  w.doc = b.fullscreen = b.visualize = null
 }
 
 function onVisualize(b, visualize) {
