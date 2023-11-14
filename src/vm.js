@@ -11,7 +11,7 @@ const CMDS = [nop, mov, fix, spl, con, job, rep]
 // that we may break mov command running and continue next time. Break is only possible,
 // if all previous flags are equal to 1
 //
-const STACK = new BigInt64Array(CFG.ATOM.moveBufSize)
+const STACK = new BigInt64Array(CFG.ATOM.stackBufSize)
 let stackIdx = 0
 let MOVED = {}
 
