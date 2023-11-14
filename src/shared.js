@@ -75,7 +75,7 @@ export const DMD = [
 ]
 /**
  * Dir Near Atom
- * Directions map for the atom, which is near the moved atom. Is 
+ * Directions map for the atom, which is near the moved atom. Is
  * used for updating it's (near) bonds
  */
 export const DNA = [

@@ -1,9 +1,12 @@
 import './styles.css'
 import World from './world'
-import VM, { setVMs, tick } from './vm'
+import VMs, { vms, tick } from './vm'
 import Title from './plugins/title'
 import Buttons from './plugins/buttons'
-
+/**
+ * This function will be run every few millisecond
+ * (depending on browser)
+ */
 function run() {
   tick(vm)
   for (let p = 0; p < plugins.length; p++) {
@@ -13,13 +16,11 @@ function run() {
   window.postMessage(0, '*');
 }
 
-const w = World()
-const plugins = [Title(w), Buttons(w)]
-// TODO:
-const vmOffs = new BigUint64Array(10)
-const vm = VM(w)
-
-// this is how we create infinite fast loop in JS
-window.addEventListener('message', e => e.data === 0 && (e.stopPropagation() || run()), true)
-setVMs(vm, vmOffs)
-run()
+const w = World()                         // 2D world
+const plugins = [Title(w), Buttons(w)]    // olugins of the world
+const vmOffs = new BigUint64Array(10)     // array of virtual machines
+const vm = VMs(w, vmOffs)                 // VMs instance
+window.addEventListener('message', e => { // create fastest infinite loop in JS
+  e.data === 0 && (e.stopPropagation() || run())
+}, true)
+run()                                     //  run the emulator

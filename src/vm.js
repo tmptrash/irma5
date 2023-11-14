@@ -15,16 +15,18 @@ const STACK = new BigInt64Array(CFG.ATOM.moveBufSize)
 let stackIdx = 0
 let MOVED = {}
 
-export default function VM(w) {
-  return {
+export default function VMs(w, vmOffs) {
+  const vms = {
     vmsOffs: [],
     vmsLast: 0,
     vmMap: {},
     w
   }
+  vms(vms, vmOffs)
+  return vms
 }
 
-export function setVMs(vm, vmsOffs) {
+export function vms(vm, vmsOffs) {
   vm.vmsOffs = vmsOffs
   const l = vm.vmsLast = vmsOffs.length
   const map = vm.vmMap
