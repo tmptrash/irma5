@@ -1,9 +1,9 @@
-import CFG from './cfg'
+import CFG from './cfg.js'
 import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK,
-  DMA, DMD, DIR_REV } from './shared'
-import { get, isAtom, move, put } from './world'
+  DMA, DMD, DIR_REV } from './shared.js'
+import { get, isAtom, move, put } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
-  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom'
+  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom.js'
 
 const CMDS = [nop, mov, fix, spl, con, job, rep]
 //

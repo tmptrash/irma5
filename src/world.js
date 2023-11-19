@@ -1,4 +1,4 @@
-import CFG from './cfg'
+import CFG from './cfg.js'
 import Panzoom from 'panzoom'
 
 export default function World() {
