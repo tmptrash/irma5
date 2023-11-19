@@ -1,6 +1,6 @@
 import './styles.css'
 import World from './world.js'
-import VMs, { vms, tick } from './vm.js'
+import VMs, { tick } from './vm.js'
 import Title from './plugins/title.js'
 import Buttons from './plugins/buttons.js'
 /**

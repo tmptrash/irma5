@@ -1,4 +1,4 @@
-import { type } from './atom.js'
+import { type } from '../src/atom.js'
 
 describe('atom module tests', function() { 
   it('type()', function() {

@@ -5,7 +5,6 @@ import { get, isAtom, move, put } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
   setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom.js'
 
-const CMDS = [nop, mov, fix, spl, con, job, rep]
 //
 // Left bit of every number is a flag, which means - "possible to break". It means
 // that we may break mov command running and continue next time. Break is only possible,
@@ -14,6 +13,8 @@ const CMDS = [nop, mov, fix, spl, con, job, rep]
 const STACK = new BigInt64Array(CFG.ATOM.stackBufSize)
 let stackIdx = 0
 let MOVED = {}
+
+export const CMDS = [nop, mov, fix, spl, con, job, rep]
 
 export default function VMs(w, vmOffs) {
   const vms = {
