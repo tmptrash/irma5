@@ -1,4 +1,4 @@
-import CFG from './cfg.js'
+import CFG from './cfg'
 
 export const VM_OFFS_MASK         = 0xFFFFFFFF00000000n
 export const VM_OFFS_SHIFT        = 32n

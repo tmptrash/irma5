@@ -1,9 +1,9 @@
-import CFG from './cfg.js'
+import CFG from './cfg'
 import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK,
-  DMA, DMD, DIR_REV } from './shared.js'
-import { get, isAtom, move, put } from './world.js'
+  DMA, DMD, DIR_REV } from './shared'
+import { get, isAtom, move, put } from './world'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
-  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom.js'
+  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom'
 
 //
 // Left bit of every number is a flag, which means - "possible to break". It means
@@ -68,6 +68,7 @@ function mov(vm, a, vmIdx) {
     rebond2(vm.w, offs, movDir)                        // update near atoms bonds
     oldA !== a && put(vm.w, dstOffs, a)                // put updated atom back to the world
   }
+  moveVm(vm, a, vmIdx, vm.vmOffs)                      // move VM to the next atom
   MOVED = {}                                           // reset moved and stack sets
   stackIdx = 0
 }

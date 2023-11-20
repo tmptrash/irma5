@@ -1,4 +1,4 @@
-import CFG from '../cfg.js'
+import CFG from '../cfg'
 
 export default function Title(w) {
   const $ = document.querySelector.bind(document)

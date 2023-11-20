@@ -1,7 +1,7 @@
-import { type } from '../src/atom.js'
+import { type } from '../atom'
 
-describe('atom module tests', function() { 
-  it('type()', function() {
+describe('Atom tests', () => {
+  test('type()', () => {
     expect(type(0b0000000000000000)).toBe(0b000)
     expect(type(0b0010000000000000)).toBe(0b001)
     expect(type(0b0100000000000000)).toBe(0b010)
