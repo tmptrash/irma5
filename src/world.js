@@ -101,12 +101,12 @@ function updateCanvas(w) {
 function onAnimate(w) {
   updateCanvas(w)
   // TODO: remove these lines
-  w.ctx.beginPath()
-  w.ctx.lineWidth = 10
-  w.ctx.strokeStyle = '#ff0000'
-  w.ctx.moveTo(30, 50)
-  w.ctx.lineTo(150, 100)
-  w.ctx.stroke()
+  // w.ctx.beginPath()
+  // w.ctx.lineWidth = 10
+  // w.ctx.strokeStyle = '#ff0000'
+  // w.ctx.moveTo(30, 50)
+  // w.ctx.lineTo(150, 100)
+  // w.ctx.stroke()
 
   w.animateFn && window.requestAnimationFrame(w.animateFn)
 }
