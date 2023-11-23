@@ -51,7 +51,7 @@ function mov(vm, a, vmIdx) {
     const offs = STACK[stackIdx - 1]                   // last offs in stack (not pop)
     if (MOVED[offs]) { stackIdx--; continue }          // this offs was already moved
     const dstOffs = offs(offs, movDir)                 // dest offset we are goint to move
-    let a = get(dstOffs)                               // destination position of moved atom
+    let a = get(vm.w, dstOffs)                         // destination position of moved atom
     if (a) {                                           // dest place is not free
       STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK     // MOV_BREAK_MASK means "we may interrupt mov here"
       continue

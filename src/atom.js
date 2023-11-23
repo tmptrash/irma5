@@ -28,5 +28,5 @@ export function offs(offs, dir) {
  * @returns 32bit offset
  */
 export function toOffs(offs) {
-  return (offs & VM_OFFS_MASK) >> VM_OFFS_SHIFT
+  return Number((offs & VM_OFFS_MASK) >> VM_OFFS_SHIFT)
 }

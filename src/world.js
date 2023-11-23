@@ -42,15 +42,20 @@ export function destroy(w) {
  * Returns atom or 0, if no atom
  */
 export function get(w, offs) {
-  return w.data[offs << 2n]
-}
-
-export function put(w, offs, color) {
   const d = w.data
   offs <<= 2
-  d[offs    ] = (color >>> 16) & 0xff
-  d[offs + 1] = (color >>> 8)  & 0xff
-  d[offs + 2] = color & 0xff
+  let a = d[offs] << 16
+  a |= d[offs + 1] << 8
+  a |= d[offs + 2]
+  return a
+}
+
+export function put(w, offs, atom) {
+  const d = w.data
+  offs <<= 2
+  d[offs    ] = (atom >>> 16) & 0xff
+  d[offs + 1] = (atom >>> 8)  & 0xff
+  d[offs + 2] = atom & 0xff
 }
 
 export function isAtom(w, offs) {

@@ -1,8 +1,9 @@
 import CFG from '../cfg'
 import { ATOM_TYPE_SHIFT } from '../shared'
 import { CMDS } from '../vm'
-import World, { destroy, get } from '../world'
+import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
+import { mov } from './atoms'
 
 describe('vm module tests', () => {
   let vmsOffs = null
@@ -36,11 +37,18 @@ describe('vm module tests', () => {
       CMDS[0](vms, a, 0)
       expect(get(w, toOffs(vmsOffs[0]))).toBe(a)
     })
-    test('nop atom should do nothing1', () => {
+  })
+
+  describe('mov atom tests', () => {
+    test('mov atom should move itself', () => {
       vmsOffs[0] = 1n
-      const a = get(w, toOffs(vmsOffs[0]))
-      CMDS[0](vms, a, 0)
-      expect(get(w, toOffs(vmsOffs[0]))).toBe(a)
+      const movAtom = mov(2, 2)
+      put(w, 0, movAtom)
+      const offs = toOffs(vmsOffs[0])
+      const a = get(w, offs)
+      expect(a).toBe(movAtom)
+      CMDS[1](vms, a, 0)
+      expect(get(w, offs + 1)).toBe(a)
     })
   })
 })
