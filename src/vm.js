@@ -34,6 +34,10 @@ export function vms(vm, vmsOffs) {
   for (let i = 0; i < l; i++) map[toOffs(vmsOffs[i])] = i
 }
 
+export function vm(offs, amount) {
+  return (BigInt(offs) << 32) | BigInt(amount)
+}
+
 export function tick(vm) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
     for (let vmIdx = 0, l = vm.vmsOffs.length; vmIdx < l; vmIdx++) {

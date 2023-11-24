@@ -1,6 +1,6 @@
 import CFG from '../cfg'
 import { ATOM_TYPE_SHIFT } from '../shared'
-import { CMDS } from '../vm'
+import { CMDS, vm } from '../vm'
 import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
 import { mov } from './atoms'
@@ -41,7 +41,7 @@ describe('vm module tests', () => {
 
   describe('mov atom tests', () => {
     test('mov atom should move itself', () => {
-      vmsOffs[0] = 1n
+      vmsOffs[0] = vm(0, 1)
       const movAtom = mov(2, 2)
       put(w, 0, movAtom)
       const offs = toOffs(vmsOffs[0])
