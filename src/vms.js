@@ -50,6 +50,7 @@ function nop() {}
 
 function mov(vms, a, vmIdx) {
   STACK[stackIdx++] = toOffs(vms.offs[vmIdx])           // put mov atom offs into the stack
+  const atomOffs = STACK[stackIdx - 1]                  // offset of moved atom
   const movDir = b1Dir(a)                               // mov direction
   for (; stackIdx > -1; stackIdx--) {                   // go for all items in stack
     const aOffs = STACK[stackIdx - 1]                   // last offs in stack (not pop)
@@ -71,7 +72,8 @@ function mov(vms, a, vmIdx) {
     rebond2(vms.w, aOffs, movDir)                       // update near atoms bonds
     oldA !== a && put(vms.w, dstOffs, a)                // put updated atom back to the world
   }
-  moveVm(vms, a, vmIdx, vms.vmOffs)                     // move VM to the next atom
+  // TODO:
+  moveVm(vms, a, vmIdx, atomOffs)                       // move VM to the next atom
   MOVED = {}                                            // reset moved and stack sets
   stackIdx = 0
 }
@@ -142,25 +144,32 @@ function rep(vms, a, vmIdx) {
  * Moves VM from one atom to another if possible and updates
  * related vm.offs array
  */
-function moveVm(vms, a, offsIdx, o, dir = NO_DIR) {
-  let nextDir = dir !== NO_DIR ? dir : vmDir(a)
-  if (nextDir === NO_DIR && dir !== NO_DIR) return
-  nextDir--
-  const vmAmount = getVms(vms.offs, offsIdx)
-  const offsIdx1 = findIdx(vms, offs(o, nextDir))
-  if (offsIdx1 === -1) return
-  vmAmount && addVm(vms.offs, offsIdx, -1)
-  vmAmount && addVm(vms.offs, offsIdx1, 1)
+function moveVm(vms, a, idx, o, dir = NO_DIR) {
+  const d = dir !== NO_DIR ? dir : vmDir(a)
+  if (d === NO_DIR || !get(vms.w, offs(o, d))) return
+  const vmAmount = amount(vms.offs, idx)
+  const idx1 = findIdx(vms, offs(o, d))
+  if (idx1 === -1) return
+  vmAmount && addVm(vms, idx, -1)
+  vmAmount && addVm(vms, idx1, 1)
 }
 
 /**
  * Adds a number n to amount of vms in offs[idx]
  */
-function addVm(offs, idx, n) {
-  offs[idx] = (offs[idx] & VM_VMS_MASK) | (toOffs(offs[idx]) + n)
+function addVm(vms, idx, n) {
+  const offs = vms.offs
+  const amount = (offs[idx] & VM_VMS_MASK) + n
+  if (amount < 1) {                       // no vms on current atom
+    delete vms.map[offs[idx]]
+    vms.map[offs[vms.last]] = idx
+    offs[idx] = offs[vms.last--]
+    return
+  }
+  offs[idx] = vm(toOffs(offs[idx]), amount)
 }
 
-function getVms(offs, idx) {
+function amount(offs, idx) {
   return offs[idx] & VM_VMS_MASK
 }
 
