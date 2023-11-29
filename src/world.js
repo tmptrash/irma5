@@ -44,18 +44,14 @@ export function destroy(w) {
 export function get(w, offs) {
   const d = w.data
   offs <<= 2
-  let a = d[offs] << 16
-  a |= d[offs + 1] << 8
-  a |= d[offs + 2]
-  return a
+  return (d[offs] << 8) | d[offs + 1]
 }
 
 export function put(w, offs, atom) {
   const d = w.data
   offs <<= 2
-  d[offs    ] = (atom >>> 16) & 0xff
-  d[offs + 1] = (atom >>> 8)  & 0xff
-  d[offs + 2] = atom & 0xff
+  d[offs] = (atom >>> 8) & 0xff
+  d[offs + 1] = atom & 0xff
 }
 
 export function isAtom(w, offs) {
@@ -65,7 +61,7 @@ export function isAtom(w, offs) {
 
 export function move(w, offs1, offs2) {
   put(w, offs2, get(w, offs1))
-  put(w, offs2, 0)
+  put(w, offs1, 0)
 }
 
 function initDom(w) {

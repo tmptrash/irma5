@@ -1,6 +1,6 @@
 import CFG from '../cfg'
 import { ATOM_TYPE_SHIFT } from '../shared'
-import { CMDS, vm } from '../vm'
+import VMs, { CMDS, vm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
 import { mov } from './atoms'
@@ -18,6 +18,7 @@ describe('vm module tests', () => {
     document.body.appendChild(canvas)
     vmsOffs = new BigInt64Array(1)
     w = World()
+    vms = VMs(w, vmsOffs)
   })
   afterEach(() => {
     destroy(w)
