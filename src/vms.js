@@ -1,7 +1,7 @@
 import CFG from './cfg'
 import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK,
   DMA, DMD, DIR_REV } from './shared'
-import { get, isAtom, move, put } from './world'
+import { get, move, put } from './world'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
   setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom'
 
@@ -16,20 +16,20 @@ let MOVED = {}
 
 export const CMDS = [nop, mov, fix, spl, con, job, rep]
 
-export default function VMs(w, vmOffs) {
+export default function VMs(w, vmOffs, last = null) {
   const vms = {
     offs: [],
     last: 0,
     map: {},
     w
   }
-  set(vms, vmOffs)
+  set(vms, vmOffs, last)
   return vms
 }
 
-export function set(vms, offs) {
+export function set(vms, offs, last) {
   vms.offs = offs
-  const l = vms.last = offs.length
+  const l = vms.last = last || offs.length
   const map = vms.map
   for (let i = 0; i < l; i++) map[toOffs(offs[i])] = i
 }
@@ -109,7 +109,7 @@ function con(vms, a, vmIdx) {
   const ifOffs = offs(vmOffs, ifDir(a))
   // if then else mode
   if (!dir3) {
-    const atom = isAtom(w, ifOffs)
+    const atom = get(w, ifOffs)
     moveVm(vms, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
     return
   }
@@ -121,7 +121,7 @@ function con(vms, a, vmIdx) {
 function job(vms, a, vmIdx) {
   const vmOffs    = toOffs(vms.offs[vmIdx])
   const newVmOffs = offs(vmOffs, b1Dir(a))
-  if (!isAtom(w, newVmOffs)) {
+  if (!get(w, newVmOffs)) {
     const offsIdx = findIdx(vms, newVmOffs)
     offsIdx !== -1 && addVm(newVmOffs, offsIdx, 1)
   }
@@ -146,9 +146,10 @@ function rep(vms, a, vmIdx) {
  */
 function moveVm(vms, a, idx, o, dir = NO_DIR) {
   const d = dir !== NO_DIR ? dir : vmDir(a)
-  if (d === NO_DIR || !get(vms.w, offs(o, d))) return
+  const dstOffs = offs(o, d)
+  if (d === NO_DIR || !get(vms.w, dstOffs)) return
   const vmAmount = amount(vms.offs, idx)
-  const idx1 = findIdx(vms, offs(o, d))
+  const idx1 = findIdx(vms, dstOffs)
   if (idx1 === -1) return
   vmAmount && addVm(vms, idx, -1)
   vmAmount && addVm(vms, idx1, 1)
@@ -180,8 +181,8 @@ function amount(offs, idx) {
 function findIdx(vms, offs) {
   const idx = vms.map[offs]
   if (idx !== undefined) return idx
-  if (vms.last >= vms.offs.length || !isAtom(vms.w, offs)) return -1
-  offs[vms.last++] = (offs << VM_OFFS_SHIFT)
+  if (vms.last >= vms.offs.length || !get(vms.w, offs)) return -1
+  vms.offs[vms.last++] = vm(offs, 0)
   return vms.last
 }
 

@@ -16,9 +16,9 @@ describe('vm module tests', () => {
     canvas.setAttribute('height', CFG.WORLD.height)
     canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h)}}, putImageData: () => {}}}
     document.body.appendChild(canvas)
-    vmsOffs = new BigInt64Array(1)
+    vmsOffs = new BigInt64Array(2)
     w = World()
-    vms = VMs(w, vmsOffs)
+    vms = VMs(w, vmsOffs, 1)
   })
   afterEach(() => {
     destroy(w)

@@ -2,7 +2,7 @@ import CFG from './cfg'
 
 export const VM_OFFS_MASK         = 0xFFFFFFFF00000000n
 export const VM_OFFS_SHIFT        = 32n
-export const VM_VMS_MASK          = 0x00000000FFFFFFFF
+export const VM_VMS_MASK          = 0x00000000FFFFFFFFn
 export const MOV_BREAK_MASK       = 8000000000000000n
 
 export const NO_DIR               = -1

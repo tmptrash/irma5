@@ -54,11 +54,6 @@ export function put(w, offs, atom) {
   d[offs + 1] = atom & 0xff
 }
 
-export function isAtom(w, offs) {
-  const dotOffs = offs << 2
-  return w.data[dotOffs] !== 0 || w.data[dotOffs + 1] !== 0 || w.data[dotOffs + 2] !== 0
-}
-
 export function move(w, offs1, offs2) {
   put(w, offs2, get(w, offs1))
   put(w, offs1, 0)
