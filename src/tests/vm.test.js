@@ -3,7 +3,7 @@ import { ATOM_TYPE_SHIFT } from '../shared'
 import VMs, { CMDS, vm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
-import { mov } from './atoms'
+import { mov, fix } from './atoms'
 
 describe('vm module tests', () => {
   let vmsOffs = null
@@ -45,9 +45,20 @@ describe('vm module tests', () => {
       const offs = 0
       vmsOffs[0] = vm(offs, 1)
       put(w, 0, mov(2, 2))
-      const a = get(w, offs)
-      CMDS[1](vms, a, 0)
-      expect(get(w, offs + 1)).toBe(a)
+      const m = get(w, offs)
+      CMDS[1](vms, m, 0)
+      expect(get(w, offs + 1)).toBe(m)
+    })
+    test('mov atom should move itself and the neighbour on the way', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, 0, mov(2, 2))
+      put(w, 1, fix(2, 0, 2))
+      const m = get(w, offs)
+      const s = get(w, offs + 1)
+      CMDS[1](vms, m, 0)
+      expect(get(w, offs + 1)).toBe(m)
+      expect(get(w, offs + 2)).toBe(s)
     })
   })
 })

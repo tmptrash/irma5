@@ -1,5 +1,5 @@
 import CFG from './cfg'
-import { VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK,
+import { VM_VMS_MASK,  NO_DIR, ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK,
   DMA, DMD, DIR_REV } from './shared'
 import { get, move, put } from './world'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
@@ -50,14 +50,15 @@ function nop() {}
 
 function mov(vms, a, vmIdx) {
   STACK[stackIdx++] = toOffs(vms.offs[vmIdx])           // put mov atom offs into the stack
-  const atomOffs = STACK[stackIdx - 1]                  // offset of moved atom
+  const atomOffs = getTop()                             // offset of moved atom
   const movDir = b1Dir(a)                               // mov direction
   for (; stackIdx > -1; stackIdx--) {                   // go for all items in stack
-    const aOffs = STACK[stackIdx - 1]                   // last offs in stack (not pop)
+    const aOffs = getTop()                              // last offs in stack (not pop)
     if (MOVED[aOffs]) { stackIdx--; continue }          // this offs was already moved
     const dstOffs = offs(aOffs, movDir)                 // dest offset we are goint to move
     if (get(vms.w, dstOffs)) {                          // dest place is not free
       STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK      // MOV_BREAK_MASK means "we may interrupt mov here"
+      stackIdx++
       continue
     }
     const oldA = a
@@ -232,4 +233,8 @@ function rebond2(w, o, mdir) {
       }
     }
   }
+}
+
+function getTop() {
+  return STACK[stackIdx - 1] & MOV_BREAK_UNMASK
 }
