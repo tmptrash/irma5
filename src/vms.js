@@ -1,5 +1,5 @@
 import CFG from './cfg'
-import { VM_OFFS_SHIFT, VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK,
+import { VM_VMS_MASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK,
   DMA, DMD, DIR_REV } from './shared'
 import { get, move, put } from './world'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
@@ -149,9 +149,11 @@ function moveVm(vms, a, idx, o, dir = NO_DIR) {
   const dstOffs = offs(o, d)
   if (d === NO_DIR || !get(vms.w, dstOffs)) return
   const vmAmount = amount(vms.offs, idx)
-  const idx1 = findIdx(vms, dstOffs)
+  let idx1 = findIdx(vms, dstOffs)
   if (idx1 === -1) return
   vmAmount && addVm(vms, idx, -1)
+  idx1 = findIdx(vms, dstOffs)
+  if (idx1 === -1) return
   vmAmount && addVm(vms, idx1, 1)
 }
 
@@ -160,18 +162,18 @@ function moveVm(vms, a, idx, o, dir = NO_DIR) {
  */
 function addVm(vms, idx, n) {
   const offs = vms.offs
-  const amount = (offs[idx] & VM_VMS_MASK) + n
-  if (amount < 1) {                       // no vms on current atom
-    delete vms.map[offs[idx]]
-    vms.map[offs[vms.last]] = idx
-    offs[idx] = offs[vms.last--]
+  const vmAmount = amount(offs, idx) + n
+  if (vmAmount < 1) {                       // no vms on current atom
+    delete vms.map[toOffs(offs[idx])]
+    vms.map[toOffs(offs[vms.last - 1])] = idx
+    offs[idx] = offs[--vms.last]
     return
   }
-  offs[idx] = vm(toOffs(offs[idx]), amount)
+  offs[idx] = vm(toOffs(offs[idx]), vmAmount)
 }
 
 function amount(offs, idx) {
-  return offs[idx] & VM_VMS_MASK
+  return Number(offs[idx] & VM_VMS_MASK)
 }
 
 /**
@@ -183,7 +185,7 @@ function findIdx(vms, offs) {
   if (idx !== undefined) return idx
   if (vms.last >= vms.offs.length || !get(vms.w, offs)) return -1
   vms.offs[vms.last++] = vm(offs, 0)
-  return vms.last
+  return vms.last - 1
 }
 
 /**
