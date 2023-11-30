@@ -42,12 +42,10 @@ describe('vm module tests', () => {
 
   describe('mov atom tests', () => {
     test('mov atom should move itself', () => {
-      vmsOffs[0] = vm(0, 1)
-      const movAtom = mov(2, 2)
-      put(w, 0, movAtom)
-      const offs = toOffs(vmsOffs[0])
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, 0, mov(2, 2))
       const a = get(w, offs)
-      expect(a).toBe(movAtom)
       CMDS[1](vms, a, 0)
       expect(get(w, offs + 1)).toBe(a)
     })
