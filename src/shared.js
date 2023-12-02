@@ -40,12 +40,18 @@ export const DIR_2_OFFS = [
   CFG.WORLD.width, CFG.WORLD.width - 1, -1, -CFG.WORLD.width - 1
 ]
 /**
- * Reverted directions
+ * Reverted directions. 0 (up) - 4 (down), 6 (left) - 2 (right),...
  */
 export const DIR_REV = [4, 5, 6, 7, 0, 1, 2, 3]
 /**
- * Dir Mov Atom - Directions map for the atom, which is moving.
- * Is used for updating it's bonds
+ * Dir Mov Atom - is used for updating moving atom bonds. Let's imagine
+ * we have a mov atom and one more atom on the right side of it: m -> s
+ * m atom has a vm bond with a direction 2. If mov atom moves to the top,
+ * it should update it's bond to the s atom by setting it to direction 3.
+ * To complete this we have to use DMA like this:
+ * DMA[m bond dir before move][move direction] === DMA[2][0]. It will
+ * return new mov atom bond direction - 3. NO_DIR means that moved atom
+ * and near to which moved atom's bond points have distane > 1.
  */
 export const DMA = [
   [NO_DIR,      7,      0, NO_DIR, NO_DIR, NO_DIR,      2,      3],
@@ -58,33 +64,37 @@ export const DMA = [
   [     7, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      1, NO_DIR]
 ]
 /**
- * Dir Mov Disconnected
- * Directions maps for checking possible near atoms which may have a
- * bond with current. We use this map in "mov" atom. You should use
- * mov atom direction as an index here
+ * Dir Mov Disconnected - shows which near atoms will have distance
+ * > 1 with moved atom. Let's imagine we have a mov atom and it moves
+ * up (direction 0). If we get DMD[moving dir] === DMD[0] we see
+ * that direction 3,4,5 will have distance > 1 and all other NO_DIR
+ * directions will need to update it's bonds and have distance == 1.
+ * So number means distance > 1, NO_DIR means distance == 1.
  */
 export const DMD = [
-  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      4,      5,      6, NO_DIR],
-  [     0, NO_DIR, NO_DIR, NO_DIR,      4,      5,      6,      7],
-  [     0, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      6,      7],
-  [     0,      1,      2, NO_DIR, NO_DIR, NO_DIR,      6,      7],
-  [     0,      1,      2, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
-  [     0,      1,      2,      3,      4, NO_DIR, NO_DIR, NO_DIR],
-  [NO_DIR, NO_DIR,      2,      3,      4, NO_DIR, NO_DIR, NO_DIR],
-  [NO_DIR, NO_DIR,      2,      3,      4,      5,      6, NO_DIR]
+  [NO_DIR, NO_DIR, NO_DIR,      3,      4,      5, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR, NO_DIR,      3,      4,      5,      6,      7],
+  [NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      5,      6,      7],
+  [     0,      1, NO_DIR, NO_DIR, NO_DIR,      5,      6,      7],
+  [     0,      1, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      7],
+  [     0,      1,      2,      3, NO_DIR, NO_DIR, NO_DIR,      7],
+  [NO_DIR,      1,      2,      3, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR,      1,      2,      3,      4,      5, NO_DIR, NO_DIR]
 ]
 /**
- * Dir Near Atom
- * Directions map for the atom, which is near the moved atom. Is
- * used for updating it's (near) bonds
+ * Dir Near Atom - shows new bond direction for near atom after atom
+ * move. Let's imagine we have a mov atom and other one on the right:
+ * m <- s. If m atom moves to the top, s atom should update it's bond
+ * to 7. For this we have to use DNA[near atom dir to moved][move dir]
+ * === DNA[6][0] === 7
  */
 export const DNA = [
-  [NO_DIR, NO_DIR,      0, NO_DIR,      6, NO_DIR, NO_DIR, NO_DIR],
   [NO_DIR, NO_DIR,      1,      2, NO_DIR,      6,      7, NO_DIR],
   [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      2, NO_DIR,      0, NO_DIR],
   [     1, NO_DIR, NO_DIR, NO_DIR,      3,      4, NO_DIR,      0],
   [     2, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      4, NO_DIR],
   [NO_DIR,      2,      3, NO_DIR, NO_DIR, NO_DIR,      5,      6],
   [     6, NO_DIR,      4, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
-  [     7,      0, NO_DIR,      4,      5, NO_DIR, NO_DIR, NO_DIR]
+  [     7,      0, NO_DIR,      4,      5, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      0, NO_DIR,      6, NO_DIR, NO_DIR, NO_DIR]
 ]
