@@ -6,8 +6,7 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT, VM_OFFS_MASK,
   VM_OFFS_SHIFT, DIR_2_OFFS } from './shared'
 
-const WORLD_SIZE = CFG.WORLD.width * CFG.WORLD.height
-const WORLD_SIZE1 = CFG.WORLD.width * CFG.WORLD.height - 1
+const W = CFG.WORLD
 
 export function type(a) { return (a & ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT }
 export function b1Dir(a) { return (a & ATOM_BOND1_MASK) >> ATOM_BOND1_SHIFT }
@@ -21,12 +20,12 @@ export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) (d >> ATOM_
 export function vmDir(a) { return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1 }
 export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | ((d + 1) << ATOM_VM_DIR_SHIFT) }
 /**
- * Returns 32bit offset for direction
+ * Returns 32bit offset for direction. The world is cyclical
  */
 export function offs(offs, dir) {
-  let o = offs + DIR_2_OFFS[dir]
-  if (o < 0) o += WORLD_SIZE
-  else if (o > WORLD_SIZE1) o -= WORLD_SIZE
+  let o = offs + DIR_2_OFFS(dir)
+  if (o < 0) o += W.width * W.height
+  else if (o > W.width * W.height - 1) o -= W.width * W.height
   return o
 }
 /**

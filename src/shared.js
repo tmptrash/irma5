@@ -35,10 +35,11 @@ export const ATOM_ELSE_BOND_MASK  = 0b0000000001110000
 export const ATOM_ELSE_BOND_MASK1 = 0b1111111110001111
 export const ATOM_ELSE_BOND_SHIFT = 4
 
-export const DIR_2_OFFS = [
+let d2o = null
+export const DIR_2_OFFS = (dir) => !d2o ? (d2o = [
   -CFG.WORLD.width, -CFG.WORLD.width + 1, 1, CFG.WORLD.width + 1,
   CFG.WORLD.width, CFG.WORLD.width - 1, -1, -CFG.WORLD.width - 1
-]
+])[dir] : d2o[dir]
 /**
  * Reverted directions. 0 (up) - 4 (down), 6 (left) - 2 (right),...
  */
@@ -54,14 +55,14 @@ export const DIR_REV = [4, 5, 6, 7, 0, 1, 2, 3]
  * and near to which moved atom's bond points have distane > 1.
  */
 export const DMA = [
-  [NO_DIR,      7,      0, NO_DIR, NO_DIR, NO_DIR,      2,      3],
-  [     3, NO_DIR,      1, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
-  [     4,      5, NO_DIR,      1,      2, NO_DIR, NO_DIR, NO_DIR],
-  [NO_DIR, NO_DIR,      5, NO_DIR,      3, NO_DIR, NO_DIR, NO_DIR],
-  [NO_DIR, NO_DIR,      6,      7, NO_DIR,      3,      4, NO_DIR],
-  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      7, NO_DIR,      5, NO_DIR],
-  [     6, NO_DIR, NO_DIR, NO_DIR,      0,      1, NO_DIR,      5],
-  [     7, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      1, NO_DIR]
+  [NO_DIR,      6,      7, NO_DIR, NO_DIR, NO_DIR,      1,      2],
+  [     2, NO_DIR,      0, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR],
+  [     3,      4, NO_DIR,      0,      1, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      4, NO_DIR,      2, NO_DIR, NO_DIR, NO_DIR],
+  [NO_DIR, NO_DIR,      5,      6, NO_DIR,      2,      3, NO_DIR],
+  [NO_DIR, NO_DIR, NO_DIR, NO_DIR,      6, NO_DIR,      4, NO_DIR],
+  [     5, NO_DIR, NO_DIR, NO_DIR,      7,      0, NO_DIR,      4],
+  [     6, NO_DIR, NO_DIR, NO_DIR, NO_DIR, NO_DIR,      0, NO_DIR]
 ]
 /**
  * Dir Mov Disconnected - shows which near atoms will have distance
