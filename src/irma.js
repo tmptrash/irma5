@@ -1,8 +1,8 @@
 import './styles.css'
-import World from './world'
-import VMs, { tick } from './vm'
-import Title from './plugins/title'
-import Buttons from './plugins/buttons'
+import World from './world.js'
+import VMs, { tick } from './vms.js'
+import Title from './plugins/title.js'
+import Buttons from './plugins/buttons.js'
 /**
  * This function will be run every few millisecond
  * (depending on browser)

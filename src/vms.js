@@ -1,9 +1,9 @@
-import CFG from './cfg'
+import CFG from './cfg.js'
 import { VM_VMS_MASK,  NO_DIR, ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK,
-  DMA, DNA, DMD, DIR_REV } from './shared'
-import { get, move, put } from './world'
+  DMA, DNA, DMD, DIR_REV } from './shared.js'
+import { get, move, put } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
-  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom'
+  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom.js'
 
 //
 // Left bit of every number is a flag, which means - "possible to break". It means

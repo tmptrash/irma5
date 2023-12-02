@@ -1,4 +1,4 @@
-import { type } from '../atom'
+import { type } from '../atom.js'
 
 describe('Atom tests', () => {
   test('type()', () => {
