@@ -52,26 +52,26 @@ function mov(vms, a, vmIdx) {
   STACK[stackIdx++] = toOffs(vms.offs[vmIdx])           // put mov atom offs into the stack
   const atomOffs = fromStack()                          // offset of moved atom
   const movDir = b1Dir(a)                               // mov direction
-  for (; stackIdx > -1; stackIdx--) {                   // go for all items in stack
+  const w = vms.w
+  while (stackIdx > 0) {                                // go for all items in stack
     const aOffs = fromStack()                           // last offs in stack (not pop)
-    if (MOVED[aOffs]) { stackIdx--; continue }          // this offs was already moved
+    if (MOVED[aOffs] || !get(w, aOffs)) { stackIdx--; continue } // this offs was already moved or no atom
     const dstOffs = offs(aOffs, movDir)                 // dest offset we are goint to move
-    if (get(vms.w, dstOffs)) {                          // dest place is not free
+    if (get(w, dstOffs)) {                              // dest place is not free
       STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK      // MOV_BREAK_MASK means "we may interrupt mov here"
-      stackIdx++
       continue
     }
     const oldA = a
     stackIdx--                                          // pop atom offs from stack
-    move(vms.w, aOffs, dstOffs)                         // dest place is free, move atom
+    move(w, aOffs, dstOffs)                             // dest place is free, move atom
     MOVED[dstOffs] = true                               // add moved atom to moved store
     if (type(a) === ATOM_CON) {                         // update bonds of if atom. we don't neet to update spl, fix
-      a = rebond(vms.w, a, aOffs, movDir, thenDir, setThenDir) // update then bond of moved atom
-      a = rebond(vms.w, a, aOffs, movDir, elseDir, setElseDir) // update else bond of moved atom
+      a = rebond(w, a, aOffs, movDir, thenDir, setThenDir) // update then bond of moved atom
+      a = rebond(w, a, aOffs, movDir, elseDir, setElseDir) // update else bond of moved atom
     }
-    a = rebond(vms.w, a, aOffs, movDir, vmDir, setVmDir)// update vm bond of moved atom
-    rebond2(vms.w, aOffs, movDir)                       // update near atoms bonds
-    oldA !== a && put(vms.w, dstOffs, a)                // put updated atom back to the world
+    a = rebond(w, a, aOffs, movDir, vmDir, setVmDir)    // update vm bond of moved atom
+    rebond2(w, aOffs, movDir)                           // update near atoms bonds
+    oldA !== a && put(w, dstOffs, a)                    // put updated atom back to the world
   }
   vmIdx = moveVm(vms, a, vmIdx, atomOffs, movDir)       // update VM pos after mov atom was moved
   const dstOffs = offs(atomOffs, movDir)

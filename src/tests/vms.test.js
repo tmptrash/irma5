@@ -101,5 +101,16 @@ describe('vm module tests', () => {
       expect(get(w, offs + WIDTH + 1)).toBe(mov(6, 3))
       expect(get(w, offs + WIDTH)).toBe(mov(2, 4))
     })
+    test('move three atoms together', () => {
+      const offs = WIDTH + 1
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, mov(4, 4))
+      put(w, 0, fix(3, 6, 6))
+      put(w, 2, fix(5, 6, 6))
+      CMDS[1](vms, get(w, offs), 0)
+      expect(get(w, offs + WIDTH)).toBe(mov(4, 4))
+      expect(get(w, offs - 1)).toBe(fix(3, 6, 6))
+      expect(get(w, offs + 1)).toBe(fix(5, 6, 6))
+    })
   })
 })
