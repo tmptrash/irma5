@@ -9,9 +9,10 @@ describe('vm module tests', () => {
   let vmsOffs = null
   let w = null
   let vms = null
+  let WIDTH = 0
   beforeEach(() => {
     const canvas = document.createElement("canvas")
-    CFG.WORLD.width = CFG.WORLD.height = 10
+    WIDTH = CFG.WORLD.width = CFG.WORLD.height = 10
     canvas.setAttribute('width', CFG.WORLD.width)
     canvas.setAttribute('height', CFG.WORLD.height)
     canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h)}}, putImageData: () => {}}}
@@ -61,7 +62,7 @@ describe('vm module tests', () => {
       expect(get(w, offs + 2)).toBe(f)
     })
     test('mov atom should move itself and update its vm bond and near atom vm bond', () => {
-      const offs = CFG.WORLD.width
+      const offs = WIDTH
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, mov(0, 2))
       put(w, 0, fix(4, 0, 2))
@@ -84,11 +85,21 @@ describe('vm module tests', () => {
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, mov(2, 2))
       put(w, offs + 1, fix(0, 0, 0))
-      put(w, offs + CFG.WORLD.width, fix(0, 4, 4))
+      put(w, offs + WIDTH, fix(0, 4, 4))
       CMDS[1](vms, get(w, offs), 0)
       expect(get(w, offs + 1)).toBe(mov(2, 2))
       expect(get(w, offs + 2)).toBe(fix(0, 0, 0))
-      expect(get(w, offs + CFG.WORLD.width)).toBe(fix(1, 4, 4))
+      expect(get(w, offs + WIDTH)).toBe(fix(1, 4, 4))
+    })
+    test('move two mov atoms', () => {
+      const offs = WIDTH + 1
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, mov(7, 3))
+      put(w, 0, mov(3, 4))
+      CMDS[1](vms, get(w, offs), 0)
+      CMDS[1](vms, get(w, offs), 0)
+      expect(get(w, offs + WIDTH + 1)).toBe(mov(6, 3))
+      expect(get(w, offs + WIDTH)).toBe(mov(2, 4))
     })
   })
 })
