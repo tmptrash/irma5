@@ -16,7 +16,7 @@ export function ifDir(a) { return (a & ATOM_IF_BOND_MASK) >> ATOM_IF_BOND_SHIFT 
 export function thenDir(a) { return (a & ATOM_THEN_BOND_MASK) >> ATOM_THEN_BOND_SHIFT }
 export function setThenDir(a, d) { return (a & ATOM_THEN_BOND_MASK1) | (d << ATOM_THEN_BOND_SHIFT) }
 export function elseDir(a) { return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_SHIFT }
-export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) (d >> ATOM_ELSE_BOND_SHIFT) }
+export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | (d << ATOM_ELSE_BOND_SHIFT) }
 export function vmDir(a) { return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1 }
 export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | ((d + 1) << ATOM_VM_DIR_SHIFT) }
 /**

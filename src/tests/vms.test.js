@@ -115,9 +115,9 @@ describe('vm module tests', () => {
       const offs = WIDTH
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, mov(0, 2))
-      put(w, 0, con(4, 4, 0, NO_DIR))
+      put(w, 0, con(4, 4, 4, NO_DIR))
       CMDS[1](vms, get(w, offs), 0)
-      expect(get(w, 0)).toBe(con(4, 3, 0, NO_DIR))
+      expect(get(w, 0)).toBe(con(4, 3, 3, NO_DIR))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
     })
   })
