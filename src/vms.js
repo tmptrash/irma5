@@ -224,8 +224,8 @@ function rebond2(w, o, mdir) {
         const oldA = a
         if (revDir === rDir) a = setVmDir(a, DNA[revDir][mdir])
         else if (type(a) === ATOM_CON) {  // for "if" atom update then, else bonds
-          if (thenDir(a) === rDir) a = setThenDir(a, DNA[revDir][mdir])
-          else if (elseDir(a) === rDir) a = setElseDir(a, DNA[revDir][mdir])
+          if (thenDir(a) === rDir) a = setThenDir(a, DNA[thenDir(a)][mdir])
+          else if (elseDir(a) === rDir) a = setElseDir(a, DNA[elseDir(a)][mdir])
         }
         oldA !== a && put(w, dstOffs, a)  // update near atom's bond
       } else {                            // distance between moved atom and near > 1

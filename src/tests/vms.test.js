@@ -1,9 +1,9 @@
 import CFG from '../cfg'
-import { ATOM_TYPE_SHIFT } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR } from '../shared'
 import VMs, { CMDS, vm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
-import { mov, fix } from './atoms'
+import { mov, fix, con } from './atoms'
 
 describe('vm module tests', () => {
   let vmsOffs = null
@@ -66,8 +66,7 @@ describe('vm module tests', () => {
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, mov(0, 2))
       put(w, 0, fix(4, 0, 2))
-      const m = get(w, offs)
-      CMDS[1](vms, m, 0)
+      CMDS[1](vms, get(w, offs), 0)
       expect(get(w, 0)).toBe(fix(3, 0, 2))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
     })
@@ -111,6 +110,15 @@ describe('vm module tests', () => {
       expect(get(w, offs + WIDTH)).toBe(mov(4, 4))
       expect(get(w, offs - 1)).toBe(fix(3, 6, 6))
       expect(get(w, offs + 1)).toBe(fix(5, 6, 6))
+    })
+    test('mov atom should update if atom bonds correctly', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, mov(0, 2))
+      put(w, 0, con(4, 4, 0, NO_DIR))
+      CMDS[1](vms, get(w, offs), 0)
+      expect(get(w, 0)).toBe(con(4, 3, 0, NO_DIR))
+      expect(get(w, offs + 1)).toBe(mov(7, 2))
     })
   })
 })
