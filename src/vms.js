@@ -81,26 +81,42 @@ function mov(vms, a, vmIdx) {
 }
 
 function fix(vms, a, vmIdx) {
+  const w = vms.w
   const vmOffs  = toOffs(vms.offs[vmIdx])
-  const b1d     = b1Dir(a)
-  const a1      = get(vms.w, offs(vmOffs, b1d))
+  const o1      = offs(vmOffs, b1Dir(a))
+  let a1        = get(w, o1)
   if (a1 === 0) return
-  const a2      = get(vms.w, offs(vmOffs, b2Dir(a)))
+  const b2d     = b2Dir(a)
+  const o2      = offs(o1, b2d)
+  let a2        = get(w, o2)
   if (a2 === 0) return
-  if (!vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, b1d)
-  else if (!vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, DIR_REV[b1d])
+  if (vmDir(a1) === NO_DIR && type(a1) !== ATOM_CON) {
+    a1 = setVmDir(a1, b2d)
+    put(w, o1, a1)
+  } else if (vmDir(a2) === NO_DIR && type(a2) !== ATOM_CON) {
+    a2 = setVmDir(a2, DIR_REV[b2d])
+    put(w, o2, a2)
+  }
   // move vm to the next atom offset
   moveVm(vms, a, vmIdx, vmOffs)
 }
 
 function spl(vms, a, vmIdx) {
+  const w = vms.w
   const vmOffs  = toOffs(vms.offs[vmIdx])
-  const a1      = get(vms.w, offs(vmOffs, b1Dir(a)))
+  const o1      = offs(vmOffs, b1Dir(a))
+  let a1        = get(w, o1)
   if (a1 === 0) return
-  const a2      = get(vms.w, offs(vmOffs, b2Dir(a)))
+  const o2      = offs(vmOffs, b2Dir(a))
+  let a2        = get(w, o2)
   if (a2 === 0) return
-  if (vmDir(a1) && type(a1) !== ATOM_CON) setVmDir(a1, NO_DIR)
-  else if (vmDir(a2) && type(a2) !== ATOM_CON) setVmDir(a2, NO_DIR)
+  if (vmDir(a1) !== NO_DIR && type(a1) !== ATOM_CON) {
+    a1 = setVmDir(a1, NO_DIR)
+    put(w, o1, a1)
+  } else if (vmDir(a2) !== NO_DIR && type(a2) !== ATOM_CON) {
+    a2 = setVmDir(a2, NO_DIR)
+    put(w, o2, a2)
+  }
   // move vm to the next atom offset
   moveVm(vms, a, vmIdx, vmOffs)
 }
