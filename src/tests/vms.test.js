@@ -123,7 +123,7 @@ describe('vm module tests', () => {
   })
 
   describe('fix atom tests', () => {
-    test('fix atom should fix near atoms together', () => {
+    test('fix atom should fix near atoms together if they have no bonds', () => {
       const offs = WIDTH
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, fix(4, 2, 7))
@@ -133,6 +133,28 @@ describe('vm module tests', () => {
       expect(get(w, offs)).toBe(fix(4, 2, 7))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
       expect(get(w, 0)).toBe(mov(NO_DIR, 0))
+    })
+    test('fix atom should fix near atoms together if they have only 1 bond', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, fix(4, 2, 7))
+      put(w, 0, mov(NO_DIR, 0))
+      put(w, offs + 1, mov(2, 2))
+      CMDS[2](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(fix(4, 2, 7))
+      expect(get(w, offs + 1)).toBe(mov(2, 2))
+      expect(get(w, 0)).toBe(mov(3, 0))
+    })
+    test('fix atom should not fix near atoms if they already have bonds', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, fix(4, 2, 7))
+      put(w, 0, mov(0, 0))
+      put(w, offs + 1, mov(2, 2))
+      CMDS[2](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(fix(4, 2, 7))
+      expect(get(w, offs + 1)).toBe(mov(2, 2))
+      expect(get(w, 0)).toBe(mov(0, 0))
     })
   })
 })
