@@ -120,6 +120,14 @@ describe('vm module tests', () => {
       expect(get(w, 0)).toBe(con(4, 3, 3, NO_DIR))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
     })
+    test('mov atom should move VM correctly', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, mov(2, 2))
+      put(w, offs + 1, fix(2, 0, 2))
+      CMDS[1](vms, get(w, offs), 0)
+      expect(vmsOffs[0] === vm(offs + 2, 1)).toBe(true)
+    })
   })
 
   describe('fix atom tests', () => {
@@ -177,7 +185,7 @@ describe('vm module tests', () => {
   })
 
   describe('spl atom tests', () => {
-    test('spl atom should split near atoms', () => {
+    test('spl atom should split near first atoms', () => {
       const offs = WIDTH
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, spl(2, 2, 7))
@@ -186,6 +194,28 @@ describe('vm module tests', () => {
       CMDS[3](vms, get(w, offs), 0)
       expect(get(w, offs)).toBe(spl(2, 2, 7))
       expect(get(w, 0)).toBe(mov(4, 2))
+      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
+    })
+    test('spl atom should split near second atoms', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, spl(2, 2, 7))
+      put(w, 0, mov(3, 2))
+      put(w, offs + 1, mov(NO_DIR, 2))
+      CMDS[3](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(spl(2, 2, 7))
+      expect(get(w, 0)).toBe(mov(NO_DIR, 2))
+      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
+    })
+    test('spl atom should not split near atoms if they have no bonds', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, spl(2, 2, 7))
+      put(w, 0, mov(NO_DIR, 2))
+      put(w, offs + 1, mov(NO_DIR, 2))
+      CMDS[3](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(spl(2, 2, 7))
+      expect(get(w, 0)).toBe(mov(NO_DIR, 2))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
     })
   })
