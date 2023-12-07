@@ -156,5 +156,14 @@ describe('vm module tests', () => {
       expect(get(w, offs + 1)).toBe(mov(2, 2))
       expect(get(w, 0)).toBe(mov(0, 0))
     })
+    test('fix atom should fix itself and near atom', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, fix(NO_DIR, 2, 6))
+      put(w, offs + 1, mov(0, 0))
+      CMDS[2](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(fix(2, 2, 6))
+      expect(get(w, offs + 1)).toBe(mov(0, 0))
+    })
   })
 })
