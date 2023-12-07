@@ -3,7 +3,7 @@ import { ATOM_TYPE_SHIFT, NO_DIR } from '../shared'
 import VMs, { CMDS, vm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
-import { mov, fix, con } from './atoms'
+import { mov, fix, spl, con } from './atoms'
 
 describe('vm module tests', () => {
   let vmsOffs = null
@@ -164,6 +164,29 @@ describe('vm module tests', () => {
       CMDS[2](vms, get(w, offs), 0)
       expect(get(w, offs)).toBe(fix(2, 2, 6))
       expect(get(w, offs + 1)).toBe(mov(0, 0))
+    })
+    test('fix atom should not work if second atom is not exist', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, fix(2, 2, 2))
+      put(w, offs + 1, mov(NO_DIR, 0))
+      CMDS[2](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(fix(2, 2, 2))
+      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 0))
+    })
+  })
+
+  describe('spl atom tests', () => {
+    test('spl atom should split near atoms', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, spl(2, 2, 7))
+      put(w, 0, mov(4, 2))
+      put(w, offs + 1, mov(6, 2))
+      CMDS[3](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(spl(2, 2, 7))
+      expect(get(w, 0)).toBe(mov(4, 2))
+      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
     })
   })
 })

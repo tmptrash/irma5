@@ -81,7 +81,7 @@ function mov(vms, a, vmIdx) {
 }
 
 function fix(vms, a, vmIdx) {
-  const w = vms.w
+  const w       = vms.w
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
@@ -102,12 +102,12 @@ function fix(vms, a, vmIdx) {
 }
 
 function spl(vms, a, vmIdx) {
-  const w = vms.w
+  const w       = vms.w
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
   if (a1 === 0) return
-  const o2      = offs(vmOffs, b2Dir(a))
+  const o2      = offs(o1, b2Dir(a))
   let a2        = get(w, o2)
   if (a2 === 0) return
   if (vmDir(a1) !== NO_DIR && type(a1) !== ATOM_CON) {
