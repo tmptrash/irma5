@@ -153,7 +153,8 @@ function rep(vms, a, vmIdx) {
   const a1     = get(vms.w, offs(vmOffs, b1Dir(a)))
   const a2Offs = offs(vmOffs, b2Dir(a))
   const a2     = get(vms.w, a2Offs)
-  a1 && a2 && putAtom(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
+  // TODO: we should check same types before replicate
+  a1 && a2 && put(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
   moveVm(vms, a, vmIdx, vmOffs)
 }
