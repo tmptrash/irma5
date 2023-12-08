@@ -204,7 +204,7 @@ describe('vm module tests', () => {
       expect(get(w, 0)).toBe(mov(4, 2))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
     })
-    test('spl atom should split near second atoms', () => {
+    test('spl atom should split near second atom', () => {
       const offs = WIDTH
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, spl(2, 2, 7))
@@ -225,6 +225,23 @@ describe('vm module tests', () => {
       expect(get(w, offs)).toBe(spl(2, 2, 7))
       expect(get(w, 0)).toBe(mov(NO_DIR, 2))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
+    })
+    test('spl atom should not split if no second atom', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, spl(2, 2, 7))
+      put(w, offs + 1, mov(6, 2))
+      CMDS[3](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(spl(2, 2, 7))
+      expect(get(w, offs + 1)).toBe(mov(6, 2))
+    })
+    test('spl atom should move VM correctly', () => {
+      const offs = WIDTH
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, spl(2, 2, 7))
+      put(w, offs + 1, mov(6, 2))
+      CMDS[3](vms, get(w, offs), 0)
+      expect(vmsOffs[0] === vm(offs + 1, 1)).toBe(true)
     })
   })
 })
