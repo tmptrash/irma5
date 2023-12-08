@@ -85,11 +85,11 @@ function fix(vms, a, vmIdx) {
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
-  if (a1 === 0) return
+  if (a1 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
   const b2d     = b2Dir(a)
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
-  if (a2 === 0) return
+  if (a2 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
   if (vmDir(a1) === NO_DIR && type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, b2d)
     put(w, o1, a1)
@@ -106,10 +106,10 @@ function spl(vms, a, vmIdx) {
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
-  if (a1 === 0) return
+  if (a1 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
   const o2      = offs(o1, b2Dir(a))
   let a2        = get(w, o2)
-  if (a2 === 0) return
+  if (a2 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
   if (vmDir(a1) !== NO_DIR && type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, NO_DIR)
     put(w, o1, a1)
