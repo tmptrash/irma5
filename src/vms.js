@@ -126,8 +126,8 @@ function con(vms, a, vmIdx) {
   const vmOffs = toOffs(vms.offs[vmIdx])
   const ifOffs = offs(vmOffs, ifDir(a))
   // if then else mode
-  if (!dir3) {
-    const atom = get(w, ifOffs)
+  if (dir3 == NO_DIR) {
+    const atom = get(vms.w, ifOffs)
     moveVm(vms, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
     return
   }

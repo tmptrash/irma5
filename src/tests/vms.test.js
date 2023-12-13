@@ -244,4 +244,19 @@ describe('vm module tests', () => {
       expect(vmsOffs[0] === vm(offs + 1, 1)).toBe(true)
     })
   })
+
+  describe('con atom tests', () => {
+    test('con atom should direct VM to then dir if near atom exists', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, con(2, 4, 2, NO_DIR))
+      put(w, offs + 1, mov(NO_DIR, 2))
+      put(w, WIDTH, spl(NO_DIR, 2, 0))
+      CMDS[4](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(con(2, 4, 2, NO_DIR))
+      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
+      expect(get(w, WIDTH)).toBe(spl(NO_DIR, 2, 0))
+      expect(vmsOffs[0] === vm(WIDTH, 1)).toBe(true)
+    })
+  })
 })
