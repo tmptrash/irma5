@@ -185,6 +185,7 @@ describe('vm module tests', () => {
     test('fix atom should move VM correctly', () => {
       const offs = WIDTH
       vmsOffs[0] = vm(offs, 1)
+      const f = fix(2, 2, 7)
       put(w, offs, fix(2, 2, 7))
       put(w, offs + 1, mov(NO_DIR, 2))
       CMDS[2](vms, get(w, offs), 0)
@@ -298,6 +299,18 @@ describe('vm module tests', () => {
       expect(get(w, offs)).toBe(con(2, 2, 2, NO_DIR))
       expect(get(w, offs + 1)).toBe(0)
       expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
+    })
+    test('con atom should not direct VM to else dir if else atom is not exist', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, con(2, 4, 2, 4))
+      put(w, offs + 1, spl(NO_DIR, 2, 0))
+      put(w, WIDTH, spl(NO_DIR, 1, 0))
+      CMDS[4](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(con(2, 4, 2, 4))
+      expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
+      expect(get(w, WIDTH)).toBe(spl(NO_DIR, 1, 0))
+      expect(vmsOffs[0] === vm(WIDTH, 1)).toBe(true)
     })
   })
 })
