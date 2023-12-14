@@ -280,5 +280,24 @@ describe('vm module tests', () => {
       expect(get(w, WIDTH)).toBe(spl(NO_DIR, 2, 0))
       expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
     })
+    test('con atom should direct VM to then atom if then and else dirs are the same', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, con(2, 2, 2, NO_DIR))
+      put(w, offs + 1, spl(NO_DIR, 2, 0))
+      CMDS[4](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(con(2, 2, 2, NO_DIR))
+      expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
+      expect(vmsOffs[0] === vm(offs + 1, 1)).toBe(true)
+    })
+    test('con atom should not direct VM to then atom if then atom does not exist', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, con(2, 2, 2, NO_DIR))
+      CMDS[4](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(con(2, 2, 2, NO_DIR))
+      expect(get(w, offs + 1)).toBe(0)
+      expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
+    })
   })
 })
