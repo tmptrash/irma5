@@ -339,7 +339,7 @@ describe('vm module tests', () => {
   })
 
   describe('job atom tests', () => {
-    test('job atom should creat new VM and put it on near atom', () => {
+    test('job atom should create new VM and put it on near atom', () => {
       const offs = 0
       vmsOffs[0] = vm(offs, 1)
       put(w, offs, job(2, 2))
@@ -348,6 +348,14 @@ describe('vm module tests', () => {
       expect(get(w, offs)).toBe(job(2, 2))
       expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
       expect(vmsOffs[0] === vm(offs + 1, 2)).toBe(true)
+    })
+    test('job atom should not create new VM, because there is no near atom', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, job(2, 2))
+      CMDS[5](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(job(2, 2))
+      expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
     })
   })
 })
