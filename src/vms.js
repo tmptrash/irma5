@@ -139,9 +139,9 @@ function con(vms, a, vmIdx) {
 function job(vms, a, vmIdx) {
   const vmOffs    = toOffs(vms.offs[vmIdx])
   const newVmOffs = offs(vmOffs, b1Dir(a))
-  if (!get(w, newVmOffs)) {
+  if (get(vms.w, newVmOffs)) {
     const offsIdx = findIdx(vms, newVmOffs)
-    offsIdx !== -1 && addVm(newVmOffs, offsIdx, 1)
+    offsIdx !== -1 && addVm(vms, offsIdx, 1)
   }
 
   // move vm to the next atom offset
@@ -188,7 +188,9 @@ function addVm(vms, idx, n) {
     offs[idx] = offs[--vms.last]
     return
   }
-  offs[idx] = vm(toOffs(offs[idx]), vmAmount)
+  const dstOffs = toOffs(offs[idx])
+  offs[idx] = vm(dstOffs, vmAmount)
+  vmAmount === n && (vms.map[dstOffs] = idx)
   return idx
 }
 

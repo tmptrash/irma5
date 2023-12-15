@@ -3,7 +3,7 @@ import { ATOM_TYPE_SHIFT, NO_DIR } from '../shared'
 import VMs, { CMDS, vm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
-import { mov, fix, spl, con } from './atoms'
+import { mov, fix, spl, con, job } from './atoms'
 
 describe('vm module tests', () => {
   let vmsOffs = null
@@ -335,6 +335,19 @@ describe('vm module tests', () => {
       expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
       expect(get(w, WIDTH)).toBe(fix(NO_DIR, 1, 0))
       expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
+    })
+  })
+
+  describe('job atom tests', () => {
+    test('job atom should creat new VM and put it on near atom', () => {
+      const offs = 0
+      vmsOffs[0] = vm(offs, 1)
+      put(w, offs, job(2, 2))
+      put(w, offs + 1, spl(NO_DIR, 2, 0))
+      CMDS[5](vms, get(w, offs), 0)
+      expect(get(w, offs)).toBe(job(2, 2))
+      expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
+      expect(vmsOffs[0] === vm(offs + 1, 2)).toBe(true)
     })
   })
 })

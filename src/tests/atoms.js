@@ -10,7 +10,7 @@ export function spl(vmDir, b1Dir, b2Dir) {
 export function con(ifDir, thenDir, elseDir, cmpDir) {
   return parseInt(`100${dir(ifDir)}${dir(thenDir)}${dir(elseDir)}${dir4(cmpDir)}`, 2)
 }
-export function job(vmDir, newVmDir, b2Dir) {
+export function job(vmDir, newVmDir) {
   return parseInt(`101${dir4(vmDir)}${dir(newVmDir)}000000`, 2)
 }
 export function rep(vmDir, a1Dir, a2Dir) {
