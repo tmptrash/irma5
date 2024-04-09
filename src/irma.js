@@ -15,8 +15,8 @@ function run() {
 
 const w = World()                                 // 2D world
 const plugins = [Title(w), Buttons(w)]            // plugins of the world
-// TODO: here shoulf be a loader of vm positions
-const vmOffs = new BigUint64Array(10)             // array of virtual machines
+// TODO: here shoulf be a loader of vm positions & energies
+const vmOffs = BigUint64Array.new(10)             // array of virtual machines
 const vms = VMs(w, vmOffs)                        // VMs instance
 addEventListener('message', e => e.data === 0 && (e.stopPropagation() || run()), true)
 run()                                             // run the emulator

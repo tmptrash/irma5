@@ -2,7 +2,7 @@ import CFG from './cfg.js'
 
 export const VM_OFFS_MASK         = 0xFFFFFFFF00000000n
 export const VM_OFFS_SHIFT        = 32n
-export const VM_VMS_MASK          = 0x00000000FFFFFFFFn
+export const VM_ENERGY_MASK       = 0x00000000FFFFFFFFn
 export const MOV_BREAK_MASK       = 0b10000000000000000000000000000000
 export const MOV_BREAK_UNMASK     = 0b01111111111111111111111111111111
 
@@ -99,3 +99,85 @@ export const DNA = [
   [     7,      0, NO_DIR,      4,      5, NO_DIR, NO_DIR, NO_DIR],
   [NO_DIR, NO_DIR,      0, NO_DIR,      6, NO_DIR, NO_DIR, NO_DIR]
 ]
+/**
+ * Wrapper for Uint32Array type with an ability to create, resize, add,
+ * remove elements. The difference between this version and original is 
+ * in using index (i) as a length property. So if user needs to resize 
+ * an array to lesser size we don't do resize() we only change i prop
+ */
+Uint32Array.new = function create(size) {
+  const a = new Uint32Array(size)
+  a.i = 0
+  return a
+}
+Uint32Array.prototype.resize = function resize(size) {
+  const idx = this.length
+  const a = new Uint32Array(this.buffer.transfer(size * Uint32Array.BYTES_PER_ELEMENT))
+  a.i = idx
+  return a
+}
+Uint32Array.prototype.double = function double() {
+  return this.resize(this.length * 2)
+}
+Uint32Array.prototype.end = function end() {
+  return this.i >= this.length
+}
+Uint32Array.prototype.has = function has(val) {
+  for (let i = 0; i < this.i; i++) {
+    if (this[i] === val) return true
+  }
+  return false
+}
+Uint32Array.prototype.index = function index(val) {
+  for (let i = 0; i < this.i; i++) {
+    if (this[i] === val) return i
+  }
+  return -1
+}
+Uint32Array.prototype.add = function add(val) {
+  this[this.i++] = val
+}
+Uint32Array.prototype.del = function del(i) {
+  this[i] = this[--this.i]
+}
+/**
+ * Wrapper for BigUint64Array type with an ability to create, resize, add,
+ * remove elements. The difference between this version and original is 
+ * in using index (i) as a length property. So if user needs to resize 
+ * an array to lesser size we don't do resize() we only change i prop
+ */
+BigUint64Array.new = function create(size) {
+  const a = new BigUint64Array(size)
+  a.i = 0
+  return a
+}
+BigUint64Array.prototype.resize = function resize(size) {
+  const idx = this.length
+  const a = new BigUint64Array(this.buffer.transfer(size * BigUint64Array.BYTES_PER_ELEMENT))
+  a.i = idx
+  return a
+}
+BigUint64Array.prototype.double = function double() {
+  return this.resize(this.length * 2)
+}
+BigUint64Array.prototype.end = function end() {
+  return this.i >= this.length
+}
+BigUint64Array.prototype.has = function has(val) {
+  for (let i = 0; i < this.i; i++) {
+    if (this[i] === val) return true
+  }
+  return false
+}
+BigUint64Array.prototype.index = function index(val) {
+  for (let i = 0; i < this.i; i++) {
+    if (this[i] === val) return i
+  }
+  return -1
+}
+BigUint64Array.prototype.add = function add(val) {
+  this[this.i++] = val
+}
+BigUint64Array.prototype.del = function del(i) {
+  this[i] = this[this.i--]
+}
