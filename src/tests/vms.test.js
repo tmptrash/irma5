@@ -360,6 +360,8 @@ describe('vm module tests', () => {
       CMDS[5](vms, get(w, offs), 0)
       expect(get(w, offs)).toBe(job(2, 2))
       expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
+      expect(vms.map[0].has(0)).toBe(true)
+      expect(vms.map[1]).toBe(undefined)
     })
   })
 })
