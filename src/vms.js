@@ -16,20 +16,19 @@ let MOVED = {}
 
 export const CMDS = [nop, mov, fix, spl, con, job, rep]
 
-export default function VMs(w, vmOffs, last = null) {
+export default function VMs(w, vmOffs) {
   const vms = {
     offs: Uint32Array.new(0),
-    last: 0,
-    map: {}, // key: offs, val: BigUint64Array (32b - vm idx, 32b - vm energy)
+    map: {}, // key: vm offs, val: BigUint64Array (32b - vm idx, 32b - vm energy)
     w
   }
-  set(vms, vmOffs, last)
+  set(vms, vmOffs)
   return vms
 }
 
-export function set(vms, offs, last) {
+export function set(vms, offs) {
   vms.offs = offs
-  const l = vms.last = last || offs.length
+  const l = offs.i
   const map = vms.map
   for (let i = 0; i < l; i++) {
     const o = toOffs(offs[i])
@@ -175,23 +174,6 @@ function rep(vms, a, vmIdx) {
  * Moves VM from one atom to another if possible and updates
  * related vm.offs array
  */
-// function moveVm(vms, a, idx, o, dir = NO_DIR) {
-//   const d = dir !== NO_DIR ? dir : vmDir(a)
-//   const dstOffs = offs(o, d)
-//   if (d === NO_DIR || !get(vms.w, dstOffs)) return
-//   const vmAmount = amount(vms.offs, idx)
-//   let idx1 = findIdx(vms, dstOffs)
-//   if (idx1 === -1) return
-//   vmAmount && addVm(vms, idx, -1)
-//   idx1 = findIdx(vms, dstOffs)
-//   if (idx1 === -1) return
-//   if (vmAmount) return addVm(vms, idx1, 1)
-// }
-
-/**
- * Moves VM from one atom to another if possible and updates
- * related vm.offs array
- */
 function moveVm(vms, a, idx, o, dir = NO_DIR) {
   const d = dir !== NO_DIR ? dir : vmDir(a)
   const dstOffs = offs(o, d)
@@ -205,24 +187,6 @@ function moveVm(vms, a, idx, o, dir = NO_DIR) {
   vms.offs[idx] = vm(dstOffs, nrg(vms.offs[idx]))  // sets VM new offset index
   return idx
 }
-
-/**
- * Adds a number n to amount of vms in offs[idx]
- */
-// function addVm(vms, idx, n) {
-//   const offs = vms.offs
-//   const vmAmount = amount(offs, idx) + n
-//   if (vmAmount < 1) {                       // no vms on current atom
-//     delete vms.map[toOffs(offs[idx])]
-//     vms.map[toOffs(offs[vms.last - 1])] = idx
-//     offs[idx] = offs[--vms.last]
-//     return
-//   }
-//   const dstOffs = toOffs(offs[idx])
-//   offs[idx] = vm(dstOffs, vmAmount)
-//   vmAmount === n && (vms.map[dstOffs] = idx)
-//   return idx
-// }
 
 /**
  * Removes one VM from vms array and associated map
@@ -242,7 +206,7 @@ function moveVm(vms, a, idx, o, dir = NO_DIR) {
 /**
  * Adds one VM to vms array and map
  */
-function addVm(vms, o, energy) {
+export function addVm(vms, o, energy) {
   const m = vms.map
   let offs = vms.offs
   if (offs.end()) offs = vms.offs = offs.double()
@@ -252,19 +216,6 @@ function addVm(vms, o, energy) {
   m[o].add(offs.i - 1)
   return true
 }
-
-/**
- * Finds an index in offs array of specified VM offset. If there is no
- * such offset it adds new empty cell to offs array
- */
-// TODO: remove this
-// function findIdx(vms, offs) {
-//   const idx = vms.map[offs]
-//   if (idx !== undefined) return idx
-//   if (vms.last >= vms.offs.length || !get(vms.w, offs)) return -1
-//   vms.offs[vms.last++] = vm(offs, 0)
-//   return vms.last - 1
-// }
 
 /**
  * Updates moved atom bonds
