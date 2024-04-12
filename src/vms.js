@@ -233,13 +233,13 @@ export function addVm(vms, o, energy) {
 function delVm(vms, idx) {
   const offs = vms.offs
   const o = toOffs(offs[idx])
-  const v = vms.map[o]                  // remove VM index from the map
+  offs.del(idx)                         // removes vm from vm offs array
+  const v = vms.map[o]
   if (v === undefined) return
   const i = v.index(idx)
   if (i < 0) return
-  v.del(i)
-  if (v.i === 0) delete vms.map[o]
-  offs.del(idx)
+  v.del(i)                             // remove VM index from the map
+  if (v.i === 0) delete vms.map[o]     // there are no other vms on this offset
 }
 
 /**
