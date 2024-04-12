@@ -1,6 +1,6 @@
 import CFG from './cfg.js'
-import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, NO_DIR,
-  ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK, DMA, DNA, DMD, DIR_REV } from './shared.js'
+import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, NO_DIR, ATOM_CON,
+  MOV_BREAK_MASK, MOV_BREAK_UNMASK, DMA, DNA, DMD, DIR_REV } from './shared.js'
 import { get, move, put } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
   setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom.js'
@@ -46,11 +46,11 @@ export function nrg(offs) {
   return Number(offs & VM_ENERGY_MASK)
 }
 
-export function tick(vm) {
+export function tick(vms) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
-    for (let vmIdx = 0, l = vm.offs.length; vmIdx < l; vmIdx++) {
-      const a = get(vm.w, toOffs(vm.offs[vmIdx]))
-      CMDS[type(a)](vm, a, vmIdx)
+    for (let vmIdx = 0; vmIdx < vms.offs.i;) {
+      const inc = CMDS[type(a)](vms, get(vms.w, toOffs(vms.offs[vmIdx])), vmIdx)
+      vmIdx += (inc === undefined ? 1 : inc)
     }
 }
 
@@ -58,9 +58,11 @@ function nop() {}
 
 function mov(vms, a, vmIdx) {
   STACK[stackIdx++] = toOffs(vms.offs[vmIdx])           // put mov atom offs into the stack
+  const oldAtom = a
   const atomOffs = fromStack()                          // offset of moved atom
   const movDir = b1Dir(a)                               // mov direction
   const w = vms.w
+  let moved = 0
   while (stackIdx > 0) {                                // go for all items in stack
     const aOffs = fromStack()                           // last offs in stack (not pop)
     if (MOVED[aOffs] || !get(w, aOffs)) { stackIdx--; continue } // this offs was already moved or no atom
@@ -73,6 +75,7 @@ function mov(vms, a, vmIdx) {
     stackIdx--                                          // pop atom offs from stack
     move(w, aOffs, dstOffs)                             // dest place is free, move atom
     MOVED[dstOffs] = true                               // add moved atom to moved store
+    moved++                                             // calc amount of moved near atoms
     if (type(a) === ATOM_CON) {                         // update bonds of if atom. we don't neet to update spl, fix
       a = rebond(w, a, aOffs, movDir, thenDir, setThenDir) // update then bond of moved atom
       a = rebond(w, a, aOffs, movDir, elseDir, setElseDir) // update else bond of moved atom
@@ -81,11 +84,15 @@ function mov(vms, a, vmIdx) {
     rebond2(w, aOffs, movDir)                           // update near atoms bonds
     oldA !== a && put(w, dstOffs, a)                    // put updated atom back to the world
   }
-  vmIdx = moveVm(vms, a, vmIdx, atomOffs, movDir)       // update VM pos after mov atom was moved
-  const dstOffs = offs(atomOffs, movDir)
-  vmIdx !== undefined && moveVm(vms, a, vmIdx, dstOffs) // move VM to the next atom
   MOVED = {}                                            // reset moved and stack sets
   stackIdx = 0
+
+  const dstOffs = offs(atomOffs, movDir)
+  if (oldAtom === get(w, dstOffs)) {
+    vmIdx = moveVm(vms, a, vmIdx, atomOffs, movDir)     // update VM pos after mov atom was moved
+    vmIdx = moveVm(vms, a, vmIdx, dstOffs)              // move VM to the next atom
+  }
+  return updateNrg(vms, vmIdx, -moved * CFG.ATOM.NRG.mov)
 }
 
 function fix(vms, a, vmIdx) {
@@ -98,15 +105,22 @@ function fix(vms, a, vmIdx) {
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
   if (a2 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
+  let ret       = undefined
   if (vmDir(a1) === NO_DIR && type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, b2d)
     put(w, o1, a1)
+    ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
   } else if (vmDir(a2) === NO_DIR && type(a2) !== ATOM_CON) {
     a2 = setVmDir(a2, DIR_REV[b2d])
     put(w, o2, a2)
+    ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
   }
   // move vm to the next atom offset
-  moveVm(vms, a, vmIdx, vmOffs)
+  if (ret === undefined) {
+    ret = moveVm(vms, a, vmIdx, vmOffs)
+    ret === undefined && (ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.fix))
+  }
+  return ret
 }
 
 function spl(vms, a, vmIdx) {
@@ -118,15 +132,23 @@ function spl(vms, a, vmIdx) {
   const o2      = offs(o1, b2Dir(a))
   let a2        = get(w, o2)
   if (a2 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
+  let ret       = undefined
   if (vmDir(a1) !== NO_DIR && type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, NO_DIR)
     put(w, o1, a1)
+    ret = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
   } else if (vmDir(a2) !== NO_DIR && type(a2) !== ATOM_CON) {
     a2 = setVmDir(a2, NO_DIR)
     put(w, o2, a2)
+    ret = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
   }
   // move vm to the next atom offset
-  moveVm(vms, a, vmIdx, vmOffs)
+  if (ret === undefined) {
+    ret = moveVm(vms, a, vmIdx, vmOffs)
+    ret === undefined && (ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.spl))
+  }
+
+  return ret
 }
 
 function con(vms, a, vmIdx) {
@@ -136,12 +158,13 @@ function con(vms, a, vmIdx) {
   // if then else mode
   if (dir3 == NO_DIR) {
     const atom = get(vms.w, ifOffs)
-    moveVm(vms, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
-    return
+    const idx = moveVm(vms, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
+    return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.con)
   }
   // atoms compare mode
   const similar = type(get(vms.w, ifOffs)) === type(get(vms.w, offs(vmOffs, dir3)))
-  moveVm(vms, a, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
+  const idx = moveVm(vms, a, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
+  return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.con)
 }
 
 function job(vms, a, vmIdx) {
@@ -156,7 +179,8 @@ function job(vms, a, vmIdx) {
   }
 
   // move vm to the next atom offset
-  moveVm(vms, a, vmIdx, vmOffs)
+  const idx = moveVm(vms, a, vmIdx, vmOffs)
+  return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.job)
 }
 
 function rep(vms, a, vmIdx) {
@@ -167,7 +191,8 @@ function rep(vms, a, vmIdx) {
   // TODO: we should check same types before replicate
   a1 && a2 && put(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
-  moveVm(vms, a, vmIdx, vmOffs)
+  const idx = moveVm(vms, a, vmIdx, vmOffs)
+  return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.rep)
 }
 
 /**
@@ -177,7 +202,7 @@ function rep(vms, a, vmIdx) {
 function moveVm(vms, a, idx, o, dir = NO_DIR) {
   const d = dir !== NO_DIR ? dir : vmDir(a)
   const dstOffs = offs(o, d)
-  if (d === NO_DIR || !get(vms.w, dstOffs)) return
+  if (d === NO_DIR || !get(vms.w, dstOffs)) return idx
   const m = vms.map
   let md = m[dstOffs]
   if (md === undefined) md = m[dstOffs] = Uint32Array.new(1)
@@ -187,21 +212,6 @@ function moveVm(vms, a, idx, o, dir = NO_DIR) {
   vms.offs[idx] = vm(dstOffs, nrg(vms.offs[idx]))  // sets VM new offset index
   return idx
 }
-
-/**
- * Removes one VM from vms array and associated map
- */
-// function delVm(vms, idx) {
-//   const offs = vms.offs
-//   const o = toOffs(offs[idx])
-//   const v = vms.map[o]                  // remove VM index from the map
-//   if (v === undefined) return
-//   const i = v.index(idx)
-//   if (i < 0) return
-//   vms.map.del(i)
-//   if (vms.map.i === 0) delete vms.map[o]
-//   offs.del(idx)
-// }
 
 /**
  * Adds one VM to vms array and map
@@ -214,7 +224,22 @@ export function addVm(vms, o, energy) {
   if (m[o] === undefined) m[o] = Uint32Array.new(1)
   if (m[o].end()) m[o] = m[o].double()
   m[o].add(offs.i - 1)
-  return true
+  return offs.i - 1
+}
+
+/**
+ * Removes one VM from vms array and associated map
+ */
+function delVm(vms, idx) {
+  const offs = vms.offs
+  const o = toOffs(offs[idx])
+  const v = vms.map[o]                  // remove VM index from the map
+  if (v === undefined) return
+  const i = v.index(idx)
+  if (i < 0) return
+  v.del(i)
+  if (v.i === 0) delete vms.map[o]
+  offs.del(idx)
 }
 
 /**
@@ -267,4 +292,15 @@ function rebond2(w, o, mdir) {
 
 function fromStack() {
   return STACK[stackIdx - 1] & MOV_BREAK_UNMASK
+}
+
+// TODO: check this formula and if we need to remove VM if no energy
+function updateNrg(vms, vmIdx, energy) {
+  const o = vms.offs[vmIdx]
+  const newNrg = nrg(o) + energy
+  if (newNrg < 1) {
+    delVm(vms, vmIdx)
+    return -1
+  }
+  vms.offs[vmIdx] = vm(toOffs(o), newNrg)
 }
