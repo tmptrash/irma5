@@ -80,12 +80,12 @@ describe('vm module tests', () => {
       expect(vms.map[offs + 2].has(vmIdx)).toBe(true)
       expect(vmsOffs[vmIdx]).toBe(vm(offs + 2, energy - 2 * CFG.ATOM.NRG.mov))
     })
-    xtest('mov atom should move itself and update its vm bond and near atom vm bond', () => {
+    test('mov atom should move itself and update its vm bond and near atom vm bond', () => {
       const offs = WIDTH
-      vmsOffs[0] = vm(offs, 1)
+      const vmIdx = addVm(vms, offs, 2 * CFG.ATOM.NRG.mov)
       put(w, offs, mov(0, 2))
       put(w, 0, fix(4, 0, 2))
-      CMDS[1](vms, get(w, offs), 0)
+      CMDS[1](vms, get(w, offs), vmIdx)
       expect(get(w, 0)).toBe(fix(3, 0, 2))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
     })
