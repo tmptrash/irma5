@@ -87,10 +87,9 @@ function mov(vms, a, vmIdx) {
   MOVED = {}                                            // reset moved and stack sets
   stackIdx = 0
 
-  const dstOffs = offs(atomOffs, movDir)
-  if (oldAtom === get(w, dstOffs)) {
+  if (oldAtom !== get(w, atomOffs)) {
     vmIdx = moveVm(vms, a, vmIdx, atomOffs, movDir)     // update VM pos after mov atom was moved
-    vmIdx = moveVm(vms, a, vmIdx, dstOffs)              // move VM to the next atom
+    vmIdx = moveVm(vms, a, vmIdx, offs(atomOffs, movDir)) // move VM to the next atom
   }
   return updateNrg(vms, vmIdx, -moved * CFG.ATOM.NRG.mov)
 }

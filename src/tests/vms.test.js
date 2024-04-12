@@ -88,6 +88,7 @@ describe('vm module tests', () => {
       CMDS[1](vms, get(w, offs), vmIdx)
       expect(get(w, 0)).toBe(fix(3, 0, 2))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
+      expect(vmsOffs[vmIdx]).toBe(vm(0, CFG.ATOM.NRG.mov))
     })
     xtest('mov atom should move itself and neighbour atom behind', () => {
       const offs = 1
