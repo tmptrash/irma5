@@ -1,3 +1,5 @@
+import { vm } from './../vms'
+
 export function mov(vmDir, movDir) {
   return parseInt(`001${dir4(vmDir)}${dir(movDir)}000000`, 2)
 }
@@ -15,6 +17,18 @@ export function job(vmDir, newVmDir) {
 }
 export function rep(vmDir, a1Dir, a2Dir) {
   return parseInt(`110${dir4(vmDir)}${dir(a1Dir)}${dir(a2Dir)}000`, 2)
+}
+
+/**
+ * Checks if vms.map and vms.offs are synchronized
+ * @return vm instance
+ */
+export function checkVm(vms, offs, idx, energy) {
+  const idxArr = vms.map[offs]
+  if (idxArr === undefined) return false
+  const vmIdx = idxArr.index(idx)
+  if (vmIdx === -1 || idx === -1 || vmIdx !== idx) return false
+  return vms.offs[idx] === vm(offs, energy)
 }
 
 function pad(n, l) {

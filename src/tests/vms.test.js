@@ -3,7 +3,7 @@ import { ATOM_TYPE_SHIFT, NO_DIR } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { toOffs } from '../atom'
-import { mov, fix, spl, con, job } from './atoms'
+import { mov, fix, spl, con, job, checkVm } from './atoms'
 
 describe('vm module tests', () => {
   let vmsOffs = null
@@ -78,7 +78,7 @@ describe('vm module tests', () => {
       expect(get(w, offs + 2)).toBe(f)
       expect(vms.map[offs + 1].has(vmIdx)).toBe(false)
       expect(vms.map[offs + 2].has(vmIdx)).toBe(true)
-      expect(vmsOffs[vmIdx]).toBe(vm(offs + 2, energy - 2 * CFG.ATOM.NRG.mov))
+      expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
     })
     test('mov atom should move itself and update its vm bond and near atom vm bond', () => {
       const offs = WIDTH
@@ -89,15 +89,17 @@ describe('vm module tests', () => {
       expect(get(w, 0)).toBe(fix(3, 0, 2))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
       expect(vmsOffs[vmIdx]).toBe(vm(0, CFG.ATOM.NRG.mov))
+      expect(checkVm(vms, 0, vmIdx, CFG.ATOM.NRG.mov)).toBe(true)
     })
-    xtest('mov atom should move itself and neighbour atom behind', () => {
+    test('mov atom should move itself and neighbour atom behind', () => {
       const offs = 1
-      vmsOffs[0] = vm(offs, 1)
+      const vmIdx = addVm(vms, offs, 3 * CFG.ATOM.NRG.mov)
       put(w, offs, mov(6, 2))
-      put(w, 0, fix(0, 0, 0))
-      CMDS[1](vms, get(w, offs), 0)
+      put(w, offs - 1, fix(0, 0, 0))
+      CMDS[1](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(fix(0, 0, 0))
       expect(get(w, offs + 1)).toBe(mov(6, 2))
+      expect(checkVm(vms, offs, vmIdx, CFG.ATOM.NRG.mov)).toBe(true)
     })
     xtest('mov atom should move itself and neighbour atom behind and one more', () => {
       const offs = 0
