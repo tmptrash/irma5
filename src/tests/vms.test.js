@@ -126,16 +126,18 @@ describe('vm module tests', () => {
       expect(get(w, offs + WIDTH)).toBe(mov(2, 4))
       expect(checkVm(vms, offs + WIDTH + 1, vmIdx, CFG.ATOM.NRG.mov)).toBe(true)
     })
-    xtest('move three atoms together', () => {
+    test('move three atoms together', () => {
       const offs = WIDTH + 1
-      vmsOffs[0] = vm(offs, 1)
+      const energy = 4 * CFG.ATOM.NRG.mov
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, mov(4, 4))
       put(w, 0, fix(3, 6, 6))
       put(w, 2, fix(5, 6, 6))
-      CMDS[1](vms, get(w, offs), 0)
+      CMDS[1](vms, get(w, offs), vmIdx)
       expect(get(w, offs + WIDTH)).toBe(mov(4, 4))
       expect(get(w, offs - 1)).toBe(fix(3, 6, 6))
       expect(get(w, offs + 1)).toBe(fix(5, 6, 6))
+      expect(checkVm(vms, offs + WIDTH, vmIdx, CFG.ATOM.NRG.mov)).toBe(true)
     })
     xtest('mov atom should update if atom bonds correctly', () => {
       const offs = WIDTH
