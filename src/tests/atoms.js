@@ -25,10 +25,12 @@ export function rep(vmDir, a1Dir, a2Dir) {
  */
 export function checkVm(vms, offs, idx, energy) {
   const idxArr = vms.map[offs]
-  if (idxArr === undefined) return false
+  if (idxArr === undefined) {console.error(`vms.map is broken: ${vms.map}. Offset ${offs} not found.`); return false}
   const vmIdx = idxArr.index(idx)
-  if (vmIdx === -1 || idx === -1 || vmIdx !== idx) return false
-  return vms.offs[idx] === vm(offs, energy)
+  if (vmIdx === -1 || idx === -1 || vmIdx !== idx) { console.error(`Invalid indexes. vmIdx: ${idx}, found vmIdx: ${vmIdx}`); return false }
+  const res = vms.offs[idx] === vm(offs, energy)
+  if (!res) console.error(`VM structure broken for vm with index ${idx}`)
+  return res
 }
 
 function pad(n, l) {
