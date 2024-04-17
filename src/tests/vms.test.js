@@ -171,6 +171,8 @@ describe('vm module tests', () => {
       expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
       CMDS[1](vms, get(w, offs + 2), vmIdx)
       expect(checkVm(vms, offs, vmIdx, energy - 4 * CFG.ATOM.NRG.mov)).toBe(true)
+      expect(get(w, offs)).toBe(mov(2, 2))
+      expect(get(w, offs + 1)).toBe(mov(6, 6))
     })
   })
 
