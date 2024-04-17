@@ -161,6 +161,17 @@ describe('vm module tests', () => {
       CMDS[1](vms, get(w, offs), vmIdx)
       expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
     })
+    test('two near mov atoms should move on the same place after two ticks', () => {
+      const offs = 0
+      const energy = 6 * CFG.ATOM.NRG.mov
+      const vmIdx = addVm(vms, offs, energy)
+      put(w, offs, mov(2, 2))
+      put(w, offs + 1, mov(6, 6))
+      CMDS[1](vms, get(w, offs), vmIdx)
+      expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
+      CMDS[1](vms, get(w, offs + 2), vmIdx)
+      expect(checkVm(vms, offs, vmIdx, energy - 4 * CFG.ATOM.NRG.mov)).toBe(true)
+    })
   })
 
   xdescribe('fix atom tests', () => {
