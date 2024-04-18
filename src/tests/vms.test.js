@@ -192,7 +192,7 @@ describe('vm module tests', () => {
     })
     test('fix atom should fix near atoms together if they have only 1 bond', () => {
       const offs = WIDTH
-      const energy = 4 * CFG.ATOM.NRG.fix
+      const energy = 6 * CFG.ATOM.NRG.fix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
       put(w, 0, mov(NO_DIR, 0))
@@ -201,18 +201,20 @@ describe('vm module tests', () => {
       expect(get(w, offs)).toBe(fix(4, 2, 7))
       expect(get(w, offs + 1)).toBe(mov(2, 2))
       expect(get(w, 0)).toBe(mov(3, 0))
-      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.fix)).toBe(false)
+      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
-    xtest('fix atom should not fix near atoms if they already have bonds', () => {
+    test('fix atom should not fix near atoms if they already have bonds', () => {
       const offs = WIDTH
-      vmsOffs[0] = vm(offs, 1)
+      const energy = 4 * CFG.ATOM.NRG.fix
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
       put(w, 0, mov(0, 0))
       put(w, offs + 1, mov(2, 2))
-      CMDS[2](vms, get(w, offs), 0)
+      CMDS[2](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(fix(4, 2, 7))
       expect(get(w, offs + 1)).toBe(mov(2, 2))
       expect(get(w, 0)).toBe(mov(0, 0))
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
     xtest('fix atom should fix itself and near atom', () => {
       const offs = 0

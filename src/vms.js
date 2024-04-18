@@ -104,7 +104,7 @@ function fix(vms, a, vmIdx) {
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
   if (a2 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
-  let ret       = undefined
+  let ret       = -1
   if (vmDir(a1) === NO_DIR && type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, b2d)
     put(w, o1, a1)
