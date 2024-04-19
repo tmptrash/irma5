@@ -29,7 +29,7 @@ export function checkVm(vms, offs, idx, energy) {
   const vmIdx = idxArr.index(idx)
   if (vmIdx === -1 || idx === -1 || vmIdx !== idx) { console.error(`Invalid indexes. vmIdx: ${idx}, found vmIdx: ${vmIdx}`); return false }
   const res = vms.offs[idx] === vm(offs, energy)
-  if (!res) console.error(`VM structure broken for vm with index ${idx}`)
+  if (!res) console.error(`VM structure broken for vm with index ${idx}. VM should be ${vm(offs, energy)}, but is ${vms.offs[idx]}`)
   return res
 }
 

@@ -50,7 +50,7 @@ export function tick(vms) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
     for (let vmIdx = 0; vmIdx < vms.offs.i;) {
       const inc = CMDS[type(a)](vms, get(vms.w, toOffs(vms.offs[vmIdx])), vmIdx)
-      vmIdx += (inc === undefined ? 1 : inc)
+      vmIdx += (inc < 0 ? inc : 1)
     }
 }
 
@@ -87,11 +87,11 @@ function mov(vms, a, vmIdx) {
   MOVED = {}                                            // reset moved and stack sets
   stackIdx = 0
 
-  if (oldAtom !== get(w, atomOffs)) {
-    vmIdx = moveVm(vms, a, vmIdx, atomOffs, movDir)     // update VM pos after mov atom was moved
-    vmIdx = moveVm(vms, a, vmIdx, offs(atomOffs, movDir)) // move VM to the next atom
+  if (oldAtom !== get(w, atomOffs)) {                   // update VM pos after mov atom was moved & move VM to the next atom
+    vmIdx = moveVm(vms, a, vmIdx, atomOffs, -moved * CFG.ATOM.NRG.mov, movDir) 
+    vmIdx > -1 && moveVm(vms, a, vmIdx, offs(atomOffs, movDir))
   }
-  return updateNrg(vms, vmIdx, -moved * CFG.ATOM.NRG.mov)
+  return vmIdx
 }
 
 function fix(vms, a, vmIdx) {
@@ -99,27 +99,23 @@ function fix(vms, a, vmIdx) {
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
-  if (a1 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
+  if (a1 === 0) return moveVm(vms, a, vmIdx, vmOffs)
   const b2d     = b2Dir(a)
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
-  if (a2 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
-  let ret       = -1
+  if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs)
   if (vmDir(a1) === NO_DIR && type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, b2d)
     put(w, o1, a1)
-    ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
+    vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
   } else if (vmDir(a2) === NO_DIR && type(a2) !== ATOM_CON) {
     a2 = setVmDir(a2, DIR_REV[b2d])
     put(w, o2, a2)
-    ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
+    vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
   }
   // move vm to the next atom offset
-  if (ret === undefined) {
-    ret = moveVm(vms, a, vmIdx, vmOffs)
-    ret === undefined && (ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.fix))
-  }
-  return ret
+  if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
+  return vmIdx
 }
 
 function spl(vms, a, vmIdx) {
@@ -127,26 +123,21 @@ function spl(vms, a, vmIdx) {
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
-  if (a1 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
+  if (a1 === 0) return moveVm(vms, a, vmIdx, vmOffs)
   const o2      = offs(o1, b2Dir(a))
   let a2        = get(w, o2)
-  if (a2 === 0) { moveVm(vms, a, vmIdx, vmOffs); return }
-  let ret       = undefined
+  if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs)
   if (vmDir(a1) !== NO_DIR && type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, NO_DIR)
     put(w, o1, a1)
-    ret = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
+    vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
   } else if (vmDir(a2) !== NO_DIR && type(a2) !== ATOM_CON) {
     a2 = setVmDir(a2, NO_DIR)
     put(w, o2, a2)
-    ret = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
+    vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
   }
   // move vm to the next atom offset
-  if (ret === undefined) {
-    ret = moveVm(vms, a, vmIdx, vmOffs)
-    ret === undefined && (ret = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.spl))
-  }
-
+  if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
   return ret
 }
 
@@ -157,13 +148,11 @@ function con(vms, a, vmIdx) {
   // if then else mode
   if (dir3 == NO_DIR) {
     const atom = get(vms.w, ifOffs)
-    const idx = moveVm(vms, a, vmIdx, vmOffs, atom ? thenDir(a) : elseDir(a))
-    return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.con)
+    return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.con, atom ? thenDir(a) : elseDir(a))
   }
   // atoms compare mode
   const similar = type(get(vms.w, ifOffs)) === type(get(vms.w, offs(vmOffs, dir3)))
-  const idx = moveVm(vms, a, vmIdx, vmOffs, similar ? thenDir(a) : elseDir(a))
-  return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.con)
+  return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.con, similar ? thenDir(a) : elseDir(a))
 }
 
 function job(vms, a, vmIdx) {
@@ -178,8 +167,7 @@ function job(vms, a, vmIdx) {
   }
 
   // move vm to the next atom offset
-  const idx = moveVm(vms, a, vmIdx, vmOffs)
-  return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.job)
+  return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.job)
 }
 
 function rep(vms, a, vmIdx) {
@@ -190,15 +178,14 @@ function rep(vms, a, vmIdx) {
   // TODO: we should check same types before replicate
   a1 && a2 && put(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
-  const idx = moveVm(vms, a, vmIdx, vmOffs)
-  return idx && updateNrg(vms, vmIdx, -CFG.ATOM.NRG.rep)
+  return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.rep)
 }
 
 /**
  * Moves VM from one atom to another if possible and updates
  * related vm.offs array
  */
-function moveVm(vms, a, idx, o, dir = NO_DIR) {
+function moveVm(vms, a, idx, o, energy = 0, dir = NO_DIR) {
   const d = dir !== NO_DIR ? dir : vmDir(a)
   const dstOffs = offs(o, d)
   if (d === NO_DIR || !get(vms.w, dstOffs)) return idx
@@ -209,7 +196,7 @@ function moveVm(vms, a, idx, o, dir = NO_DIR) {
   md.add(idx)                                      // sets dst VM index
   m[toOffs(vms.offs[idx])].del(idx)                // removed VM old offset index
   vms.offs[idx] = vm(dstOffs, nrg(vms.offs[idx]))  // sets VM new offset index
-  return idx
+  return updateNrg(vms, idx, energy)
 }
 
 /**
@@ -302,4 +289,5 @@ function updateNrg(vms, vmIdx, energy) {
     return -1
   }
   vms.offs[vmIdx] = vm(toOffs(o), newNrg)
+  return vmIdx
 }

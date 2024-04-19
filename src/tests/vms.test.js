@@ -192,7 +192,7 @@ describe('vm module tests', () => {
     })
     test('fix atom should fix near atoms together, but should not if they already joined', () => {
       const offs = WIDTH
-      const energy = 6 * CFG.ATOM.NRG.fix
+      const energy = 6 * CFG.ATOM.NRG.onFix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
       put(w, 0, mov(NO_DIR, 0))
@@ -204,7 +204,7 @@ describe('vm module tests', () => {
     })
     test('fix atom should fix near atoms together if they have only 1 bond', () => {
       const offs = WIDTH
-      const energy = 6 * CFG.ATOM.NRG.fix
+      const energy = 6 * CFG.ATOM.NRG.onFix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
       put(w, 0, mov(NO_DIR, 0))
@@ -230,7 +230,7 @@ describe('vm module tests', () => {
     })
     test('fix atom should fix itself and near atom', () => {
       const offs = 0
-      const energy = 5 * CFG.ATOM.NRG.fix
+      const energy = 5 * CFG.ATOM.NRG.onFix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(NO_DIR, 2, 6))
       put(w, offs + 1, mov(0, 0))
@@ -239,14 +239,16 @@ describe('vm module tests', () => {
       expect(get(w, offs + 1)).toBe(mov(0, 0))
       expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
-    xtest('fix atom should not work if second atom is not exist', () => {
+    test('fix atom should not work if second atom is not exist', () => {
       const offs = 0
-      vmsOffs[0] = vm(offs, 1)
+      const energy = 10 * CFG.ATOM.NRG.fix
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(2, 2, 2))
       put(w, offs + 1, mov(NO_DIR, 0))
-      CMDS[2](vms, get(w, offs), 0)
+      CMDS[2](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(fix(2, 2, 2))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 0))
+      expect(checkVm(vms, offs + 1, vmIdx, energy)).toBe(true)
     })
     xtest('fix atom should move VM correctly', () => {
       const offs = WIDTH
