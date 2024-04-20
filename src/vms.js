@@ -138,7 +138,7 @@ function spl(vms, a, vmIdx) {
   }
   // move vm to the next atom offset
   if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
-  return ret
+  return vmIdx
 }
 
 function con(vms, a, vmIdx) {
