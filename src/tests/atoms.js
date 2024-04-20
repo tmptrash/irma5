@@ -25,11 +25,11 @@ export function rep(vmDir, a1Dir, a2Dir) {
  */
 export function checkVm(vms, offs, idx, energy) {
   const idxArr = vms.map[offs]
-  if (idxArr === undefined) {console.error(`vms.map is broken: ${vms.map}. Offset ${offs} not found.`); return false}
+  if (idxArr === undefined) throw `vms.map is broken: ${vms.map}. Offset ${offs} not found.`
   const vmIdx = idxArr.index(idx)
-  if (vmIdx === -1 || idx === -1 || vmIdx !== idx) { console.error(`Invalid indexes. vmIdx: ${idx}, found vmIdx: ${vmIdx}`); return false }
+  if (vmIdx === -1 || idx === -1 || vmIdx !== idx) throw `Invalid indexes. vmIdx: ${idx}, found vmIdx: ${vmIdx}`
   const res = vms.offs[idx] === vm(offs, energy)
-  if (!res) console.error(`VM structure broken for vm with index ${idx}. VM should be ${vm(offs, energy)}, but is ${vms.offs[idx]}`)
+  if (!res) throw `VM structure broken for vm with index ${idx}. VM should be ${vm(offs, energy)}, but is ${vms.offs[idx]}`
   return res
 }
 

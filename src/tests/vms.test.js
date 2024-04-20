@@ -179,7 +179,7 @@ describe('vm module tests', () => {
   describe('fix atom tests', () => {
     test('fix atom should fix near atoms together if they have no bonds', () => {
       const offs = WIDTH
-      const energy = 2 * CFG.ATOM.NRG.fix
+      const energy = 10 * CFG.ATOM.NRG.fix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
       put(w, 0, mov(NO_DIR, 0))
@@ -188,7 +188,7 @@ describe('vm module tests', () => {
       expect(get(w, offs)).toBe(fix(4, 2, 7))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
       expect(get(w, 0)).toBe(mov(NO_DIR, 0))
-      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.fix)).toBe(false)
+      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
     test('fix atom should fix near atoms together, but should not if they already joined', () => {
       const offs = WIDTH
@@ -285,16 +285,18 @@ describe('vm module tests', () => {
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
       expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
     })
-    xtest('spl atom should split near second atom', () => {
+    test('spl atom should split near second atom', () => {
       const offs = WIDTH
-      vmsOffs[0] = vm(offs, 1)
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(2, 2, 7))
       put(w, 0, mov(3, 2))
       put(w, offs + 1, mov(NO_DIR, 2))
-      CMDS[3](vms, get(w, offs), 0)
+      CMDS[3](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(spl(2, 2, 7))
       expect(get(w, 0)).toBe(mov(NO_DIR, 2))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
+      expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
     })
     xtest('spl atom should not split near atoms if they have no bonds', () => {
       const offs = WIDTH
