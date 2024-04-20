@@ -250,6 +250,16 @@ describe('vm module tests', () => {
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 0))
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.fix)).toBe(true)
     })
+    test('fix atom should not work if no atoms around', () => {
+      const offs = 0
+      const energy = 10 * CFG.ATOM.NRG.fix
+      const vmIdx = addVm(vms, offs, energy)
+      put(w, offs, fix(2, 2, 2))
+      CMDS[2](vms, get(w, offs), vmIdx)
+      expect(get(w, offs)).toBe(fix(2, 2, 2))
+      expect(get(w, offs + 1)).toBe(0)
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+    })
     test('fix atom should move VM correctly', () => {
       const offs = WIDTH
       const energy = 4 * CFG.ATOM.NRG.fix
@@ -257,7 +267,6 @@ describe('vm module tests', () => {
       put(w, offs, fix(2, 2, 7))
       put(w, offs + 1, mov(NO_DIR, 2))
       CMDS[2](vms, get(w, offs), vmIdx)
-      //expect(vmsOffs[0] === vm(offs + 1, 1)).toBe(true)
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.fix)).toBe(true)
     })
   })
