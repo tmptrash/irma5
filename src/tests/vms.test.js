@@ -322,13 +322,15 @@ describe('vm module tests', () => {
       expect(get(w, offs + 1)).toBe(mov(6, 2))
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.spl)).toBe(true)
     })
-    xtest('spl atom should move VM correctly', () => {
-      const offs = WIDTH
-      vmsOffs[0] = vm(offs, 1)
+    test('spl atom should not split if no near atoms', () => {
+      const offs = 0
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(2, 2, 7))
-      put(w, offs + 1, mov(6, 2))
-      CMDS[3](vms, get(w, offs), 0)
-      expect(vmsOffs[0] === vm(offs + 1, 1)).toBe(true)
+      CMDS[3](vms, get(w, offs), vmIdx)
+      expect(get(w, offs)).toBe(spl(2, 2, 7))
+      expect(get(w, offs + 1)).toBe(0)
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
   })
 
