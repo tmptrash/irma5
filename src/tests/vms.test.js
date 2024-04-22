@@ -405,26 +405,26 @@ describe('vm module tests', () => {
       expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
-    xtest('con atom should not direct VM to then atom if then atom does not exist', () => {
+    test('con atom should not direct VM to then atom if then atom does not exist', () => {
       const offs = 0
-      vmsOffs[0] = vm(offs, 1)
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(2, 2, 2, NO_DIR))
-      CMDS[4](vms, get(w, offs), 0)
+      CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(2, 2, 2, NO_DIR))
       expect(get(w, offs + 1)).toBe(0)
-      expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
+      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
-    xtest('con atom should not direct VM to else dir if else atom is not exist', () => {
+    test('con atom should not direct VM to else dir if else atom is not exist', () => {
       const offs = 0
-      vmsOffs[0] = vm(offs, 1)
-      put(w, offs, con(2, 4, 2, 4))
-      put(w, offs + 1, spl(NO_DIR, 2, 0))
-      put(w, WIDTH, spl(NO_DIR, 1, 0))
-      CMDS[4](vms, get(w, offs), 0)
-      expect(get(w, offs)).toBe(con(2, 4, 2, 4))
-      expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(get(w, WIDTH)).toBe(spl(NO_DIR, 1, 0))
-      expect(vmsOffs[0] === vm(WIDTH, 1)).toBe(true)
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
+      put(w, offs, con(7, 4, 2, 4))
+      put(w, offs + WIDTH, spl(NO_DIR, 1, 0))
+      CMDS[4](vms, get(w, offs), vmIdx)
+      expect(get(w, offs)).toBe(con(7, 4, 2, 4))
+      expect(get(w, offs + WIDTH)).toBe(spl(NO_DIR, 1, 0))
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
     xtest('con atom should direct VM to else dir if we compare different atoms', () => {
       const offs = 0
