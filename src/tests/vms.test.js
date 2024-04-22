@@ -439,17 +439,18 @@ describe('vm module tests', () => {
       expect(get(w, offs + WIDTH)).toBe(fix(NO_DIR, 1, 0))
       expect(checkVm(vms, offs + WIDTH, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
-    xtest('con atom should not direct VM to else dir if no atom in VM dir', () => {
+    test('con atom should not direct VM to else dir if no atom in VM dir', () => {
       const offs = 0
-      vmsOffs[0] = vm(offs, 1)
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(2, 2, 5, 4))
       put(w, offs + 1, spl(NO_DIR, 2, 0))
-      put(w, WIDTH, fix(NO_DIR, 1, 0))
-      CMDS[4](vms, get(w, offs), 0)
+      put(w, offs + WIDTH, fix(NO_DIR, 1, 0))
+      CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(2, 2, 5, 4))
       expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(get(w, WIDTH)).toBe(fix(NO_DIR, 1, 0))
-      expect(vmsOffs[0] === vm(offs, 1)).toBe(true)
+      expect(get(w, offs + WIDTH)).toBe(fix(NO_DIR, 1, 0))
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
   })
 
