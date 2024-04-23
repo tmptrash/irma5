@@ -2,8 +2,7 @@ import CFG from '../cfg'
 import { ATOM_TYPE_SHIFT, NO_DIR } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
-import { toOffs } from '../atom'
-import { mov, fix, spl, con, job, checkVm } from './atoms'
+import { mov, fix, spl, con, job, rep, checkVm } from './atoms'
 
 describe('vm module tests', () => {
   let vmsOffs = null
@@ -497,6 +496,22 @@ describe('vm module tests', () => {
       CMDS[5](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(job(2, 2))
       expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+    })
+  })
+
+  describe('rep atom tests', () => {
+    test('rep atom should replicate bonds of near atom', () => {
+      const offs = 0
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
+      put(w, offs, rep(2, 2, 2))
+      put(w, offs + 1, spl(3, 4, 5))
+      put(w, offs + 2, spl(4, 5, 6))
+      CMDS[6](vms, get(w, offs), vmIdx)
+      expect(get(w, offs)).toBe(rep(2, 2, 2))
+      expect(get(w, offs + 1)).toBe(spl(3, 4, 5))
+      expect(get(w, offs + 2)).toBe(spl(3, 4, 5))
+      expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.rep)).toBe(true)
     })
   })
 })

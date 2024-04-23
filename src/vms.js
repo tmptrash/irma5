@@ -1,5 +1,5 @@
 import CFG from './cfg.js'
-import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, NO_DIR, ATOM_CON,
+import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK, ATOM_TYPE_UNMASK, NO_DIR, ATOM_CON,
   MOV_BREAK_MASK, MOV_BREAK_UNMASK, DMA, DNA, DMD, DIR_REV } from './shared.js'
 import { get, move, put } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
@@ -172,11 +172,12 @@ function job(vms, a, vmIdx) {
 
 function rep(vms, a, vmIdx) {
   const vmOffs = toOffs(vms.offs[vmIdx])
-  const a1     = get(vms.w, offs(vmOffs, b1Dir(a)))
-  const a2Offs = offs(vmOffs, b2Dir(a))
+  const a1Offs = offs(vmOffs, b1Dir(a))
+  const a1     = get(vms.w, a1Offs)
+  const a2Offs = offs(a1Offs, b2Dir(a))
   const a2     = get(vms.w, a2Offs)
-  // TODO: we should check same types before replicate
-  a1 && a2 && put(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
+
+  if (a1 && a2 && type(a1) === type(a2)) put(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
   return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.rep)
 }
