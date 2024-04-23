@@ -159,10 +159,10 @@ function job(vms, a, vmIdx) {
   const vmOffs    = toOffs(vms.offs[vmIdx])
   const newVmOffs = offs(vmOffs, b1Dir(a))
   if (get(vms.w, newVmOffs)) {
-    const energy = nrg(vms.offs[vmIdx]) / 2
+    const energy = Math.floor(nrg(vms.offs[vmIdx]) / 2)
     if (energy > 0) {
-      addVm(vms, newVmOffs, energy)
-      vms.offs[vmIdx] = vm(vmOffs, energy)
+      addVm(vms, newVmOffs, energy)                     // adds new vm to near atom with energy / 2
+      vms.offs[vmIdx] = vm(vmOffs, energy)              // updates energy of current vm
     }
   }
 

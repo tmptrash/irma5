@@ -452,24 +452,31 @@ describe('vm module tests', () => {
       expect(get(w, offs + WIDTH)).toBe(fix(NO_DIR, 1, 0))
       expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
+    test('con atom should not move VM to else or if dir if no atoms around', () => {
+      const offs = 0
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
+      put(w, offs, con(2, 2, 5, 4))
+      CMDS[4](vms, get(w, offs), vmIdx)
+      expect(get(w, offs)).toBe(con(2, 2, 5, 4))
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+    })
   })
 
-  xdescribe('job atom tests', () => {
+  describe('job atom tests', () => {
     test('job atom should create new VM and put it on near atom', () => {
       const offs = 0
-      addVm(vms, offs, 2)
+      const energy = 10 * CFG.ATOM.NRG.job
+      const vmIdx = addVm(vms, offs, energy)
       put(w, offs, job(2, 2))
       put(w, offs + 1, spl(NO_DIR, 2, 0))
-      CMDS[5](vms, get(w, offs), 0)
+      CMDS[5](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(job(2, 2))
       expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(vmsOffs[0] === vm(offs + 1, 1)).toBe(true)
-      expect(vmsOffs[1] === vm(offs + 1, 1)).toBe(true)
-      expect(vms.map[0].has(0)).toBe(false)
-      expect(vms.map[1].has(0)).toBe(true)
-      expect(vms.map[1].has(1)).toBe(true)
+      expect(checkVm(vms, offs + 1, vmIdx, energy - Math.floor(energy / 2) - CFG.ATOM.NRG.job)).toBe(true)
+      expect(vms.map[offs + 1].i).toBe(2)
     })
-    test('job atom should not create new VM, because there is no near atom', () => {
+    xtest('job atom should not create new VM, because there is no near atom', () => {
       const offs = 0
       addVm(vms, offs, 1)
       put(w, offs, job(2, 2))
