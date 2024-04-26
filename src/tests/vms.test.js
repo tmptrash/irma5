@@ -513,6 +513,17 @@ describe('vm module tests', () => {
       expect(get(w, offs + 2)).toBe(spl(3, 4, 5))
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.rep)).toBe(true)
     })
+    test('rep atom should not replicate bonds if no near atoms', () => {
+      const offs = 0
+      const energy = 10
+      const vmIdx = addVm(vms, offs, energy)
+      put(w, offs, rep(2, 2, 2))
+      CMDS[6](vms, get(w, offs), vmIdx)
+      expect(get(w, offs)).toBe(rep(2, 2, 2))
+      expect(get(w, offs + 1)).toBe(0)
+      expect(get(w, offs + 2)).toBe(0)
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+    })
     test('rep atom should replicate bonds of itself', () => {
       const offs = 0
       const energy = 10
