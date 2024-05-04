@@ -1,0 +1,1 @@
+export function type(a: number): number
