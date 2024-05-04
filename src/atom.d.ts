@@ -1,1 +1,1 @@
-export function type(a: number): number
+declare function type(a: number): number
