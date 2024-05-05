@@ -1,4 +1,4 @@
-export function type(a: any): number;
+export function type(a: number): number;
 export function b1Dir(a: any): number;
 export function b2Dir(a: any): number;
 export function b3Dir(a: any): number;
