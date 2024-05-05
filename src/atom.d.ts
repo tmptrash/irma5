@@ -1,4 +1,4 @@
-export function type(a: number): number;
+export function type(a: any): number;
 export function b1Dir(a: any): number;
 export function b2Dir(a: any): number;
 export function b3Dir(a: any): number;
@@ -19,4 +19,3 @@ export function offs(offs: any, dir: any): any;
  * @returns 32bit offset
  */
 export function toOffs(offs: any): number;
-//# sourceMappingURL=atom.d.ts.map

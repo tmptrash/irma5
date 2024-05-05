@@ -63,4 +63,3 @@ export const DMD: number[][];
  * === DNA[6][0] === 7
  */
 export const DNA: number[][];
-//# sourceMappingURL=shared.d.ts.map

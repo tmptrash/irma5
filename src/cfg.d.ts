@@ -26,4 +26,3 @@ declare namespace _default {
     let rpi: number;
 }
 export default _default;
-//# sourceMappingURL=cfg.d.ts.map
