@@ -49,7 +49,8 @@ export function nrg(offs) {
 export function tick(vms) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
     for (let vmIdx = 0; vmIdx < vms.offs.i;) {
-      const inc = CMDS[type(a)](vms, get(vms.w, toOffs(vms.offs[vmIdx])), vmIdx)
+      const a = get(vms.w, toOffs(vms.offs[vmIdx]))
+      const inc = CMDS[type(a)](vms, a, vmIdx)
       vmIdx += (inc < 0 ? inc : 1)
     }
 }
