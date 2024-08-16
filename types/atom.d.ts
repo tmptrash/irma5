@@ -1,4 +1,4 @@
-declare module 'MAtom' {
+declare module 'Atom' {
   export function type(a: number): number;
   export function b1Dir(a: number): number;
   export function b2Dir(a: number): number;
