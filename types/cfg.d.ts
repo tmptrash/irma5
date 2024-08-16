@@ -1,28 +1,30 @@
-declare namespace _default {
-    namespace WORLD {
-        let width: number;
-        let height: number;
-        let zoom: number;
-    }
-    namespace HTML {
-        let canvasQuery: string;
-        let titleQuery: string;
-        let visualizeBtnQuery: string;
-        let fullscreenBtnQuery: string;
-    }
-    namespace ATOM {
-        let stackBufSize: number;
-        namespace NRG {
-            let mov: number;
-            let fix: number;
-            let spl: number;
-            let con: number;
-            let job: number;
-            let rep: number;
-            let onFix: number;
-            let onSpl: number;
-        }
-    }
-    let rpi: number;
+declare module 'CFG' {
+  type CFG = {
+    WORLD: {
+      width: number
+      height: number
+      zoom: number
+    },
+    HTML: {
+      canvasQuery: string
+      titleQuery: string
+      visualizeBtnQuery: string
+      fullscreenBtnQuery: string
+    },
+    ATOM: {
+      stackBufSize: number
+      NRG: {
+        mov: number
+        fix: number
+        spl: number
+        con: number
+        job: number
+        rep: number
+        onFix: number
+        onSpl: number
+      }
+    },
+    rpi: number;
+  }
+  export default CFG
 }
-export default _default;
