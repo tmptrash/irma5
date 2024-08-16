@@ -8,7 +8,9 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
 
 const W = CFG.WORLD
 
-export function type(a) { return (a & ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT }
+export function type(a) {
+  return (a & ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT
+}
 export function b1Dir(a) { return (a & ATOM_BOND1_MASK) >> ATOM_BOND1_SHIFT }
 export function b2Dir(a) { return (a & ATOM_BOND2_MASK) >> ATOM_BOND2_SHIFT }
 export function b3Dir(a) { return (a & ATOM_BOND3_MASK) - 1 }
