@@ -7,6 +7,7 @@ declare module 'Atom' {
   export function b3Dir(a: number): number;
   export function setB3Dir(a: number, d: number): number;
   export function ifDir(a: number): number;
+  export function setIfDir(a: number, d: number): number;
   export function thenDir(a: number): number;
   export function setThenDir(a: number, d: number): number;
   export function elseDir(a: number): number;
