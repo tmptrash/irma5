@@ -19,11 +19,15 @@ declare module 'Shared' {
   export const ATOM_VM_DIR_MASK1: 57855;
   export const ATOM_VM_DIR_SHIFT: 9;
   export const ATOM_BOND1_MASK: 448;
+  export const ATOM_BOND1_MASK1: 65087;
   export const ATOM_BOND1_SHIFT: 6;
   export const ATOM_BOND2_MASK: 56;
+  export const ATOM_BOND2_MASK1: 65479;
   export const ATOM_BOND2_SHIFT: 3;
   export const ATOM_BOND3_MASK: 15;
+  export const ATOM_BOND3_MASK1: 65520;
   export const ATOM_IF_BOND_MASK: 7168;
+  export const ATOM_IF_BOND_MASK1: 58367;
   export const ATOM_IF_BOND_SHIFT: 10;
   export const ATOM_THEN_BOND_MASK: 896;
   export const ATOM_THEN_BOND_MASK1: 64639;
