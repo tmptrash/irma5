@@ -14,7 +14,7 @@ export function setB1Dir(a, d) { return (a & ATOM_BOND1_MASK1) | (d << ATOM_BOND
 export function b2Dir(a) { return (a & ATOM_BOND2_MASK) >> ATOM_BOND2_SHIFT }
 export function setB2Dir(a, d) { return (a & ATOM_BOND2_MASK1) | (d << ATOM_BOND2_SHIFT) }
 export function b3Dir(a) { return (a & ATOM_BOND3_MASK) - 1 }
-export function setB3Dir(a, d) { return (a & ATOM_BOND3_MASK1) | d }
+export function setB3Dir(a, d) { return (a & ATOM_BOND3_MASK1) | (d + 1) }
 export function ifDir(a) { return (a & ATOM_IF_BOND_MASK) >> ATOM_IF_BOND_SHIFT }
 export function setIfDir(a, d) { return (a & ATOM_IF_BOND_MASK1) | (d << ATOM_IF_BOND_SHIFT) }
 export function thenDir(a) { return (a & ATOM_THEN_BOND_MASK) >> ATOM_THEN_BOND_SHIFT }
