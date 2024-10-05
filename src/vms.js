@@ -30,7 +30,7 @@ export function set(vms, offs) {
   vms.offs = offs
   const l = offs.i
   const map = vms.map
-  for (let i = 0; i < l; i++) {
+  for (let i = 0; i <= l; i++) {
     const o = toOffs(offs[i])
     const m = map[o]
     map[o] = m ? m.double() : Uint32Array.new(1)
@@ -48,7 +48,7 @@ export function nrg(offs) {
 
 export function ticks(vms) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
-    for (let vmIdx = 0; vmIdx < vms.offs.i;) {
+    for (let vmIdx = 0; vmIdx <= vms.offs.i;) {
       const a = get(vms.w, toOffs(vms.offs[vmIdx]))
       const inc = CMDS[type(a)](vms, a, vmIdx)
       vmIdx += (inc < 0 ? inc : 1)
