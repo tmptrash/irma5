@@ -1,7 +1,7 @@
 import CFG from './cfg.js'
 import Panzoom from 'panzoom'
 
-export default function World(w = CFG.WORLD.width, h = CFG.WORLD.height) {
+export default function World(width = CFG.WORLD.width, height = CFG.WORLD.height) {
   const $ = document.querySelector.bind(document)
   const ctx = $(CFG.HTML.canvasQuery).getContext('2d')
   const imgData = ctx.getImageData(0, 0, CFG.WORLD.width, CFG.WORLD.height)
@@ -18,8 +18,8 @@ export default function World(w = CFG.WORLD.width, h = CFG.WORLD.height) {
 
     x: 0,
     y: 0,
-    w,
-    h
+    w: width,
+    h: height
   }
 
   initDom(w)
