@@ -1,6 +1,6 @@
 import './styles.css'
 import World from './world.js'
-import VMs, { tick } from './vms.js'
+import VMs, { ticks } from './vms.js'
 import Title from './plugins/title.js'
 import Buttons from './plugins/buttons.js'
 /**
@@ -8,7 +8,7 @@ import Buttons from './plugins/buttons.js'
  * (depending on browser)
  */
 function run() {
-  tick(vms)
+  ticks(vms)
   for (let p of plugins) p.update?.(p)
   postMessage(0)
 }

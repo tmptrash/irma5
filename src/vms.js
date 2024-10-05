@@ -46,13 +46,19 @@ export function nrg(offs) {
   return Number(offs & VM_ENERGY_MASK)
 }
 
-export function tick(vms) {
+export function ticks(vms) {
   for (let round = 0, roundl = CFG.rpi; round < roundl; round++)
     for (let vmIdx = 0; vmIdx < vms.offs.i;) {
       const a = get(vms.w, toOffs(vms.offs[vmIdx]))
       const inc = CMDS[type(a)](vms, a, vmIdx)
       vmIdx += (inc < 0 ? inc : 1)
     }
+}
+
+export function tick(vms, vmIdx) {
+  const a = get(vms.w, toOffs(vms.offs[vmIdx]))
+  const inc = CMDS[type(a)](vms, a, vmIdx)
+  return vmIdx + (inc < 0 ? inc : 1)
 }
 
 function nop() {}
