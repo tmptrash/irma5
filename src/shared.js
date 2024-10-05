@@ -111,7 +111,7 @@ export const DNA = [
  */
 Uint32Array.new = function create(size) {
   const a = new Uint32Array(size)
-  a.i = 0
+  a.i = size > 0 ? 0 : -1
   return a
 }
 Uint32Array.prototype.resize = function resize(size) {
@@ -127,13 +127,13 @@ Uint32Array.prototype.end = function end() {
   return this.i >= this.length
 }
 Uint32Array.prototype.has = function has(val) {
-  for (let i = 0; i < this.i; i++) {
+  for (let i = 0; i <= this.i; i++) {
     if (this[i] === val) return true
   }
   return false
 }
 Uint32Array.prototype.index = function index(val) {
-  for (let i = 0; i < this.i; i++) {
+  for (let i = 0; i <= this.i; i++) {
     if (this[i] === val) return i
   }
   return -1
@@ -152,7 +152,7 @@ Uint32Array.prototype.del = function del(i) {
  */
 BigUint64Array.new = function create(size) {
   const a = new BigUint64Array(size)
-  a.i = 0
+  a.i = size > 0 ? 0 : -1
   return a
 }
 BigUint64Array.prototype.resize = function resize(size) {
@@ -168,13 +168,13 @@ BigUint64Array.prototype.end = function end() {
   return this.i >= this.length
 }
 BigUint64Array.prototype.has = function has(val) {
-  for (let i = 0; i < this.i; i++) {
+  for (let i = 0; i <= this.i; i++) {
     if (this[i] === val) return true
   }
   return false
 }
 BigUint64Array.prototype.index = function index(val) {
-  for (let i = 0; i < this.i; i++) {
+  for (let i = 0; i <= this.i; i++) {
     if (this[i] === val) return i
   }
   return -1
