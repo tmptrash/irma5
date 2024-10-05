@@ -4,7 +4,7 @@ import Panzoom from 'panzoom'
 export default function World(width = CFG.WORLD.width, height = CFG.WORLD.height) {
   const $ = document.querySelector.bind(document)
   const ctx = $(CFG.HTML.canvasQuery).getContext('2d')
-  const imgData = ctx.getImageData(0, 0, CFG.WORLD.width, CFG.WORLD.height)
+  const imgData = ctx.getImageData(0, 0, width, height)
 
   const w = {
     canvas: $(CFG.HTML.canvasQuery),
