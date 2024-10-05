@@ -5,7 +5,7 @@ export default {
     zoom: 0.1                             // zoom speed coefficient
   },
   HTML: {                                 // DOM related config
-    canvasQuery: 'canvas',
+    canvasQuery: 'canvas#irma5',
     titleQuery: '.title',
     visualizeBtnQuery: '.visualize',
     fullscreenBtnQuery: '.fullscreen'
