@@ -5,7 +5,6 @@ import World, { destroy, get, put } from '../world'
 import { mov, fix, spl, con, job, rep, checkVm } from './atoms'
 
 describe('vm module tests', () => {
-  let vmsOffs = null
   let w = null
   let vms = null
   let WIDTH = 0
@@ -17,14 +16,13 @@ describe('vm module tests', () => {
     canvas.setAttribute('height', CFG.WORLD.height)
     canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h)}}, putImageData: () => {}}}
     document.body.appendChild(canvas)
-    vmsOffs = BigUint64Array.new(2)
     w = World()
-    vms = VMs(w, vmsOffs)
+    vms = VMs(w, BigUint64Array.new(0))
   })
   afterEach(() => {
     destroy(w)
     document.querySelector(CFG.HTML.canvasQuery).remove()
-    vms = vmsOffs = w = null
+    vms = w = null
   })
 
   test('CMDS array', () => {
@@ -37,9 +35,9 @@ describe('vm module tests', () => {
       const offs = 0
       const vmIdx = addVm(vms, offs, 1)
       const a = get(w, offs)
-      CMDS[0](vms, a, vmsOffs.i - 1)
+      CMDS[0](vms, a, vms.offs.i - 1)
       expect(get(w, offs)).toBe(a)
-      expect(vmsOffs[vmIdx]).toBe(vm(offs, 1))
+      expect(vms.offs[vmIdx]).toBe(vm(offs, 1))
     })
   })
 
@@ -89,7 +87,7 @@ describe('vm module tests', () => {
       CMDS[1](vms, get(w, offs), vmIdx)
       expect(get(w, 0)).toBe(fix(3, 0, 2))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
-      expect(vmsOffs[vmIdx]).toBe(vm(0, CFG.ATOM.NRG.mov))
+      expect(vms.offs[vmIdx]).toBe(vm(0, CFG.ATOM.NRG.mov))
       expect(checkVm(vms, 0, vmIdx, energy - CFG.ATOM.NRG.mov)).toBe(true)
     })
     test('mov atom should move itself and neighbour atom behind', () => {

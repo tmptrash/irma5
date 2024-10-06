@@ -116,7 +116,7 @@ Uint32Array.new = function create(size) {
 }
 Uint32Array.prototype.resize = function resize(size) {
   const idx = this.length
-  const a = new Uint32Array(this.buffer.transfer(size * Uint32Array.BYTES_PER_ELEMENT))
+  const a = new Uint32Array(this.buffer.transfer((size || 1) * Uint32Array.BYTES_PER_ELEMENT))
   a.i = idx
   return a
 }
@@ -124,7 +124,7 @@ Uint32Array.prototype.double = function double() {
   return this.resize(this.length * 2)
 }
 Uint32Array.prototype.end = function end() {
-  return this.i >= this.length
+  return this.i >= this.length || this.i < 0
 }
 Uint32Array.prototype.has = function has(val) {
   for (let i = 0; i <= this.i; i++) {
@@ -157,7 +157,7 @@ BigUint64Array.new = function create(size) {
 }
 BigUint64Array.prototype.resize = function resize(size) {
   const idx = this.length
-  const a = new BigUint64Array(this.buffer.transfer(size * BigUint64Array.BYTES_PER_ELEMENT))
+  const a = new BigUint64Array(this.buffer.transfer((size || 1) * BigUint64Array.BYTES_PER_ELEMENT))
   a.i = idx
   return a
 }
@@ -165,7 +165,7 @@ BigUint64Array.prototype.double = function double() {
   return this.resize(this.length * 2)
 }
 BigUint64Array.prototype.end = function end() {
-  return this.i >= this.length
+  return this.i >= this.length || this.i < 0
 }
 BigUint64Array.prototype.has = function has(val) {
   for (let i = 0; i <= this.i; i++) {
