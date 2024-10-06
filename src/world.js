@@ -1,10 +1,10 @@
 import CFG from './cfg.js'
 import Panzoom from 'panzoom'
 
-export default function World(width = CFG.WORLD.width, height = CFG.WORLD.height) {
+export default function World(hidden = false) {
   const $ = document.querySelector.bind(document)
   const ctx = $(CFG.HTML.canvasQuery).getContext('2d')
-  const imgData = ctx.getImageData(0, 0, width, height)
+  const imgData = ctx.getImageData(0, 0, CFG.WORLD.width, CFG.WORLD.height)
 
   const w = {
     canvas: $(CFG.HTML.canvasQuery),
@@ -18,11 +18,11 @@ export default function World(width = CFG.WORLD.width, height = CFG.WORLD.height
 
     x: 0,
     y: 0,
-    w: width,
-    h: height
+    w: CFG.WORLD.width,
+    h: CFG.WORLD.height
   }
 
-  initDom(w)
+  initDom(w, hidden)
   initHandlers(w)
   initZoom(w)
   initTransparency(w)
@@ -59,10 +59,11 @@ export function move(w, offs1, offs2) {
   put(w, offs1, 0)
 }
 
-function initDom(w) {
+function initDom(w, hidden) {
   w.ctx.font = "18px Consolas"
   w.ctx.fillStyle = "white"
   w.canvas.style.imageRendering = 'pixelated'
+  hidden && (w.canvas.style.display = 'none')
 }
 
 function initHandlers(w) {
