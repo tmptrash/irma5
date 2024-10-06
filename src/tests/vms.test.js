@@ -11,6 +11,7 @@ describe('vm module tests', () => {
   let WIDTH = 0
   beforeEach(() => {
     const canvas = document.createElement("canvas")
+    canvas.id = 'irma5'
     WIDTH = CFG.WORLD.width = CFG.WORLD.height = 10
     canvas.setAttribute('width', CFG.WORLD.width)
     canvas.setAttribute('height', CFG.WORLD.height)
