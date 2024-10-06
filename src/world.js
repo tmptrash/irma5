@@ -92,7 +92,7 @@ function initTransparency(w) {
 function updateCanvas(w) {
   // TODO: try to optimize this. We may put only changed pixels
   // TODO: into real canvas all other pixels should be the same
-  w.ctx.putImageData(w.imgData, 0, 0, w.x, w.y, w.w, w.h)
+  w?.ctx?.putImageData(w.imgData, 0, 0, w.x, w.y, w.w, w.h)
 }
 
 function onAnimate(w) {
