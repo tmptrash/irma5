@@ -18,8 +18,8 @@ export const CMDS = [nop, mov, fix, spl, con, job, rep]
 
 export default function VMs(w, vmOffs) {
   const vms = {
-    offs: BigUint64Array.new(0), // 64bit array of VMs: (32bit - offset, 32bit - energy)
-    map: {},                     // key: 32bit vm offs, val: Uint32Array vm idx
+    offs: BigUint64Array.new(0), // 64bit array of VMs: (32bit - vm offset, 32bit - vm energy)
+    map: {},                     // key: 32bit vm offs, val: Uint32Array vm indexes in offs array
     w
   }
   set(vms, vmOffs)
@@ -201,9 +201,12 @@ function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
   let md = m[dstOffs]
   if (md === undefined) md = m[dstOffs] = Uint32Array.new(1)
   if (md.end()) md = m[dstOffs] = md.double()
-  md.add(vmIdx)                                     // sets dst VM index
-  m[toOffs(vms.offs[vmIdx])].del(vmIdx)             // removed VM old offset index
-  vms.offs[idx] = vm(dstOffs, nrg(vms.offs[vmIdx])) // sets VM new offset index
+  md.add(vmIdx)                                        // sets dst VM index
+  const o = vms.offs[vmIdx]
+  md = m[toOffs(o)]
+  md.del(vmIdx)                                        // removed VM old offset index
+  if (md.i === 0) delete m[toOffs(o)]
+  vms.offs[vmIdx] = vm(dstOffs, nrg(o))                // sets VM new offset index
   return updateNrg(vms, vmIdx, energy)
 }
 

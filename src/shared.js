@@ -183,5 +183,5 @@ BigUint64Array.prototype.add = function add(val) {
   this[this.i++] = val
 }
 BigUint64Array.prototype.del = function del(i) {
-  this[i] = this[this.i--]
+  this[i] = this[--this.i]
 }

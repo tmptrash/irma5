@@ -74,7 +74,7 @@ describe('vm module tests', () => {
       CMDS[1](vms, m, vmIdx)
       expect(get(w, offs + 1)).toBe(m)
       expect(get(w, offs + 2)).toBe(f)
-      expect(vms.map[offs + 1].has(vmIdx)).toBe(false)
+      expect(vms.map[offs + 1]).toBe(undefined)
       expect(vms.map[offs + 2].has(vmIdx)).toBe(true)
       expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
     })
