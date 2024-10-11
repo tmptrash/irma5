@@ -245,6 +245,7 @@ function delVm(vms, idx) {
 function rebond(w, a, o, mdir, dirFn, setDirFn) {
   const dir = dirFn(a)                    // gets direction of near atom
   if (mdir === dir) return a              // direction the same. skip dir change
+  if (dir === NO_DIR) return a            // current bond has no exist
   const dstOffs = offs(o, dir)            // near atom offset
   if (get(w, dstOffs)) {                  // atom, where the bond points exists
     const newDir = DMA[dir][mdir]         // updated direction for near atom bond to moved
