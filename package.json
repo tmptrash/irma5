@@ -5,6 +5,7 @@
   "private": false,
   "type": "module",
   "declarationDir": "./types",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
