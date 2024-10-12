@@ -7,4 +7,5 @@ declare module 'irma5/src/vms' {
   export default function VMs(w: WorldType, vmOffs: BigUint64Array): VMType;
   export function vm(offs: number, energy: number = 0): BigInt
   export function nrg(offs: BigInt): number
+  export function tick(vms: VMType, vmIdx: number): number
 }
