@@ -1,5 +1,5 @@
 declare module 'irma5/src/cfg' {
-  type CFG = {
+  export type CFGType = {
     WORLD: {
       width: number
       height: number
@@ -26,5 +26,5 @@ declare module 'irma5/src/cfg' {
     },
     rpi: number;
   }
-  export default CFG
+  export default {} as CFGType
 }
