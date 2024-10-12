@@ -1,4 +1,4 @@
-declare module 'CFG' {
+declare module 'irma5/src/cfg' {
   type CFG = {
     WORLD: {
       width: number

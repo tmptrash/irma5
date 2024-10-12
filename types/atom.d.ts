@@ -1,4 +1,4 @@
-declare module 'Atom' {
+declare module 'irma5/src/atom' {
   export function type(a: number): number;
   export function b1Dir(a: number): number;
   export function setB1Dir(a: number, d: number): number;

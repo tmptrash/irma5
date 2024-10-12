@@ -1,4 +1,4 @@
-declare module 'Shared' {
+declare module 'irma5/src/shared' {
   export const VM_OFFS_MASK: 18446744069414584320n;
   export const VM_OFFS_SHIFT: 32n;
   export const VM_ENERGY_MASK: 4294967295n;

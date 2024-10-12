@@ -1,4 +1,4 @@
-declare module 'VMS' {
+declare module 'irma5/src/vms' {
   export type VMType = {
     offs: BigUint64Array,
     map: Map<number, Uint32Array>
