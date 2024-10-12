@@ -12,7 +12,7 @@ declare module 'World' {
     w: number
     h: number
   }
-  export default function World(width?: number, height?: number): WorldType;
+  export default function World(hidden: boolean): WorldType;
   export function destroy(w: WorldType): void;
   /**
    * Returns atom or 0, if no atom
