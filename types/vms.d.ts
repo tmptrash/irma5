@@ -1,5 +1,3 @@
-import { type WorldType } from './world'
-
 declare module 'VM' {
   export type VMType = {
     offs: BigUint64Array,
