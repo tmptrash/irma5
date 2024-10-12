@@ -1,4 +1,4 @@
-declare module 'World' {
+declare module 'irma5/src/world' {
   export type WorldType = {
     canvas: any
     ctx: any
