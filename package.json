@@ -4,6 +4,7 @@
   "description": "'irma5' is an Artificial Life simulator, where organisms are created from complex molecules/programs and atoms/instructions",
   "private": false,
   "type": "module",
+  "declarationDir": "./types",
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
