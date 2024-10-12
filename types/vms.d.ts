@@ -1,4 +1,4 @@
-declare module 'VM' {
+declare module 'VMS' {
   export type VMType = {
     offs: BigUint64Array,
     map: Map<number, Uint32Array>
