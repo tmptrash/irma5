@@ -1,4 +1,5 @@
-import { WorldType } from 'World'
+/// <reference path="./world.d.ts" />
+import { type WorldType } from 'World'
 
 declare module 'VM' {
   export type VMType = {
