@@ -1,4 +1,4 @@
-interface BigUint64ArrayConstructor {
+export interface BigUint64ArrayConstructor {
   new(size: number): BigUint64Array
 }
 
