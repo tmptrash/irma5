@@ -109,40 +109,34 @@ export const DNA = [
  * in using index (i) as a length property. So if user needs to resize 
  * an array to lesser size we don't do resize() we only change i prop
  */
-Uint32Array.new = function create(size) {
-  const a = new Uint32Array(size)
-  a.i = size > 0 ? 0 : -1
-  return a
-}
-Uint32Array.prototype.resize = function resize(size) {
-  const idx = this.length
-  const a = new Uint32Array(this.buffer.transfer((size || 1) * Uint32Array.BYTES_PER_ELEMENT))
-  a.i = idx
-  return a
-}
-Uint32Array.prototype.double = function double() {
-  return this.resize(this.length * 2)
-}
-Uint32Array.prototype.end = function end() {
-  return this.i >= this.length || this.i < 0
-}
-Uint32Array.prototype.has = function has(val) {
-  for (let i = 0; i <= this.i; i++) {
-    if (this[i] === val) return true
+export class UInt32Array extends Uint32Array {
+  static create(size) {
+    const a = new UInt32Array(size)
+    a.i = size > 0 ? 0 : -1
+    return a
   }
-  return false
-}
-Uint32Array.prototype.index = function index(val) {
-  for (let i = 0; i <= this.i; i++) {
-    if (this[i] === val) return i
+
+  resize(size) {
+    const idx = this.length
+    const a = new UInt32Array(this.buffer.transfer((size || 1) * UInt32Array.BYTES_PER_ELEMENT))
+    a.i = idx
+    return a
   }
-  return -1
-}
-Uint32Array.prototype.add = function add(val) {
-  this[this.i++] = val
-}
-Uint32Array.prototype.del = function del(i) {
-  this[i] = this[--this.i]
+
+  has(val) {
+    for (let i = 0; i <= this.i; i++) if (this[i] === val) return true
+    return false
+  }
+
+  index(val) {
+    for (let i = 0; i <= this.i; i++) if (this[i] === val) return i
+    return -1
+  }
+
+  double() { return this.resize(this.length * 2) }
+  end() { return this.i >= this.length || this.i < 0 }
+  add(val) { this[this.i++] = val }
+  del(i) { this[i] = this[--this.i] }
 }
 /**
  * Wrapper for BigUint64Array type with an ability to create, resize, add,
@@ -150,38 +144,32 @@ Uint32Array.prototype.del = function del(i) {
  * in using index (i) as a length property. So if user needs to resize 
  * an array to lesser size we don't do resize() we only change i prop
  */
-BigUint64Array.new = function create(size) {
-  const a = new BigUint64Array(size)
-  a.i = size > 0 ? 0 : -1
-  return a
-}
-BigUint64Array.prototype.resize = function resize(size) {
-  const idx = this.length
-  const a = new BigUint64Array(this.buffer.transfer((size || 1) * BigUint64Array.BYTES_PER_ELEMENT))
-  a.i = idx
-  return a
-}
-BigUint64Array.prototype.double = function double() {
-  return this.resize(this.length * 2)
-}
-BigUint64Array.prototype.end = function end() {
-  return this.i >= this.length || this.i < 0
-}
-BigUint64Array.prototype.has = function has(val) {
-  for (let i = 0; i <= this.i; i++) {
-    if (this[i] === val) return true
+export class UInt64Array extends BigUint64Array {
+  static new(size) {
+    const a = new UInt64Array(size)
+    a.i = size > 0 ? 0 : -1
+    return a
   }
-  return false
-}
-BigUint64Array.prototype.index = function index(val) {
-  for (let i = 0; i <= this.i; i++) {
-    if (this[i] === val) return i
+
+  resize(size) {
+    const idx = this.length
+    const a = new UInt64Array(this.buffer.transfer((size || 1) * UInt64Array.BYTES_PER_ELEMENT))
+    a.i = idx
+    return a
   }
-  return -1
-}
-BigUint64Array.prototype.add = function add(val) {
-  this[this.i++] = val
-}
-BigUint64Array.prototype.del = function del(i) {
-  this[i] = this[--this.i]
+
+  has(val) {
+    for (let i = 0; i <= this.i; i++) if (this[i] === val) return true
+    return false
+  }
+
+  index(val) {
+    for (let i = 0; i <= this.i; i++) if (this[i] === val) return i
+    return -1
+  }
+
+  double() { return this.resize(this.length * 2) }
+  end() { return this.i >= this.length || this.i < 0 }
+  add(val) { this[this.i++] = val }
+  del(i) { this[i] = this[--this.i] }
 }

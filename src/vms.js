@@ -1,6 +1,6 @@
 import CFG from './cfg.js'
 import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK, ATOM_TYPE_UNMASK, NO_DIR, ATOM_CON,
-  MOV_BREAK_MASK, MOV_BREAK_UNMASK, DMA, DNA, DMD, DIR_REV } from './shared.js'
+  MOV_BREAK_MASK, MOV_BREAK_UNMASK, DMA, DNA, DMD, DIR_REV, UInt32Array } from './shared.js'
 import { get, move, put } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
   setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom.js'
@@ -10,7 +10,7 @@ import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
 // that we may break mov command running and continue next time. Break is only possible,
 // if all previous flags are equal to 1
 //
-const STACK = new Uint32Array(CFG.ATOM.stackBufSize)
+const STACK = new UInt32Array(CFG.ATOM.stackBufSize)
 let stackIdx = 0
 let MOVED = {}
 
@@ -19,7 +19,7 @@ export const CMDS = [nop, mov, fix, spl, con, job, rep]
 export default function VMs(w, vmOffs) {
   const vms = {
     offs: BigUint64Array.new(0), // 64bit array of VMs: (32bit - vm offset, 32bit - vm energy)
-    map: {},                     // key: 32bit vm offs, val: Uint32Array vm indexes in offs array
+    map: {},                     // key: 32bit vm offs, val: UInt32Array vm indexes in offs array
     w
   }
   set(vms, vmOffs)
@@ -33,7 +33,7 @@ export function set(vms, offs) {
   for (let i = 0; i < l; i++) {
     const o = toOffs(offs[i])
     const m = map[o]
-    map[o] = m ? m.double() : Uint32Array.new(1)
+    map[o] = m ? m.double() : UInt32Array.new(1)
     map[o].add(i)
   }
 }
@@ -199,7 +199,7 @@ function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
   if (d === NO_DIR || !get(vms.w, dstOffs)) return vmIdx
   const m = vms.map
   let md = m[dstOffs]
-  if (md === undefined) md = m[dstOffs] = Uint32Array.new(1)
+  if (md === undefined) md = m[dstOffs] = UInt32Array.new(1)
   if (md.end()) md = m[dstOffs] = md.double()
   md.add(vmIdx)                                        // sets dst VM index
   const o = vms.offs[vmIdx]
@@ -218,7 +218,7 @@ export function addVm(vms, o, energy) {
   let offs = vms.offs
   if (offs.end()) offs = vms.offs = offs.double()
   offs.add(vm(o, energy))
-  if (m[o] === undefined) m[o] = Uint32Array.new(1)
+  if (m[o] === undefined) m[o] = UInt32Array.new(1)
   if (m[o].end()) m[o] = m[o].double()
   m[o].add(offs.i - 1)
   return offs.i - 1

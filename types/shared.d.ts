@@ -1,7 +1,3 @@
-export interface BigUint64ArrayConstructor {
-  new(size: number): BigUint64Array
-}
-
 declare module 'irma5/src/shared' {
   export const VM_OFFS_MASK: 18446744069414584320n;
   export const VM_OFFS_SHIFT: 32n;
@@ -72,4 +68,26 @@ declare module 'irma5/src/shared' {
    * === DNA[6][0] === 7
    */
   export const DNA: number[][];
+
+  export class UInt32Array extends Uint32Array {
+    static create(size: number): UInt32Array
+    resize(size: number): UInt32Array
+    has(val: number): boolean
+    index(val: number): number
+    double(): UInt32Array
+    end(): boolean
+    add(val: number): void
+    del(i: number): void
+  }
+
+  export class UInt64Array extends BigUint64Array {
+    static create(size: number): UInt64Array
+    resize(size: number): UInt64Array
+    has(val: number): boolean
+    index(val: number): number
+    double(): UInt64Array
+    end(): boolean
+    add(val: number): void
+    del(i: number): void
+  }
 }
