@@ -1,5 +1,5 @@
 import CFG from '../cfg'
-import { ATOM_TYPE_SHIFT, NO_DIR } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { mov, fix, spl, con, job, rep, checkVm } from './atoms'
@@ -17,7 +17,7 @@ describe('vm module tests', () => {
     canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h)}}, putImageData: () => {}}}
     document.body.appendChild(canvas)
     w = World()
-    vms = VMs(w, BigUint64Array.new(0))
+    vms = VMs(w, UInt64Array.create(0))
   })
   afterEach(() => {
     destroy(w)

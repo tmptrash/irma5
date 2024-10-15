@@ -145,7 +145,7 @@ export class UInt32Array extends Uint32Array {
  * an array to lesser size we don't do resize() we only change i prop
  */
 export class UInt64Array extends BigUint64Array {
-  static new(size) {
+  static create(size) {
     const a = new UInt64Array(size)
     a.i = size > 0 ? 0 : -1
     return a
