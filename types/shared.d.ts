@@ -72,22 +72,22 @@ declare module 'irma5/src/shared' {
   export class UInt32Array extends Uint32Array {
     static create(size: number): UInt32Array
     resize(size: number): UInt32Array
-    has(val: UInt32Array): boolean
-    index(val: UInt32Array): number
+    has(val: number): boolean
+    index(val: number): number
     double(): UInt32Array
     end(): boolean
-    add(val: UInt32Array): void
+    add(val: number): void
     del(i: number): void
   }
 
   export class UInt64Array extends BigUint64Array {
     static create(size: number): UInt64Array
     resize(size: number): UInt64Array
-    has(val: UInt64Array): boolean
-    index(val: UInt64Array): number
+    has(val: BigInt): boolean
+    index(val: BigInt): number
     double(): UInt64Array
     end(): boolean
-    add(val: UInt64Array): void
+    add(val: BigInt): void
     del(i: number): void
   }
 }
