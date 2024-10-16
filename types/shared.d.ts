@@ -68,7 +68,12 @@ declare module 'irma5/src/shared' {
    * === DNA[6][0] === 7
    */
   export const DNA: number[][];
-
+  /**
+   * Wrapper for Uint32Array type with an ability to create, resize, add,
+   * remove elements. The difference between this version and original is 
+   * in using index (i) as a length property. So if user needs to resize 
+   * an array to lesser size we don't do resize() we only change i prop
+   */
   export class UInt32Array extends Uint32Array {
     static create(size: number): UInt32Array
     resize(size: number): UInt32Array
@@ -79,7 +84,12 @@ declare module 'irma5/src/shared' {
     add(val: number): void
     del(i: number): void
   }
-
+  /**
+   * Wrapper for BigUint64Array type with an ability to create, resize, add,
+   * remove elements. The difference between this version and original is 
+   * in using index (i) as a length property. So if user needs to resize 
+   * an array to lesser size we don't do resize() we only change i prop
+   */
   export class UInt64Array extends BigUint64Array {
     static create(size: number): UInt64Array
     resize(size: number): UInt64Array
