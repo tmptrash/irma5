@@ -94,6 +94,7 @@ function mov(vms, a, vmIdx) {
   MOVED = {}                                            // reset moved and stack sets
   stackIdx = 0
 
+  // TODO: if there are many VMs on the same atom we have to move them all. use map for that
   if (oldAtom !== get(w, atomOffs)) {                   // update VM pos after mov atom was moved & move VM to the next atom
     vmIdx = moveVm(vms, a, vmIdx, atomOffs, -moved * CFG.ATOM.NRG.mov, movDir) 
     vmIdx > -1 && moveVm(vms, a, vmIdx, offs(atomOffs, movDir))
