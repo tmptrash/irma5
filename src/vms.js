@@ -98,7 +98,7 @@ function mov(vms, a, vmIdx) {
     const m = vms.map[vmOffs]                              // if atom have > 1 Vms, then we move them all to the moved position
     while (m.i >= 0) {
       if (m[0] === vmIdx) vmIdx = moveVm(vms, a, vmIdx, atomOffs, -moved * CFG.ATOM.NRG.mov, movDir)
-      else moveVm(vms, a, vmIdx, atomOffs)
+      else moveVm(vms, a, m[0], atomOffs)
     }
     vmIdx > -1 && moveVm(vms, a, vmIdx, offs(atomOffs, movDir))
   }
