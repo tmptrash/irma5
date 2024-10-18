@@ -206,7 +206,8 @@ function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
   md.add(vmIdx)                                            // sets dst VM index
   const o = vms.offs[vmIdx]
   md = m[toOffs(o)]
-  md.del(vmIdx)                                            // removed VM old offset index
+  const idx = md.index(vmIdx)
+  md.del(idx)                                            // removed VM old offset index
   if (md.i === 0) delete m[toOffs(o)]
   vms.offs[vmIdx] = vm(dstOffs, nrg(o))                    // sets VM new offset index
   return updateNrg(vms, vmIdx, energy)
