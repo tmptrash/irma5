@@ -231,14 +231,22 @@ export function addVm(vms, o, energy) {
  */
 function delVm(vms, idx) {
   const offs = vms.offs
+  if (idx < offs.i - 1) {                                  // remove 1 vm from offs requires update of associated map
+    const o = toOffs(offs[offs.i - 1])
+    const indexes = vms.map[o]
+    if (indexes) {
+      const i = indexes.index(offs.i - 1)
+      if (i >= 0) indexes[i] = idx
+    }
+  }
   const o = toOffs(offs[idx])
   offs.del(idx)                                            // removes vm from vm offs array
-  const v = vms.map[o]
-  if (v === undefined) return
-  const i = v.index(idx)
+  const indexes = vms.map[o]
+  if (indexes === undefined) return
+  const i = indexes.index(idx)
   if (i < 0) return
-  v.del(i)                                                 // remove VM index from the map
-  if (v.i === 0) delete vms.map[o]                         // there are no other vms on this offset
+  indexes.del(i)                                           // remove VM index from the map
+  if (indexes.i === 0) delete vms.map[o]                   // there are no other vms on this offset
 }
 
 /**
@@ -294,7 +302,6 @@ function fromStack() {
   return STACK[stackIdx - 1] & MOV_BREAK_UNMASK
 }
 
-// TODO: check this formula and if we need to remove VM if no energy
 function updateNrg(vms, vmIdx, energy) {
   const o = vms.offs[vmIdx]
   const newNrg = nrg(o) + energy
