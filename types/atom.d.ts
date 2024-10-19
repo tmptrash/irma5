@@ -1,5 +1,17 @@
 declare module 'irma5/src/atom' {
+  /**
+   * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom
+   * @param {Number} a 2 bytes of Atom value
+   * @returns 0 - no atom, 1 - mov, ...
+   */
   export function type(a: number): number;
+  /**
+   * Returns 3bit bond 1 value. For different atoms it means different. For example
+   * b1Dir() for mov atom returns move direction (0..7); For the fix/spl it'd bond 1;
+   * For job it's new VM direction; For rep it's atom 1 direction.
+   * @param {Number} a 2 bytes of atom value
+   * @returns Direction (0..7)
+   */
   export function b1Dir(a: number): number;
   export function setB1Dir(a: number, d: number): number;
   export function b2Dir(a: number): number;
@@ -14,14 +26,4 @@ declare module 'irma5/src/atom' {
   export function setElseDir(a: number, d: number): number;
   export function vmDir(a: number): number;
   export function setVmDir(a: number, d: number): number;
-  /**
-   * Returns 32bit offset for direction. The world is cyclical
-   */
-  export function offs(offs: number, dir: number): number;
-  /**
-   * Returns 32bit offset obtained from vmsOffs 64 bit array
-   * @param offs 64bit Offset
-   * @returns 32bit offset
-   */
-  export function toOffs(offs: number): number;
 }

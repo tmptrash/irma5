@@ -1,10 +1,10 @@
 import CFG from './cfg.js'
-import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK, ATOM_TYPE_UNMASK, NO_DIR, ATOM_CON,
-  MOV_BREAK_MASK, MOV_BREAK_UNMASK, DMA, DNA, DMD, DIR_REV, UInt32Array, UInt64Array } from './shared.js'
-import { get, move, put } from './world.js'
+import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK,
+  ATOM_TYPE_UNMASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK,
+  DMA, DNA, DMD, DIR_REV, UInt32Array, UInt64Array } from './shared.js'
+import { get, move, put, offs, toOffs } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
-  setVmDir, setThenDir, setElseDir, offs, toOffs, type } from './atom.js'
-
+  setVmDir, setThenDir, setElseDir, type } from './atom.js'
 //
 // Left bit of every number is a flag, which means - "possible to break". It means
 // that we may break mov command running and continue next time. Break is only possible,

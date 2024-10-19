@@ -20,4 +20,14 @@ declare module 'irma5/src/world' {
   export function get(w: WorldType, offs: number): number;
   export function put(w: WorldType, offs: number, atom: number): void;
   export function move(w: WorldType, offs1: number, offs2: number): void;
+  /**
+   * Returns 32bit offset for direction. The world is cyclical
+   */
+  export function offs(offs: number, dir: number): number;
+  /**
+   * Returns 32bit offset obtained from vmsOffs 64 bit array
+   * @param offs 64bit Offset
+   * @returns 32bit offset
+   */
+  export function toOffs(offs: number): number;
 }

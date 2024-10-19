@@ -1,5 +1,8 @@
 import CFG from './cfg.js'
 import Panzoom from 'panzoom'
+import { VM_OFFS_MASK, VM_OFFS_SHIFT, DIR_2_OFFS } from './shared'
+
+const W = CFG.WORLD
 
 export default function World(hidden = false) {
   const $ = document.querySelector.bind(document)
@@ -37,7 +40,24 @@ export function destroy(w) {
   w.canvas = w.ctx = null
   w.imgData = w.data = w.zoom = w.zoomObserver = w.animateFn = null
 }
-
+/**
+ * Returns 32bit offset starting from offs and using dir direction. 
+ * The world is cyclical.
+ */
+export function offs(offs, dir) {
+  let o = offs + DIR_2_OFFS(dir)
+  if (o < 0) o += W.width * W.height
+  else if (o > W.width * W.height - 1) o -= W.width * W.height
+  return o
+}
+/**
+ * Returns 32bit offset obtained from vmsOffs 64 bit array
+ * @param offs 64bit Offset
+ * @returns 32bit offset
+ */
+export function toOffs(offs) {
+  return Number((offs & VM_OFFS_MASK) >> VM_OFFS_SHIFT)
+}
 /**
  * Returns atom or 0, if no atom
  */
