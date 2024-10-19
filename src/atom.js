@@ -18,7 +18,7 @@ export function type(a) { return (a & ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT }
  * b1Dir() for mov atom returns move direction (0..7); For the fix/spl it'd bond 1;
  * For job it's new VM direction; For rep it's atom 1 direction.
  * @param {Number} a 2 bytes of atom value
- * @returns Direction (0..7)
+ * @returns 3bits direction (0..7)
  */
 export function b1Dir(a) { return (a & ATOM_BOND1_MASK) >> ATOM_BOND1_SHIFT }
 /**
@@ -28,6 +28,12 @@ export function b1Dir(a) { return (a & ATOM_BOND1_MASK) >> ATOM_BOND1_SHIFT }
  * @returns Updated 2bytes atom
  */
 export function setB1Dir(a, d) { return (a & ATOM_BOND1_MASK1) | (d << ATOM_BOND1_SHIFT) }
+/**
+ * Returns bond 2 3bits direction (0..7). For different atoms it means different.
+ * For example: fix/spl - it's a second bond; rep - atom 2 direction
+ * @param {Number} a 2bytes Atom value
+ * @returns 3bits direction (0..7)
+ */
 export function b2Dir(a) { return (a & ATOM_BOND2_MASK) >> ATOM_BOND2_SHIFT }
 export function setB2Dir(a, d) { return (a & ATOM_BOND2_MASK1) | (d << ATOM_BOND2_SHIFT) }
 export function b3Dir(a) { return (a & ATOM_BOND3_MASK) - 1 }

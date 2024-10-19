@@ -1,4 +1,4 @@
-import { type, b1Dir, setB1Dir } from '../atom.js'
+import { type, b1Dir, b2Dir, setB1Dir } from '../atom.js'
 
 describe('Atom tests', () => {
   it('type()', () => {
@@ -39,5 +39,20 @@ describe('Atom tests', () => {
     expect(b1Dir(setB1Dir(0b0000000000000000, 0b111))).toBe(0b111)
     expect(b1Dir(setB1Dir(0b1111111000111111, 0b111))).toBe(0b111)
     expect(b1Dir(setB1Dir(0b1111111010111111, 0b010))).toBe(0b010)
+  })
+
+  it('b2Dir()', () => {
+    expect(b2Dir(0b0000000000000000)).toBe(0b000)
+    expect(b2Dir(0b0000000000001000)).toBe(0b001)
+    expect(b2Dir(0b0000000000010000)).toBe(0b010)
+    expect(b2Dir(0b0000000000011000)).toBe(0b011)
+    expect(b2Dir(0b0000000000100000)).toBe(0b100)
+    expect(b2Dir(0b0000000000101000)).toBe(0b101)
+    expect(b2Dir(0b0000000000110000)).toBe(0b110)
+    expect(b2Dir(0b0000000000111000)).toBe(0b111)
+    expect(b2Dir(0b1111111111000111)).toBe(0b000)
+    expect(b2Dir(0b1111111111010111)).toBe(0b010)
+    expect(b2Dir(0b1111111111011111)).toBe(0b011)
+    expect(b2Dir(0b1111111111101111)).toBe(0b101)
   })
 })
