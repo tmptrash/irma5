@@ -21,6 +21,12 @@ export function type(a) { return (a & ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT }
  * @returns Direction (0..7)
  */
 export function b1Dir(a) { return (a & ATOM_BOND1_MASK) >> ATOM_BOND1_SHIFT }
+/**
+ * Sets new 3bits direction for the bond 1 and returns changed atom
+ * @param {Number} a 2bytes Atom value
+ * @param {Number} d 3bits new direction
+ * @returns Updated 2bytes atom
+ */
 export function setB1Dir(a, d) { return (a & ATOM_BOND1_MASK1) | (d << ATOM_BOND1_SHIFT) }
 export function b2Dir(a) { return (a & ATOM_BOND2_MASK) >> ATOM_BOND2_SHIFT }
 export function setB2Dir(a, d) { return (a & ATOM_BOND2_MASK1) | (d << ATOM_BOND2_SHIFT) }

@@ -13,6 +13,12 @@ declare module 'irma5/src/atom' {
    * @returns Direction (0..7)
    */
   export function b1Dir(a: number): number;
+  /**
+   * Sets new 3bits direction for the bond 1 and returns changed atom
+   * @param {Number} a 2bytes Atom value
+   * @param {Number} d 3bits new direction
+   * @returns Updated 2bytes atom
+   */
   export function setB1Dir(a: number, d: number): number;
   export function b2Dir(a: number): number;
   export function setB2Dir(a: number, d: number): number;
