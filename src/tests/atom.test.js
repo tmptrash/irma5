@@ -1,6 +1,6 @@
-import { type, b1Dir, b2Dir, setB1Dir, setB2Dir } from './../atom'
-import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP}
-  from './../shared'
+import { type, b1Dir, b2Dir, b3Dir, setB1Dir, setB2Dir } from './../atom'
+import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB,
+  ATOM_REP, NO_DIR } from './../shared'
 
 describe('Atom tests', () => {
   it('type()', () => {
@@ -69,5 +69,20 @@ describe('Atom tests', () => {
     expect(b2Dir(setB2Dir(0b0000000000000000, 0b111))).toBe(0b111)
     expect(b2Dir(setB2Dir(0b1111111111111111, 0b111))).toBe(0b111)
     expect(b2Dir(setB2Dir(0b1111111111111111, 0b010))).toBe(0b010)
+  })
+
+  it('b3Dir()', () => {
+    expect(b3Dir(0b0000000000000000)).toBe(NO_DIR)
+    expect(b3Dir(0b0000000000000001)).toBe(0b0000)
+    expect(b3Dir(0b0000000000000010)).toBe(0b0001)
+    expect(b3Dir(0b0000000000000011)).toBe(0b0010)
+    expect(b3Dir(0b0000000000000100)).toBe(0b0011)
+    expect(b3Dir(0b0000000000000101)).toBe(0b0100)
+    expect(b3Dir(0b0000000000000110)).toBe(0b0101)
+    expect(b3Dir(0b0000000000000111)).toBe(0b0110)
+    expect(b3Dir(0b0000000000001000)).toBe(0b0111)
+    expect(b3Dir(0b0000000000001001)).toBe(0b1000)
+    expect(b3Dir(0b1111111111110011)).toBe(0b0010)
+    expect(b3Dir(0b1111111111110010)).toBe(0b0001)
   })
 })

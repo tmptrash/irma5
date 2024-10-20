@@ -42,6 +42,12 @@ export function b2Dir(a) { return (a & ATOM_BOND2_MASK) >> ATOM_BOND2_SHIFT }
  * @returns Changed 2bytes atom
  */
 export function setB2Dir(a, d) { return (a & ATOM_BOND2_MASK1) | (d << ATOM_BOND2_SHIFT) }
+/**
+ * Returns 4bits bond 3 direction value. Only for con atom it means second atom if
+ * direction in comparison mode. 0 - no dir, 1 - up, ...
+ * @param {Number} a 2bytes atom
+ * @returns {Number} 4bits direction
+ */
 export function b3Dir(a) { return (a & ATOM_BOND3_MASK) - 1 }
 export function setB3Dir(a, d) { return (a & ATOM_BOND3_MASK1) | (d + 1) }
 export function ifDir(a) { return (a & ATOM_IF_BOND_MASK) >> ATOM_IF_BOND_SHIFT }
