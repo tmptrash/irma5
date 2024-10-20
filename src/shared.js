@@ -7,6 +7,7 @@ export const MOV_BREAK_MASK       = 0b10000000000000000000000000000000
 export const MOV_BREAK_UNMASK     = 0b01111111111111111111111111111111
 
 export const NO_DIR               = -1
+
 export const ATOM_NOP             = 0
 export const ATOM_MOV             = 1
 export const ATOM_FIX             = 2

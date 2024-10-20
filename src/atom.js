@@ -35,6 +35,12 @@ export function setB1Dir(a, d) { return (a & ATOM_BOND1_MASK1) | (d << ATOM_BOND
  * @returns 3bits direction (0..7)
  */
 export function b2Dir(a) { return (a & ATOM_BOND2_MASK) >> ATOM_BOND2_SHIFT }
+/**
+ * Sets 3bits bond 2 direction into the 2bytes atom and returns it back
+ * @param {Number} a 2bytes atom value 
+ * @param {Number} d 3bits direction
+ * @returns Changed 2bytes atom
+ */
 export function setB2Dir(a, d) { return (a & ATOM_BOND2_MASK1) | (d << ATOM_BOND2_SHIFT) }
 export function b3Dir(a) { return (a & ATOM_BOND3_MASK) - 1 }
 export function setB3Dir(a, d) { return (a & ATOM_BOND3_MASK1) | (d + 1) }

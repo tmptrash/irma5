@@ -1,14 +1,16 @@
-import { type, b1Dir, b2Dir, setB1Dir } from '../atom.js'
+import { type, b1Dir, b2Dir, setB1Dir, setB2Dir } from './../atom'
+import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP}
+  from './../shared'
 
 describe('Atom tests', () => {
   it('type()', () => {
-    expect(type(0b0000000000000000)).toBe(0b000)
-    expect(type(0b0010000000000000)).toBe(0b001)
-    expect(type(0b0100000000000000)).toBe(0b010)
-    expect(type(0b0110000000000000)).toBe(0b011)
-    expect(type(0b1000000000000000)).toBe(0b100)
-    expect(type(0b1010000000000000)).toBe(0b101)
-    expect(type(0b1100000000000000)).toBe(0b110)
+    expect(type(0b0000000000000000)).toBe(ATOM_NOP)
+    expect(type(0b0010000000000000)).toBe(ATOM_MOV)
+    expect(type(0b0100000000000000)).toBe(ATOM_FIX)
+    expect(type(0b0110000000000000)).toBe(ATOM_SPL)
+    expect(type(0b1000000000000000)).toBe(ATOM_CON)
+    expect(type(0b1010000000000000)).toBe(ATOM_JOB)
+    expect(type(0b1100000000000000)).toBe(ATOM_REP)
     expect(type(0b1110000000000000)).toBe(0b111)
     expect(type(0b0001111111111111)).toBe(0b000)
     expect(type(0b0101111111111111)).toBe(0b010)
@@ -54,5 +56,18 @@ describe('Atom tests', () => {
     expect(b2Dir(0b1111111111010111)).toBe(0b010)
     expect(b2Dir(0b1111111111011111)).toBe(0b011)
     expect(b2Dir(0b1111111111101111)).toBe(0b101)
+  })
+
+  it('setB2Dir()', () => {
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b000))).toBe(0b000)
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b001))).toBe(0b001)
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b010))).toBe(0b010)
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b011))).toBe(0b011)
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b100))).toBe(0b100)
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b101))).toBe(0b101)
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b110))).toBe(0b110)
+    expect(b2Dir(setB2Dir(0b0000000000000000, 0b111))).toBe(0b111)
+    expect(b2Dir(setB2Dir(0b1111111111111111, 0b111))).toBe(0b111)
+    expect(b2Dir(setB2Dir(0b1111111111111111, 0b010))).toBe(0b010)
   })
 })
