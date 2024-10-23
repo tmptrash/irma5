@@ -57,6 +57,11 @@ export function b3Dir(a) { return (a & ATOM_BOND3_MASK) - 1 }
  * @returns {Number} 2bytes changed atom
  */
 export function setB3Dir(a, d) { return (a & ATOM_BOND3_MASK1) | (d + 1) }
+/**
+ * Returns con atom 3bits if direction. 
+ * @param {Number} a 2bytes atom 
+ * @returns {Number} 3bits Direction
+ */
 export function ifDir(a) { return (a & ATOM_IF_BOND_MASK) >> ATOM_IF_BOND_SHIFT }
 export function setIfDir(a, d) { return (a & ATOM_IF_BOND_MASK1) | (d << ATOM_IF_BOND_SHIFT) }
 export function thenDir(a) { return (a & ATOM_THEN_BOND_MASK) >> ATOM_THEN_BOND_SHIFT }
