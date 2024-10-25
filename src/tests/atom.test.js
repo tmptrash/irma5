@@ -1,5 +1,5 @@
-import { type, b1Dir, b2Dir, b3Dir, ifDir, thenDir, setB1Dir, setB2Dir,
-  setB3Dir, setIfDir, setThenDir } from './../atom'
+import { type, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setB1Dir,
+  setB2Dir, setB3Dir, setIfDir, setThenDir } from './../atom'
 import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB,
   ATOM_REP, NO_DIR } from './../shared'
 
@@ -116,7 +116,7 @@ describe('Atom tests', () => {
     expect(ifDir(0b1110111111110010)).toBe(0b011)
   })
 
-  it('setifDir()', () => {
+  it('setIfDir()', () => {
     expect(ifDir(setIfDir(0b0000000000000000, 0b000))).toBe(0b000)
     expect(ifDir(setIfDir(0b0000000000000000, 0b001))).toBe(0b001)
     expect(ifDir(setIfDir(0b0000000000000000, 0b010))).toBe(0b010)
@@ -146,7 +146,7 @@ describe('Atom tests', () => {
     expect(thenDir(0b1110110111110010)).toBe(0b011)
   })
 
-  it('setifDir()', () => {
+  it('setThenDir()', () => {
     expect(thenDir(setThenDir(0b0000000000000000, 0b000))).toBe(0b000)
     expect(thenDir(setThenDir(0b0000000000000000, 0b001))).toBe(0b001)
     expect(thenDir(setThenDir(0b0000000000000000, 0b010))).toBe(0b010)
@@ -159,5 +159,20 @@ describe('Atom tests', () => {
     expect(thenDir(setThenDir(0b1111111111111111, 0b010))).toBe(0b010)
     expect(thenDir(setThenDir(0b1111111111111111, 0b111))).toBe(0b111)
     expect(thenDir(setThenDir(0b1110001111111111, 0b11111))).toBe(0b111)
+  })
+
+  it('elseDir()', () => {
+    expect(elseDir(0b0000000000000000)).toBe(0b000)
+    expect(elseDir(0b0000000000010000)).toBe(0b001)
+    expect(elseDir(0b0000000100100010)).toBe(0b010)
+    expect(elseDir(0b0000110110110011)).toBe(0b011)
+    expect(elseDir(0b0001001001000100)).toBe(0b100)
+    expect(elseDir(0b0001011011010101)).toBe(0b101)
+    expect(elseDir(0b0001101101100110)).toBe(0b110)
+    expect(elseDir(0b0001111111110011)).toBe(0b111)
+    expect(elseDir(0b1110000000001111)).toBe(0b000)
+    expect(elseDir(0b1110100100101111)).toBe(0b010)
+    expect(elseDir(0b1111111111110011)).toBe(0b111)
+    expect(elseDir(0b1110110110110010)).toBe(0b011)
   })
 })
