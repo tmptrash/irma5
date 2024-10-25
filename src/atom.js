@@ -96,6 +96,12 @@ export function setIfDir(a, d) {
 export function thenDir(a) {
   return (a & ATOM_THEN_BOND_MASK) >> ATOM_THEN_BOND_SHIFT
 }
+/**
+ * Sets "con" atom 3bits "then" direction
+ * @param {Number} a 2bytes Atom
+ * @param {Number} d 3bits new direction
+ * @returns {Number} updated 2bytes atom
+ */
 export function setThenDir(a, d) { return (a & ATOM_THEN_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_THEN_BOND_SHIFT) }
 export function elseDir(a) { return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_SHIFT }
 export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT) }
