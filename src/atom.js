@@ -5,8 +5,8 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_VM_DIR_MASK1, ATOM_BOND1_MASK, ATOM_BOND1_MASK1, ATOM_BOND1_SHIFT, ATOM_BOND2_MASK,
   ATOM_BOND2_MASK1, ATOM_BOND2_SHIFT, ATOM_BOND3_MASK, ATOM_BOND3_MASK1, ATOM_IF_BOND_MASK,
   ATOM_IF_BOND_MASK1, ATOM_IF_BOND_SHIFT, ATOM_THEN_BOND_MASK, ATOM_THEN_BOND_MASK1,
-  ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT
-} from './shared.js'
+  ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT,
+  DIR_MASK_3BITS } from './shared.js'
 /**
  * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom
  * @param {Number} a 2 bytes of Atom value
@@ -27,7 +27,7 @@ export function b1Dir(a) { return (a & ATOM_BOND1_MASK) >> ATOM_BOND1_SHIFT }
  * @param {Number} d 3bits new direction
  * @returns Updated 2bytes atom
  */
-export function setB1Dir(a, d) { return (a & ATOM_BOND1_MASK1) | (d << ATOM_BOND1_SHIFT) }
+export function setB1Dir(a, d) { return (a & ATOM_BOND1_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_BOND1_SHIFT) }
 /**
  * Returns bond 2 3bits direction (0..7). For different atoms it means different.
  * For example: fix/spl - it's a second bond; rep - atom 2 direction
@@ -41,7 +41,7 @@ export function b2Dir(a) { return (a & ATOM_BOND2_MASK) >> ATOM_BOND2_SHIFT }
  * @param {Number} d 3bits direction
  * @returns Changed 2bytes atom
  */
-export function setB2Dir(a, d) { return (a & ATOM_BOND2_MASK1) | (d << ATOM_BOND2_SHIFT) }
+export function setB2Dir(a, d) { return (a & ATOM_BOND2_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_BOND2_SHIFT) }
 /**
  * Returns 4bits bond 3 direction value. Only for con atom it means second atom if
  * direction in comparison mode. Stores these vbalues: 0 - no dir, 1 - up, ...
@@ -56,17 +56,23 @@ export function b3Dir(a) { return (a & ATOM_BOND3_MASK) - 1 }
  * @param {Number} d 3bits new direction
  * @returns {Number} 2bytes changed atom
  */
-export function setB3Dir(a, d) { return (a & ATOM_BOND3_MASK1) | (d + 1) }
+export function setB3Dir(a, d) { return (a & ATOM_BOND3_MASK1) | ((d > 8 ? 8 : (d < 0 ? 0 : d)) + 1) }
 /**
  * Returns con atom 3bits if direction. 
  * @param {Number} a 2bytes atom 
  * @returns {Number} 3bits Direction
  */
 export function ifDir(a) { return (a & ATOM_IF_BOND_MASK) >> ATOM_IF_BOND_SHIFT }
-export function setIfDir(a, d) { return (a & ATOM_IF_BOND_MASK1) | (d << ATOM_IF_BOND_SHIFT) }
+/**
+ * Sets 3bits if direction for con atom
+ * @param {number} a 2bytes Atom
+ * @param {number} d 3bits if direction
+ * @returns {number} 2bytes updated atom
+ */
+export function setIfDir(a, d) { return (a & ATOM_IF_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_IF_BOND_SHIFT) }
 export function thenDir(a) { return (a & ATOM_THEN_BOND_MASK) >> ATOM_THEN_BOND_SHIFT }
-export function setThenDir(a, d) { return (a & ATOM_THEN_BOND_MASK1) | (d << ATOM_THEN_BOND_SHIFT) }
+export function setThenDir(a, d) { return (a & ATOM_THEN_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_THEN_BOND_SHIFT) }
 export function elseDir(a) { return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_SHIFT }
-export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | (d << ATOM_ELSE_BOND_SHIFT) }
+export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT) }
 export function vmDir(a) { return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1 }
-export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | ((d + 1) << ATOM_VM_DIR_SHIFT) }
+export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | (((d > 8 ? 8 : (d < 0 ? 0 : d)) + 1) << ATOM_VM_DIR_SHIFT) }

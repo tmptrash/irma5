@@ -16,6 +16,7 @@ export const ATOM_CON             = 4
 export const ATOM_JOB             = 5
 export const ATOM_REP             = 6
 
+export const DIR_MASK_3BITS       = 0b111
 export const ATOM_TYPE_MASK       = 0b1110000000000000
 export const ATOM_TYPE_UNMASK     = 0b0001111111111111
 export const ATOM_TYPE_SHIFT      = 13
