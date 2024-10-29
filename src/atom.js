@@ -116,5 +116,10 @@ export function elseDir(a) { return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_
  * @returns {Number} Updated atom
  */
 export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT) }
+/**
+ * Returns 4bits VM direction
+ * @param {Number} a 2bytes atom
+ * @returns {Number} 4bits VM direction
+ */
 export function vmDir(a) { return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1 }
 export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | (((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1) << ATOM_VM_DIR_SHIFT) }
