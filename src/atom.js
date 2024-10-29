@@ -109,6 +109,12 @@ export function setThenDir(a, d) { return (a & ATOM_THEN_BOND_MASK1) | ((d & DIR
  * @returns {Number} 3bits "else" direction
  */
 export function elseDir(a) { return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_SHIFT }
+/**
+ * Sets "con" atom 3bits "else" direction
+ * @param {Number} a Atom to change
+ * @param {Number} d 3bits direction
+ * @returns {Number} Updated atom
+ */
 export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT) }
 export function vmDir(a) { return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1 }
 export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | (((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1) << ATOM_VM_DIR_SHIFT) }
