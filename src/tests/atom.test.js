@@ -207,6 +207,7 @@ describe('Atom tests', () => {
   })
 
   it('setVmDir()', () => {
+    expect(vmDir(setVmDir(0b0000000000000000, NO_DIR))).toBe(NO_DIR)
     expect(vmDir(setVmDir(0b0000000000000000, 0b000))).toBe(0b000)
     expect(vmDir(setVmDir(0b0000000000000000, 0b001))).toBe(0b001)
     expect(vmDir(setVmDir(0b0000000000000000, 0b010))).toBe(0b010)
