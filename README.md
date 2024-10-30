@@ -7,6 +7,3 @@ One more attempt to create Artificial Life world with movable organisms and more
 
 # tests
 npm test
-
-# generate d.ts (declaration files)
-npx -p typescript tsc src/atom.js --allowJs --declaration --emitDeclarationOnly

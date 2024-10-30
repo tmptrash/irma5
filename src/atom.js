@@ -1,5 +1,8 @@
 /**
- * Module of the atom. Describes all atom related stuff. Uses config & shared modules.
+ * Module of the atom. Describes all atom related stuff. Uses config & shared modules
+ * as dependencies. Uses 2bytes atom as a data for almost all functions. We use shrortcuts
+ * a - 2bytes atom, d - 3 or 4 bits direction. Has no additional checks of inner arguments.
+ * It mean that a - should always be a number, same as direction.
  */
 import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_VM_DIR_MASK1, ATOM_BOND1_MASK, ATOM_BOND1_MASK1, ATOM_BOND1_SHIFT, ATOM_BOND2_MASK,
@@ -8,7 +11,7 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT,
   DIR_MASK_3BITS } from './shared.js'
 /**
- * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom
+ * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom, 1 - mov,...
  * @param {Number} a 2 bytes of Atom value
  * @returns 0 - no atom, 1 - mov, ...
  */
@@ -72,7 +75,7 @@ export function setB3Dir(a, d) {
   return (a & ATOM_BOND3_MASK1) | ((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1)
 }
 /**
- * Returns con atom 3bits "if" direction. 
+ * Returns "con" atom 3bits "if" direction. Has no sense for other atoms.
  * @param {Number} a 2bytes atom 
  * @returns {Number} 3bits Direction
  */
@@ -80,7 +83,7 @@ export function ifDir(a) {
   return (a & ATOM_IF_BOND_MASK) >> ATOM_IF_BOND_SHIFT
 }
 /**
- * Sets 3bits "if" direction for con atom
+ * Sets 3bits "if" direction for "con" atom. Has no sense for other atoms.
  * @param {Number} a 2bytes Atom
  * @param {Number} d 3bits "if" direction of "con" atom
  * @returns {Number} 2bytes updated atom
@@ -89,7 +92,7 @@ export function setIfDir(a, d) {
   return (a & ATOM_IF_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_IF_BOND_SHIFT)
 }
 /**
- * Returns 3bits "then" direction for "con" atom
+ * Returns 3bits "then" direction for "con" atom. Has no sense for other atoms.
  * @param {Number} a 2bytes atom
  * @returns {Number} 3bits direction
  */
@@ -97,29 +100,35 @@ export function thenDir(a) {
   return (a & ATOM_THEN_BOND_MASK) >> ATOM_THEN_BOND_SHIFT
 }
 /**
- * Sets "con" atom 3bits "then" direction
+ * Sets "con" atom 3bits "then" direction. Has no sense for other atoms.
  * @param {Number} a 2bytes Atom
  * @param {Number} d 3bits new direction
  * @returns {Number} updated 2bytes atom
  */
 export function setThenDir(a, d) { return (a & ATOM_THEN_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_THEN_BOND_SHIFT) }
 /**
- * Returns "else" direction for the "con" atom
+ * Returns "else" direction for the "con" atom. Has no sense for other atoms.
  * @param {Number} a 2bytes "con" atom 
  * @returns {Number} 3bits "else" direction
  */
 export function elseDir(a) { return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_SHIFT }
 /**
- * Sets "con" atom 3bits "else" direction
+ * Sets "con" atom 3bits "else" direction. Has no sense for other atoms.
  * @param {Number} a Atom to change
  * @param {Number} d 3bits direction
  * @returns {Number} Updated atom
  */
 export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT) }
 /**
- * Returns 4bits VM direction
+ * Returns 4bits VM direction. Works for all atoms.
  * @param {Number} a 2bytes atom
  * @returns {Number} 4bits VM direction
  */
 export function vmDir(a) { return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1 }
+/**
+ * Sets VM 4bits direction for all atoms.
+ * @param {Number} a 2bytes atom
+ * @param {Number} d 4bits direction
+ * @returns {Number} 2bytes atom
+ */
 export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | (((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1) << ATOM_VM_DIR_SHIFT) }
