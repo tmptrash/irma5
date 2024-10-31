@@ -4,22 +4,6 @@ import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { mov, fix, spl, con, job, rep, checkVm } from './atoms'
 
-beforeAll(() => {
-  //
-  // This code is used for Node.js environment for the tests
-  //
-  if (!ArrayBuffer.prototype.transfer) {
-    ArrayBuffer.prototype.transfer = function transfer(len) {
-      if (!(this instanceof ArrayBuffer)) throw new TypeError('Source must be an instance of ArrayBuffer')
-      if (len <= this.byteLength) return this.slice(0, len)
-      const sourceView = new Uint8Array(this)
-      const destView = new Uint8Array(new ArrayBuffer(len))
-      destView.set(sourceView)
-      return destView.buffer
-    }
-  }
-})
-
 describe('vms module tests', () => {
   let w = null
   let vms = null
