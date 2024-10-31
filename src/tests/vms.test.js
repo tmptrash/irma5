@@ -20,7 +20,7 @@ beforeAll(() => {
   }
 })
 
-describe('vm module tests', () => {
+describe('vms module tests', () => {
   let w = null
   let vms = null
   let WIDTH = 0

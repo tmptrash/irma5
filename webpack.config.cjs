@@ -42,6 +42,11 @@ module.exports = {
           injectType: 'singletonStyleTag'
       }
       }, 'css-loader']
+    }, {
+      test: /\.m?js/,
+      resolve: {
+        fullySpecified: false
+      }
     }]
   }
 }
