@@ -2,7 +2,7 @@ import CFG from '../cfg'
 import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
-import { mov, fix, spl, con, job, rep, checkVm } from './atoms'
+import { mov, fix, spl, con, job, rep, checkVm, testAtoms, R } from './atoms'
 
 describe('vms module tests', () => {
   let w = null
@@ -12,6 +12,7 @@ describe('vms module tests', () => {
     const canvas = document.createElement("canvas")
     canvas.id = 'irma5'
     WIDTH = CFG.WORLD.width = CFG.WORLD.height = 10
+    CFG.rpi = 1
     canvas.setAttribute('width', CFG.WORLD.width)
     canvas.setAttribute('height', CFG.WORLD.height)
     canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h)}}, putImageData: () => {}}}
@@ -24,6 +25,13 @@ describe('vms module tests', () => {
     document.querySelector(CFG.HTML.canvasQuery).remove()
     vms = w = null
   })
+
+  /**
+   * Shortcut to testAtoms
+   */
+  function testRun(atomsFrom = [], vmsFrom = [], atomsTo = [], vmsTo = []) {
+    testAtoms(vms, w, atomsFrom, vmsFrom, atomsTo, vmsTo)
+  }
 
   it('CMDS array', () => {
     // amount of commands should be <= 2**3, because we use 3 bits for type
@@ -44,14 +52,9 @@ describe('vms module tests', () => {
   describe('mov atom tests', () => {
     it('mov atom should move itself', () => {
       const offs = 0
-      const energy = CFG.ATOM.NRG.mov * 2
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, 0, mov(2, 2))
-      const m = get(w, offs)
-      CMDS[1](vms, m, vmIdx)
-      expect(get(w, offs + 1)).toBe(m)
-      expect(vms.map[offs + 1].has(vmIdx)).toBe(true)
-      expect(vms.offs[vmIdx]).toBe(vm(offs + 1, energy - CFG.ATOM.NRG.mov))
+      const nrg = CFG.ATOM.NRG.mov
+      const m = mov(R, R)
+      testRun([[offs, m]], [[offs, nrg * 2]], [[offs + 1, m]], [[offs + 1, nrg]])
     })
     it('mov atom should move itself and vm should be removed without energy', () => {
       const offs = 0
