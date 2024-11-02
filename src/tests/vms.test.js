@@ -70,18 +70,11 @@ describe('vms module tests', () => {
       const offs = 0
       const nrg = CFG.ATOM.NRG.mov
       const m = mov(R, R)
-      //testRun([[offs, m]], [[offs, nrg * 2]], [[offs + 1, m]], [[offs + 1, nrg]])
+      testRun([[offs, m]], [[offs, nrg * 2]], [[offs + 1, m]], [[offs + 1, nrg]])
     })
     it('mov atom should move itself and vm should be removed without energy', () => {
       const offs = 0
-      //const nrg = CFG.ATOM.NRG.mov
-      //const vmIdx = addVm(vms, offs, nrg)
       const m = mov(2, 2)
-      // put(w, 0, m)
-      // CMDS[1](vms, m, vmIdx)
-      // expect(get(w, offs + 1)).toBe(m)
-      // expect(vms.map[offs + 1]).toBe(undefined)
-
       testRun([[offs, m]], [[offs, CFG.ATOM.NRG.mov]], [[offs + 1, m]])
     })
     it('mov atom should move itself and the neighbour on the way', () => {
