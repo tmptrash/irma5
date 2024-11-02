@@ -23,11 +23,11 @@ beforeAll(() => {
 describe('vms module tests', () => {
   let w = null
   let vms = null
-  let WIDTH = 0
+  let W = 0
   beforeEach(() => {
     const canvas = document.createElement("canvas")
     canvas.id = 'irma5'
-    WIDTH = CFG.WORLD.width = CFG.WORLD.height = 10
+    W = CFG.WORLD.width = CFG.WORLD.height = 10
     CFG.rpi = 1
     canvas.setAttribute('width', CFG.WORLD.width)
     canvas.setAttribute('height', CFG.WORLD.height)
@@ -85,16 +85,9 @@ describe('vms module tests', () => {
       testRun([[offs, m], [offs + 1, f]], [[offs, nrg * 3]], [[offs + 1, m], [offs + 2, f]], [[offs + 2, nrg]])
     })
     it('mov atom should move itself and update its vm bond and near atom vm bond', () => {
-      const offs = WIDTH
-      const energy = 2 * CFG.ATOM.NRG.mov
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(0, 2))
-      put(w, 0, fix(4, 0, 2))
-      CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, 0)).toBe(fix(3, 0, 2))
-      expect(get(w, offs + 1)).toBe(mov(7, 2))
-      expect(vms.offs[vmIdx]).toBe(vm(0, CFG.ATOM.NRG.mov))
-      expect(checkVm(vms, 0, vmIdx, energy - CFG.ATOM.NRG.mov)).toBe(true)
+      const offs = W
+      const nrg = CFG.ATOM.NRG.mov
+      testRun([[offs, mov(0, 2)], [offs - W, fix(4, 0, 2)]], [[offs, nrg * 2]], [[offs - W, fix(3, 0, 2)], [offs + 1, mov(7, 2)]], [[offs - W, nrg]])
     })
     it('mov atom should move itself and neighbour atom behind', () => {
       const offs = 1
@@ -113,40 +106,40 @@ describe('vms module tests', () => {
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, mov(2, 2))
       put(w, offs + 1, fix(0, 0, 0))
-      put(w, offs + WIDTH, fix(0, 4, 4))
+      put(w, offs + W, fix(0, 4, 4))
       CMDS[1](vms, get(w, offs), vmIdx)
       expect(get(w, offs + 1)).toBe(mov(2, 2))
       expect(get(w, offs + 2)).toBe(fix(0, 0, 0))
-      expect(get(w, offs + WIDTH)).toBe(fix(1, 4, 4))
+      expect(get(w, offs + W)).toBe(fix(1, 4, 4))
       expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
     })
     it('move two mov atoms', () => {
-      const offs = WIDTH + 1
+      const offs = W + 1
       const energy = 4 * CFG.ATOM.NRG.mov
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, mov(7, 3))
       put(w, 0, mov(3, 4))
       CMDS[1](vms, get(w, offs), vmIdx)
       CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, offs + WIDTH + 1)).toBe(mov(6, 3))
-      expect(get(w, offs + WIDTH)).toBe(mov(2, 4))
-      expect(checkVm(vms, offs + WIDTH + 1, vmIdx, energy - 3 * CFG.ATOM.NRG.mov)).toBe(true)
+      expect(get(w, offs + W + 1)).toBe(mov(6, 3))
+      expect(get(w, offs + W)).toBe(mov(2, 4))
+      expect(checkVm(vms, offs + W + 1, vmIdx, energy - 3 * CFG.ATOM.NRG.mov)).toBe(true)
     })
     it('move three atoms together', () => {
-      const offs = WIDTH + 1
+      const offs = W + 1
       const energy = 4 * CFG.ATOM.NRG.mov
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, mov(4, 4))
       put(w, 0, fix(3, 6, 6))
       put(w, 2, fix(5, 6, 6))
       CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, offs + WIDTH)).toBe(mov(4, 4))
+      expect(get(w, offs + W)).toBe(mov(4, 4))
       expect(get(w, offs - 1)).toBe(fix(3, 6, 6))
       expect(get(w, offs + 1)).toBe(fix(5, 6, 6))
-      expect(checkVm(vms, offs + WIDTH, vmIdx, energy - 3 * CFG.ATOM.NRG.mov)).toBe(true)
+      expect(checkVm(vms, offs + W, vmIdx, energy - 3 * CFG.ATOM.NRG.mov)).toBe(true)
     })
     it('mov atom should update if atom bonds correctly', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 3 * CFG.ATOM.NRG.mov
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, mov(0, 2))
@@ -182,7 +175,7 @@ describe('vms module tests', () => {
 
   describe('fix atom tests', () => {
     it('fix atom should fix near atoms together if they have no bonds', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 10 * CFG.ATOM.NRG.fix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
@@ -195,7 +188,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
     it('fix atom should fix near atoms together, but should not if they already joined', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 6 * CFG.ATOM.NRG.onFix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
@@ -207,7 +200,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
     it('fix atom should fix near atoms together if they have only 1 bond', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 6 * CFG.ATOM.NRG.onFix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
@@ -220,7 +213,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
     it('fix atom should not fix near atoms if they already have bonds', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 4 * CFG.ATOM.NRG.fix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(4, 2, 7))
@@ -265,7 +258,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
     it('fix atom should move VM correctly', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 4 * CFG.ATOM.NRG.fix
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, fix(2, 2, 7))
@@ -277,7 +270,7 @@ describe('vms module tests', () => {
 
   describe('spl atom tests', () => {
     it('spl atom should split near first atoms', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(2, 2, 7))
@@ -290,7 +283,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
     })
     it('spl atom should split near second atom', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(2, 2, 7))
@@ -303,7 +296,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
     })
     it('spl atom should split itself and near atom', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(2, 2, 6))
@@ -314,7 +307,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
     })
     it('spl atom should split itself and near atom if only near atom has bond', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(NO_DIR, 2, 6))
@@ -325,7 +318,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs, vmIdx, energy + CFG.ATOM.NRG.onSpl)).toBe(true)
     })
     it('spl atom should not split near atoms if they have no bonds', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(2, 2, 7))
@@ -338,7 +331,7 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.spl)).toBe(true)
     })
     it('spl atom should not split if no second atom', () => {
-      const offs = WIDTH
+      const offs = W
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, spl(2, 2, 7))
@@ -367,12 +360,12 @@ describe('vms module tests', () => {
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(2, 4, 2, NO_DIR))
       put(w, offs + 1, mov(NO_DIR, 2))
-      put(w, WIDTH, spl(NO_DIR, 2, 0))
+      put(w, W, spl(NO_DIR, 2, 0))
       CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(2, 4, 2, NO_DIR))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-      expect(get(w, WIDTH)).toBe(spl(NO_DIR, 2, 0))
-      expect(checkVm(vms, offs + WIDTH, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
+      expect(get(w, W)).toBe(spl(NO_DIR, 2, 0))
+      expect(checkVm(vms, offs + W, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
     it('con atom should direct VM to else dir if near atom is not exist', () => {
       const offs = 0
@@ -380,11 +373,11 @@ describe('vms module tests', () => {
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(0, 4, 2, NO_DIR))
       put(w, offs + 1, mov(NO_DIR, 2))
-      put(w, WIDTH, spl(NO_DIR, 2, 0))
+      put(w, W, spl(NO_DIR, 2, 0))
       CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(0, 4, 2, NO_DIR))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-      expect(get(w, WIDTH)).toBe(spl(NO_DIR, 2, 0))
+      expect(get(w, W)).toBe(spl(NO_DIR, 2, 0))
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
     it('con atom should not direct VM to else dir if else atom is not exist', () => {
@@ -392,10 +385,10 @@ describe('vms module tests', () => {
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(2, 4, 2, NO_DIR))
-      put(w, WIDTH, spl(NO_DIR, 2, 0))
+      put(w, W, spl(NO_DIR, 2, 0))
       CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(2, 4, 2, NO_DIR))
-      expect(get(w, WIDTH)).toBe(spl(NO_DIR, 2, 0))
+      expect(get(w, W)).toBe(spl(NO_DIR, 2, 0))
       expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
     it('con atom should direct VM to then atom if then and else dirs are the same', () => {
@@ -424,10 +417,10 @@ describe('vms module tests', () => {
       const energy = 10
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(7, 4, 2, 4))
-      put(w, offs + WIDTH, spl(NO_DIR, 1, 0))
+      put(w, offs + W, spl(NO_DIR, 1, 0))
       CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(7, 4, 2, 4))
-      expect(get(w, offs + WIDTH)).toBe(spl(NO_DIR, 1, 0))
+      expect(get(w, offs + W)).toBe(spl(NO_DIR, 1, 0))
       expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
     it('con atom should direct VM to else dir if we compare different atoms', () => {
@@ -436,12 +429,12 @@ describe('vms module tests', () => {
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(2, 2, 4, 4))
       put(w, offs + 1, spl(NO_DIR, 2, 0))
-      put(w, WIDTH, fix(NO_DIR, 1, 0))
+      put(w, W, fix(NO_DIR, 1, 0))
       CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(2, 2, 4, 4))
       expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(get(w, offs + WIDTH)).toBe(fix(NO_DIR, 1, 0))
-      expect(checkVm(vms, offs + WIDTH, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
+      expect(get(w, offs + W)).toBe(fix(NO_DIR, 1, 0))
+      expect(checkVm(vms, offs + W, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
     it('con atom should not direct VM to else dir if no atom in VM dir', () => {
       const offs = 0
@@ -449,11 +442,11 @@ describe('vms module tests', () => {
       const vmIdx = addVm(vms, offs, energy)
       put(w, offs, con(2, 2, 5, 4))
       put(w, offs + 1, spl(NO_DIR, 2, 0))
-      put(w, offs + WIDTH, fix(NO_DIR, 1, 0))
+      put(w, offs + W, fix(NO_DIR, 1, 0))
       CMDS[4](vms, get(w, offs), vmIdx)
       expect(get(w, offs)).toBe(con(2, 2, 5, 4))
       expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(get(w, offs + WIDTH)).toBe(fix(NO_DIR, 1, 0))
+      expect(get(w, offs + W)).toBe(fix(NO_DIR, 1, 0))
       expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
     })
     it('con atom should not move VM to else or if dir if no atoms around', () => {
