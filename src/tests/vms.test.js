@@ -71,6 +71,12 @@ describe('vms module tests', () => {
       const m = mov(R, R)
       testRun([[offs, m]], [], [[offs, m]])
     })
+    it('mov atom with 2 VMs on it should move twice longer', () => {
+      const offs = 0
+      const m = mov(R, R)
+      const nrg = CFG.ATOM.NRG.mov
+      testRun([[offs, m]], [[0, nrg], [0, nrg]], [[offs + 2, m]])
+    })
     it('mov atom should move itself', () => {
       const offs = 0
       const nrg = CFG.ATOM.NRG.mov
