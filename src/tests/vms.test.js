@@ -77,20 +77,12 @@ describe('vms module tests', () => {
       const m = mov(2, 2)
       testRun([[offs, m]], [[offs, CFG.ATOM.NRG.mov]], [[offs + 1, m]])
     })
-    it('mov atom should move itself and the neighbour on the way', () => {
+    it('mov atom should move itself and the atom on the way', () => {
       const offs = 0
-      const energy = 3 * CFG.ATOM.NRG.mov
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(2, 2))
-      put(w, offs + 1, fix(2, 0, 2))
-      const m = get(w, offs)
-      const f = get(w, offs + 1)
-      CMDS[1](vms, m, vmIdx)
-      expect(get(w, offs + 1)).toBe(m)
-      expect(get(w, offs + 2)).toBe(f)
-      expect(vms.map[offs + 1]).toBe(undefined)
-      expect(vms.map[offs + 2].has(vmIdx)).toBe(true)
-      expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
+      const nrg = CFG.ATOM.NRG.mov
+      const m = mov(2, 2)
+      const f = fix(2, 0, 2)
+      testRun([[offs, m], [offs + 1, f]], [[offs, nrg * 3]], [[offs + 1, m], [offs + 2, f]], [[offs + 2, nrg]])
     })
     it('mov atom should move itself and update its vm bond and near atom vm bond', () => {
       const offs = WIDTH
