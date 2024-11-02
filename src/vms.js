@@ -51,7 +51,7 @@ export function ticks(vms) {
     for (let vmIdx = 0; vmIdx < vms.offs.i;) {
       const a = get(vms.w, toOffs(vms.offs[vmIdx]))
       const inc = CMDS[type(a)](vms, a, vmIdx)
-      vmIdx += (inc < 0 ? inc : 1)
+      vmIdx += (inc < 0 ? (vmIdx > 0 ? inc : 0) : 1)
     }
 }
 

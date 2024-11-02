@@ -46,7 +46,7 @@ export function testAtoms(vms, w, atomsFrom = [], vmsFrom = [], atomsTo = [], vm
   ticks(vms)
   atomsTo.forEach(a => expect(get(w, a[0])).toBe(a[1]))
   vmsTo.forEach((v, i) => expect(checkVm(vms, v[0], i, v[1])).toBe(true))
-  expect(vmsTo.length).toBe(vms.offs.length)
+  expect(vmsTo.length).toBe(vms.offs.i)
 }
 
 /**
