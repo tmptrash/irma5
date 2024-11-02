@@ -28,7 +28,7 @@ export default function World(hidden = false) {
   initDom(w, hidden)
   initHandlers(w)
   initZoom(w)
-  initTransparency(w)
+  clearCanvas(w)
   onAnimate(w)
 
   return w
@@ -104,9 +104,12 @@ function initZoom(w) {
   })
 }
 
-function initTransparency(w) {
+function clearCanvas(w) {
   const d = w.data
-  for (let i = 0, l = d.length * 4; i < l; i += 4) d[i + 3] = 0xff
+  for (let i = 0, l = d.length * 4; i < l; i += 4) {
+    d[i] = d[i + 1] = d[i + 2] = 0
+    d[i + 3] = 0xff
+  }
 }
 
 function updateCanvas(w) {
