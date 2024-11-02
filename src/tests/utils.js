@@ -1,14 +1,5 @@
-import { vm, ticks, addVm } from './../vms'
-import { get, put } from './../world'
-
-export const U  = 0 // up
-export const UR = 1 // up-right
-export const R  = 2 // right
-export const RD = 3 // ...
-export const D  = 4
-export const DL = 5
-export const L  = 6
-export const LU = 7
+import { vm, ticks, addVm } from '../vms'
+import { get, put } from '../world'
 
 export function mov(vmDir, movDir) {
   return parseInt(`001${dir4(vmDir)}${dir(movDir)}000000`, 2)
@@ -46,7 +37,7 @@ export function testAtoms(vms, w, atomsFrom = [], vmsFrom = [], atomsTo = [], vm
   ticks(vms)
   atomsTo.forEach(a => expect(get(w, a[0])).toBe(a[1]))
   vmsTo.forEach((v, i) => expect(checkVm(vms, v[0], i, v[1])).toBe(true))
-  expect(vmsTo.length).toBe(vms.offs.i)
+  expect(vmsTo.length > 0 && vmsTo.length === vms.offs.i || vmsTo.length <= 0 && vms.offs.i <= 0).toBe(true)
 }
 
 /**

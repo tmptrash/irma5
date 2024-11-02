@@ -1,8 +1,8 @@
 import CFG from '../cfg'
-import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
-import { mov, fix, spl, con, job, rep, checkVm, testAtoms, R } from './atoms'
+import { mov, fix, spl, con, job, rep, checkVm, testAtoms } from './utils'
 
 beforeAll(() => {
   //
@@ -66,6 +66,11 @@ describe('vms module tests', () => {
   })
 
   describe('mov atom tests', () => {
+    it('mov atom should not move without energy', () => {
+      const offs = 0
+      const m = mov(R, R)
+      testRun([[offs, m]], [], [[offs, m]])
+    })
     it('mov atom should move itself', () => {
       const offs = 0
       const nrg = CFG.ATOM.NRG.mov

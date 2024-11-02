@@ -106,6 +106,17 @@ export const DNA = [
   [NO_DIR, NO_DIR,      0, NO_DIR,      6, NO_DIR, NO_DIR, NO_DIR]
 ]
 /**
+ * All available directions
+ */
+export const U  = 0 // up
+export const UR = 1 // up-right
+export const R  = 2 // right
+export const RD = 3 // ...
+export const D  = 4
+export const DL = 5
+export const L  = 6
+export const LU = 7
+/**
  * Wrapper for Uint32Array type with an ability to create, resize, add,
  * remove elements. The difference between this version and original is 
  * in using index (i) as a length property. So if user needs to resize 
