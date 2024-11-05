@@ -105,30 +105,40 @@ export function thenDir(a) {
  * @param {Number} d 3bits new direction
  * @returns {Number} updated 2bytes atom
  */
-export function setThenDir(a, d) { return (a & ATOM_THEN_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_THEN_BOND_SHIFT) }
+export function setThenDir(a, d) {
+  return (a & ATOM_THEN_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_THEN_BOND_SHIFT)
+}
 /**
  * Returns "else" direction for the "con" atom. Has no sense for other atoms.
  * @param {Number} a 2bytes "con" atom 
  * @returns {Number} 3bits "else" direction
  */
-export function elseDir(a) { return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_SHIFT }
+export function elseDir(a) {
+  return (a & ATOM_ELSE_BOND_MASK) >> ATOM_ELSE_BOND_SHIFT
+}
 /**
  * Sets "con" atom 3bits "else" direction. Has no sense for other atoms.
  * @param {Number} a Atom to change
  * @param {Number} d 3bits direction
  * @returns {Number} Updated atom
  */
-export function setElseDir(a, d) { return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT) }
+export function setElseDir(a, d) {
+  return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT)
+}
 /**
  * Returns 4bits VM direction. Works for all atoms.
  * @param {Number} a 2bytes atom
  * @returns {Number} 4bits VM direction
  */
-export function vmDir(a) { return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1 }
+export function vmDir(a) {
+  return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1
+}
 /**
  * Sets VM 4bits direction for all atoms.
  * @param {Number} a 2bytes atom
  * @param {Number} d 4bits direction
  * @returns {Number} 2bytes atom
  */
-export function setVmDir(a, d) { return (a & ATOM_VM_DIR_MASK1) | (((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1) << ATOM_VM_DIR_SHIFT) }
+export function setVmDir(a, d) {
+  return (a & ATOM_VM_DIR_MASK1) | (((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1) << ATOM_VM_DIR_SHIFT)
+}
