@@ -33,7 +33,7 @@ export function set(vms, offs) {
   for (let i = 0; i < l; i++) {
     const o = toOffs(offs[i])
     const m = map[o]
-    map[o] = m ? m.double() : UInt32Array.create(1)
+    map[o] = m ? (m.end() ? m.double() : m) : UInt32Array.create(1)
     map[o].add(i)
   }
 }
