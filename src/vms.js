@@ -82,6 +82,8 @@ function mov(vms, a, vmIdx) {
     const oldA = a
     stackIdx--                                             // pop atom offs from stack
     move(w, aOffs, dstOffs)                                // dest place is free, move atom
+    const m = vms.map[aOffs]                               // if atom have > 1 VMs, then we move them all to the dst position
+    while (m && m.i > 0) moveVm(vms, a, m[0], aOffs, 0, movDir)
     MOVED[dstOffs] = true                                  // add moved atom to moved store
     moved++                                                // calc amount of moved near atoms
     if (type(a) === ATOM_CON) {                            // update bonds of if atom. we don't neet to update spl, fix
