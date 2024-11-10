@@ -72,7 +72,8 @@ function mov(vms, a, vmIdx) {
   let moved = 0
   while (stackIdx > 0) {                                   // go for all items in stack
     const aOffs = fromStack()                              // last offs in stack (not pop)
-    if (MOVED[aOffs] || !get(w, aOffs)) { stackIdx--; continue } // this offs was already moved or no atom
+    a = get(w, aOffs)
+    if (MOVED[aOffs] || !a) { stackIdx--; continue } // this offs was already moved or no atom
     const dstOffs = offs(aOffs, movDir)                    // dest offset we are going to move
     if (get(w, dstOffs)) {                                 // dest place is not free
       STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK         // MOV_BREAK_MASK means "we may interrupt mov here"
