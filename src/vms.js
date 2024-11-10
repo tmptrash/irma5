@@ -96,10 +96,12 @@ function mov(vms, a, vmIdx) {
   stackIdx = 0
 
   if (oldAtom !== get(w, atomOffs)) {                      // update VM pos after mov atom was moved & move VM to the next atom
+    const newOffs = offs(atomOffs, movDir)
+    a = get(w, newOffs)
     vmIdx = moveVm(vms, a, vmIdx, atomOffs, -moved * CFG.ATOM.NRG.mov, movDir)
     const m = vms.map[vmOffs]                              // if atom have > 1 VMs, then we move them all to the dst position
     while (m && m.i > 0) moveVm(vms, a, m[0], atomOffs, 0, movDir)
-    vmIdx > -1 && moveVm(vms, a, vmIdx, offs(atomOffs, movDir))
+    vmIdx > -1 && moveVm(vms, a, vmIdx, newOffs)
   }
   return vmIdx
 }
