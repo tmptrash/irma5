@@ -120,14 +120,14 @@ function fix(vms, a, vmIdx) {
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
   if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
-  if (vmDir(a1) === NO_DIR && type(a1) !== ATOM_CON) {
+  if (type(a1) !== ATOM_CON) {
     a1 = setVmDir(a1, b2d)
     put(w, o1, a1)
-    vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
-  } else if (vmDir(a2) === NO_DIR && type(a2) !== ATOM_CON) {
+    vmDir(a1) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
+  } else if (type(a2) !== ATOM_CON) {
     a2 = setVmDir(a2, DIR_REV[b2d])
     put(w, o2, a2)
-    vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
+    vmDir(a2) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
   }
   // move vm to the next atom offset
   if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
