@@ -124,8 +124,7 @@ function fix(vms, a, vmIdx) {
     a1 = setVmDir(a1, b2d)
     put(w, o1, a1)
     vmDir(a1) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
-  }
-  if (type(a2) !== ATOM_CON && DIR_REV[b2d] !== vmDir(a2)) {
+  } else if (type(a2) !== ATOM_CON && DIR_REV[b2d] !== vmDir(a2)) {
     a2 = setVmDir(a2, DIR_REV[b2d])
     put(w, o2, a2)
     vmDir(a2) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
