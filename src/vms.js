@@ -8,7 +8,7 @@ import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
 //
 // Left bit of every number is a flag, which means - "possible to break". It means
 // that we may break mov command running and continue next time. Break is only possible,
-// if all previous flags are equal to 1
+// if all previous flags are equal to 1.
 //
 const STACK = new UInt32Array(CFG.ATOM.stackBufSize)
 let stackIdx = 0
