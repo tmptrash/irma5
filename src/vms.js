@@ -73,7 +73,7 @@ function mov(vms, a, vmIdx) {
   while (stackIdx > 0) {                                   // go for all items in stack
     const aOffs = fromStack()                              // last offs in stack (not pop)
     a = get(w, aOffs)
-    if (MOVED[aOffs] || !a) { stackIdx--; continue } // this offs was already moved or no atom
+    if (MOVED[aOffs] || !a) { stackIdx--; continue }       // this offs was already moved or no atom
     const dstOffs = offs(aOffs, movDir)                    // dest offset we are going to move
     if (get(w, dstOffs)) {                                 // dest place is not free
       STACK[stackIdx++] = dstOffs | MOV_BREAK_MASK         // MOV_BREAK_MASK means "we may interrupt mov here"
@@ -82,9 +82,10 @@ function mov(vms, a, vmIdx) {
     const oldA = a
     stackIdx--                                             // pop atom offs from stack
     move(w, aOffs, dstOffs)                                // dest place is free, move atom
-    if (aOffs !== vmOffs) {                                // move all VMs from near moved atoms as well
-      const m = vms.map[aOffs]                             // if atom have > 1 VMs, then we move them all to the dst position
-      while (m && m.i > 0) moveVm(vms, a, m[0], aOffs, 0, movDir)
+    const m = vms.map[aOffs]                               // if atom have > 1 VMs, then we move them all to the dst position
+    while (m && m.i > 0) {                                 // move all VMs from old atom pos to moved pos
+      if (aOffs !== vmOffs) vmIdx = moveVm(vms, a, m[0], aOffs, 0, movDir)
+      else moveVm(vms, a, m[0], aOffs, 0, movDir)
     }
     MOVED[dstOffs] = true                                  // add moved atom to moved store
     moved++                                                // calc amount of moved near atoms
@@ -99,13 +100,9 @@ function mov(vms, a, vmIdx) {
   MOVED = {}                                               // reset moved and stack sets
   stackIdx = 0
 
-  if (oldAtom !== get(w, atomOffs)) {                      // update VM pos after mov atom was moved & move VM to the next atom
+  if (oldAtom !== get(w, atomOffs)) {                      // move VM to the next atom
     const newOffs = offs(atomOffs, movDir)
-    a = get(w, newOffs)
-    vmIdx = moveVm(vms, a, vmIdx, atomOffs, -moved * CFG.ATOM.NRG.mov, movDir)
-    const m = vms.map[vmOffs]                              // if atom have > 1 VMs, then we move them all to the dst position
-    while (m && m.i > 0) moveVm(vms, a, m[0], atomOffs, 0, movDir)
-    vmIdx > -1 && moveVm(vms, a, vmIdx, newOffs)
+    vmIdx > -1 && moveVm(vms, get(w, newOffs), vmIdx, newOffs)
   }
   return vmIdx
 }
