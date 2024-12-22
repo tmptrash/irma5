@@ -1,5 +1,5 @@
 import CFG from '../cfg'
-import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, ATOM_FIX } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { mov, fix, spl, con, job, rep, checkVm, testAtoms } from './utils'
@@ -42,9 +42,16 @@ describe('vms module tests', () => {
     vms = w = null
   })
 
-  /**
-   * Shortcut to testAtoms
-   */
+ /**
+  * Tests atoms and VMs in a world. It works like this: we put all atoms from
+  * "atomsFrom" array into the world, put all VMs from "vmsFrom" array into the
+  * world as well. Runs all VMs one by one. Check if atoms "atomsTo" and VMs 
+  * "vmsTo" are on the right places and with right amount of energy.
+  * @param {Array} atomsFrom Atoms data to put before run: [[offs, atom],...]
+  * @param {Array} vmsFrom VMs data to put before run: [[offs, energy],...]
+  * @param {Array} atomsTo Atoms data to check after run: [[offs, atom],...]
+  * @param {Array} vmsTo VMs data to check after run: [[offs, energy],...]
+  */
   function testRun(atomsFrom = [], vmsFrom = [], atomsTo = [], vmsTo = []) {
     testAtoms(vms, w, atomsFrom, vmsFrom, atomsTo, vmsTo)
   }
@@ -192,7 +199,7 @@ describe('vms module tests', () => {
       put(w, offs, fix(4, 2, 7))
       put(w, 0, mov(NO_DIR, 0))
       put(w, offs + 1, mov(NO_DIR, 2))
-      CMDS[2](vms, get(w, offs), 0)
+      CMDS[ATOM_FIX](vms, get(w, offs), 0)
       expect(get(w, offs)).toBe(fix(4, 2, 7))
       expect(get(w, offs + 1)).toBe(mov(7, 2))
       expect(get(w, 0)).toBe(mov(NO_DIR, 0))
@@ -205,49 +212,34 @@ describe('vms module tests', () => {
       put(w, offs, fix(4, 2, 7))
       put(w, 0, mov(NO_DIR, 0))
       put(w, offs + 1, mov(2, 2))
-      CMDS[2](vms, get(w, offs), vmIdx)
-      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
-      CMDS[2](vms, get(w, offs), vmIdx)
+      CMDS[ATOM_FIX](vms, get(w, offs), vmIdx)
+      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+      CMDS[ATOM_FIX](vms, get(w, offs), vmIdx)
       expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
     it('fix atom should fix near atoms together if they have only 1 bond', () => {
-      const offs = W
-      const energy = 6 * CFG.ATOM.NRG.onFix
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, fix(4, 2, 7))
-      put(w, 0, mov(NO_DIR, 0))
-      put(w, offs + 1, mov(2, 2))
-      CMDS[2](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(fix(4, 2, 7))
-      expect(get(w, offs + 1)).toBe(mov(2, 2))
-      expect(get(w, 0)).toBe(mov(3, 0))
-      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
+      const nrg = 6 * CFG.ATOM.NRG.onFix
+      const f = fix(4, 2, 7)
+      const m = mov(NO_DIR, 0)
+      testRun([[W, f], [0, m], [W + 1, mov(2, 2)]], [[W, nrg]], [[W, f], [W + 1, mov(7, 2)], [0, m]], [[W, nrg]])
     })
     it('fix atom should not fix near atoms if they already have bonds', () => {
-      const offs = W
-      const energy = 4 * CFG.ATOM.NRG.fix
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, fix(4, 2, 7))
-      put(w, 0, mov(0, 0))
-      put(w, offs + 1, mov(2, 2))
-      CMDS[2](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(fix(4, 2, 7))
-      expect(get(w, offs + 1)).toBe(mov(2, 2))
-      expect(get(w, 0)).toBe(mov(0, 0))
-      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+      const nrg = 4 * CFG.ATOM.NRG.fix
+      const f = fix(4, 2, 7)
+      const m = mov(0, 0)
+      testRun([[W, f], [0, m], [W + 1, mov(2, 2)]], [[W, nrg]], [[W, f], [0, m], [W + 1, mov(7, 2)]], [[W, nrg]])
     })
     it('fix atom should fix itself and near atom', () => {
-      const offs = 0
-      const energy = 5 * CFG.ATOM.NRG.onFix
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, fix(NO_DIR, 2, 6))
-      put(w, offs + 1, mov(0, 0))
-      CMDS[2](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(fix(2, 2, 6))
-      expect(get(w, offs + 1)).toBe(mov(0, 0))
-      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
+      const f = fix(NO_DIR, R, L)
+      const nrg = CFG.ATOM.NRG.onFix
+      testRun([[0, f], [1, mov(NO_DIR, U)]], [[0, 5 * nrg]], [[0, f], [1, mov(L, U)]], [[0, 4 * nrg]])
     })
-    it('fix atom should not work if second atom is not exist', () => {
+    it('fix atom should skip fix itself and near atom if near atom alreadt have a vm bond', () => {
+      const f = fix(NO_DIR, R, L)
+      const nrg = 5 * CFG.ATOM.NRG.onFix
+      testRun([[0, f], [1, mov(U, U)]], [[0, nrg]], [[0, f], [1, mov(L, U)]], [[0, nrg]])
+    })
+    it('fix atom should not work if second atom does not exist', () => {
       const offs = 0
       const energy = 10 * CFG.ATOM.NRG.fix
       const vmIdx = addVm(vms, offs, energy)

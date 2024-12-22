@@ -51,14 +51,14 @@ export function ticks(vms) {
     for (let vmIdx = 0; vmIdx < vms.offs.i;) {
       const a = get(vms.w, toOffs(vms.offs[vmIdx]))
       const inc = CMDS[type(a)](vms, a, vmIdx)
-      vmIdx += (inc < 0 ? (vmIdx > 0 ? inc : 0) : 1)
+      vmIdx += (inc < 0 ? 0 : 1)
     }
 }
 
 export function tick(vms, vmIdx) {
   const a = get(vms.w, toOffs(vms.offs[vmIdx]))
   const inc = CMDS[type(a)](vms, a, vmIdx)
-  return vmIdx + (inc < 0 ? inc : 1)
+  return vmIdx + (inc < 0 ? 0 : 1)
 }
 
 function nop() {}
@@ -84,7 +84,7 @@ function mov(vms, a, vmIdx) {
     move(w, aOffs, dstOffs)                                // dest place is free, move atom
     const m = vms.map[aOffs]                               // if atom have > 1 VMs, then we move them all to the dst position
     while (m && m.i > 0) {                                 // move all VMs from old atom pos to moved pos
-      if (aOffs !== vmOffs) vmIdx = moveVm(vms, a, m[0], aOffs, 0, movDir)
+      if (aOffs === vmOffs && m[0] === vmIdx) vmIdx = moveVm(vms, a, m[0], aOffs, 0, movDir)
       else moveVm(vms, a, m[0], aOffs, 0, movDir)
     }
     MOVED[dstOffs] = true                                  // add moved atom to moved store
@@ -102,6 +102,7 @@ function mov(vms, a, vmIdx) {
 
   if (oldAtom !== get(w, atomOffs)) {                      // move VM to the next atom
     const newOffs = offs(atomOffs, movDir)
+    vmIdx = updateNrg(vms, vmIdx, -moved * CFG.ATOM.NRG.mov)
     vmIdx > -1 && moveVm(vms, get(w, newOffs), vmIdx, newOffs)
   }
   return vmIdx
@@ -118,13 +119,13 @@ function fix(vms, a, vmIdx) {
   let a2        = get(w, o2)
   if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
   if (type(a1) !== ATOM_CON && b2d !== vmDir(a1)) {
+    vmDir(a1) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
     a1 = setVmDir(a1, b2d)
     put(w, o1, a1)
-    vmDir(a1) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
   } else if (type(a2) !== ATOM_CON && DIR_REV[b2d] !== vmDir(a2)) {
+    vmDir(a2) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
     a2 = setVmDir(a2, DIR_REV[b2d])
     put(w, o2, a2)
-    vmDir(a2) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
   }
   // move vm to the next atom offset
   if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
