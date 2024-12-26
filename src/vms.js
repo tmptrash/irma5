@@ -279,11 +279,12 @@ function rebond2(w, o, mdir) {
   for (let i = 0; i < 8; i++) {                            // go through all near atoms
     const d = dirs[i]                                      // current direction of near atom
     if (i === mdir) continue                               // exclude direction of moved atom
-    const dstOffs = offs(o, i)                             // near atom affset
+    const dstOffs = offs(o, i)                             // near atom offset
+    if (MOVED[dstOffs]) continue                           // if near atom is already moved, skip it
     let a = get(w, dstOffs)                                // near atom
     if (a) {                                               // near atom doesn't exist
-    const revDir = vmDir(a)                                // vm bond of near atom
-    const rDir = DIR_REV[i]                                // opposite direction of near atom
+      const revDir = vmDir(a)                              // vm bond of near atom
+      const rDir = DIR_REV[i]                              // opposite direction of near atom
       if (d === NO_DIR) {                                  // distance between moved and near atom still == 1
         const oldA = a
         if (revDir === rDir) a = setVmDir(a, DNA[revDir][mdir])
