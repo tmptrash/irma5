@@ -268,7 +268,7 @@ function rebond(w, a, o, mdir, dirFn, setDirFn) {
     const newDir = DMA[dir][mdir]                          // updated direction for near atom bond to moved
     if (newDir === NO_DIR) {                               // if distance between moved atom and the bond atom is > 1
       STACK[stackIdx++] = dstOffs                          // handle this atom later
-      FROZEN[o] = dir                                      // this bond of moved atom shouldn't be updated later by other atoms
+      FROZEN[dstOffs] = dir                                // this bond of moved atom shouldn't be updated later by other atoms
     } else a = setDirFn(a, newDir)                         // update moved atom's bond
   }
   return a
