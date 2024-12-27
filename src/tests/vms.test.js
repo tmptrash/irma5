@@ -1,5 +1,5 @@
 import CFG from '../cfg'
-import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, ATOM_FIX } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, DL, LU, ATOM_FIX } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { mov, fix, spl, con, job, rep, checkVm, testAtoms } from './utils'
@@ -188,6 +188,10 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs, vmIdx, energy - 4 * CFG.ATOM.NRG.mov)).toBe(true)
       expect(get(w, offs)).toBe(mov(2, 2))
       expect(get(w, offs + 1)).toBe(mov(6, 6))
+    })
+    it('after move mov atom should keep all near and it\'s own bonds consistent', () => {
+      const nrg = 5 * CFG.ATOM.NRG.mov
+      testRun([[W, fix(NO_DIR, U, U)], [W + 1, mov(DL, U)], [2 * W, mov(LU, U)]], [[W + 1, nrg]], [[0, fix(NO_DIR, U, U)], [1, mov(DL, U)], [W, mov(LU, U)]], [[W, nrg - CFG.ATOM.NRG.mov * 3]])
     })
   })
 
