@@ -269,7 +269,7 @@ function rebond(w, a, o, mdir, dirFn, setDirFn) {
     if (newDir === NO_DIR) {                               // if distance between moved atom and the bond atom is > 1
       STACK[stackIdx++] = dstOffs                          // handle this atom later
       FROZEN[offs(o, mdir)] = dir                          // this bond of moved atom shouldn't be updated later by other atoms
-    } else a = setDirFn(a, newDir)                         // update moved atom's bond
+    } else if (FROZEN[o] !== dir) a = setDirFn(a, newDir)  // update moved atom's bond
   }
   return a
 }
