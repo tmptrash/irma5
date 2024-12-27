@@ -13,6 +13,7 @@ import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
 const STACK = new UInt32Array(CFG.ATOM.stackBufSize)
 let stackIdx = 0
 let MOVED = {}
+let FROZEN = {}
 
 export const CMDS = [nop, mov, fix, spl, con, job, rep]
 
@@ -98,6 +99,7 @@ function mov(vms, a, vmIdx) {
     oldA !== a && put(w, dstOffs, a)                       // put updated atom back to the world
   }
   MOVED = {}                                               // reset moved and stack sets
+  FROZEN = {}                                              // reset frozen bonds during move
   stackIdx = 0
 
   if (oldAtom !== get(w, atomOffs)) {                      // move VM to the next atom
@@ -266,6 +268,7 @@ function rebond(w, a, o, mdir, dirFn, setDirFn) {
     const newDir = DMA[dir][mdir]                          // updated direction for near atom bond to moved
     if (newDir === NO_DIR) {                               // if distance between moved atom and the bond atom is > 1
       STACK[stackIdx++] = dstOffs                          // handle this atom later
+      FROZEN[o] = dir                                      // this bond of moved atom shouldn't be updated later by other atoms
     } else a = setDirFn(a, newDir)                         // update moved atom's bond
   }
   return a
@@ -280,25 +283,26 @@ function rebond2(w, o, mdir) {
     const d = dirs[i]                                      // current direction of near atom
     if (i === mdir) continue                               // exclude direction of moved atom
     const dstOffs = offs(o, i)                             // near atom offset
-    if (MOVED[dstOffs]) continue                           // if near atom is already moved, skip it
     let a = get(w, dstOffs)                                // near atom
-    if (a) {                                               // near atom doesn't exist
-      const revDir = vmDir(a)                              // vm bond of near atom
-      const rDir = DIR_REV[i]                              // opposite direction of near atom
-      if (d === NO_DIR) {                                  // distance between moved and near atom still == 1
-        const oldA = a
-        if (revDir === rDir) a = setVmDir(a, DNA[revDir][mdir])
-        else if (type(a) === ATOM_CON) {                   // for "if" atom update then, else bonds
-          const thend = thenDir(a)
-          const elsed = elseDir(a)
+    if (!a) continue                                       // near atom doesn't exist
+    const revDir = vmDir(a)                                // vm bond of near atom
+    const rDir = DIR_REV[i]                                // opposite direction of near atom
+    if (d === NO_DIR) {                                    // distance between moved and near atom still == 1
+      const oldA = a
+      if (revDir === rDir && FROZEN[dstOffs] !== rDir) a = setVmDir(a, DNA[revDir][mdir])
+      else if (type(a) === ATOM_CON) {                     // for "if" atom update then, else bonds
+        const thend = thenDir(a)
+        const elsed = elseDir(a)
+        if (FROZEN[dstOffs] !== rDir) {
           if (thend === rDir) a = setThenDir(a, DNA[thend][mdir])
           if (elsed === rDir) a = setElseDir(a, DNA[elsed][mdir])
         }
-        oldA !== a && put(w, dstOffs, a)                   // update near atom's bond
-      } else {                                             // distance between moved atom and near > 1
-        if (revDir == rDir || type(a) === ATOM_CON && (thenDir(a) === rDir || elseDir(a) === rDir)) {
-          STACK[stackIdx++] = dstOffs
-        }
+      }
+      oldA !== a && put(w, dstOffs, a)                     // update near atom's bond
+    } else {                                               // distance between moved atom and near > 1
+      if (revDir == rDir || type(a) === ATOM_CON && (thenDir(a) === rDir || elseDir(a) === rDir)) {
+        STACK[stackIdx++] = dstOffs
+        FROZEN[dstOffs] = rDir
       }
     }
   }
