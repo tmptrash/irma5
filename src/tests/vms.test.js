@@ -1,5 +1,5 @@
 import CFG from '../cfg'
-import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, DL, LU, ATOM_FIX } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, D, DL, LU, RD, ATOM_FIX } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { mov, fix, spl, con, job, rep, checkVm, testAtoms } from './utils'
@@ -210,38 +210,32 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
     })
     it('fix atom should fix near atoms together, but should not if they already joined', () => {
-      const offs = W
-      const energy = 6 * CFG.ATOM.NRG.onFix
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, fix(4, 2, 7))
-      put(w, 0, mov(NO_DIR, 0))
-      put(w, offs + 1, mov(2, 2))
-      CMDS[ATOM_FIX](vms, get(w, offs), vmIdx)
-      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
-      CMDS[ATOM_FIX](vms, get(w, offs), vmIdx)
-      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.onFix)).toBe(true)
+      const nrg = 6 * CFG.ATOM.NRG.onFix
+      const f = fix(D, R, LU)
+      const m = mov(R, R)
+      testRun([[W, f], [0, mov(NO_DIR, U)], [W + 1, m]], [[W, nrg]], [[W, f], [W + 1, m], [0, mov(RD, U)]], [[W, nrg - CFG.ATOM.NRG.onFix]])
     })
     it('fix atom should fix near atoms together if they have only 1 bond', () => {
       const nrg = 6 * CFG.ATOM.NRG.onFix
-      const f = fix(4, 2, 7)
-      const m = mov(NO_DIR, 0)
-      testRun([[W, f], [0, m], [W + 1, mov(2, 2)]], [[W, nrg]], [[W, f], [W + 1, mov(7, 2)], [0, m]], [[W, nrg]])
+      const f = fix(D, R, LU)
+      const m = mov(R, R)
+      testRun([[W, f], [0, mov(NO_DIR, U)], [W + 1, m]], [[W, nrg]], [[W, f], [W + 1, m], [0, mov(RD, U)]], [[W, nrg - CFG.ATOM.NRG.onFix]])
     })
     it('fix atom should not fix near atoms if they already have bonds', () => {
       const nrg = 4 * CFG.ATOM.NRG.fix
-      const f = fix(4, 2, 7)
-      const m = mov(0, 0)
-      testRun([[W, f], [0, m], [W + 1, mov(2, 2)]], [[W, nrg]], [[W, f], [0, m], [W + 1, mov(7, 2)]], [[W, nrg]])
+      const f = fix(D, R, LU)
+      const m1 = mov(U, U)
+      const m2 = mov(R, R)
+      testRun([[W, f], [0, m1], [W + 1, m2]], [[W, nrg]], [[W, f], [0, m1], [W + 1, m2]], [[W, nrg]])
     })
     it('fix atom should fix itself and near atom', () => {
       const f = fix(NO_DIR, R, L)
       const nrg = CFG.ATOM.NRG.onFix
       testRun([[0, f], [1, mov(NO_DIR, U)]], [[0, 5 * nrg]], [[0, f], [1, mov(L, U)]], [[0, 4 * nrg]])
     })
-    it('fix atom should skip fix itself and near atom if near atom alreadt have a vm bond', () => {
-      const f = fix(NO_DIR, R, L)
+    it('fix atom should skip fix itself and near atom if near atom already have a vm bond', () => {
       const nrg = 5 * CFG.ATOM.NRG.onFix
-      testRun([[0, f], [1, mov(U, U)]], [[0, nrg]], [[0, f], [1, mov(L, U)]], [[0, nrg]])
+      testRun([[0, fix(NO_DIR, R, L)], [1, mov(U, U)]], [[0, nrg]], [[0, fix(R, R, L)], [1, mov(U, U)]], [[0, nrg - CFG.ATOM.NRG.onFix]])
     })
     it('fix atom should not work if second atom does not exist', () => {
       const offs = 0

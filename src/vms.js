@@ -120,14 +120,12 @@ function fix(vms, a, vmIdx) {
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
   if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
-  if (type(a1) !== ATOM_CON && b2d !== vmDir(a1)) {
-    vmDir(a1) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
-    a1 = setVmDir(a1, b2d)
-    put(w, o1, a1)
-  } else if (type(a2) !== ATOM_CON && DIR_REV[b2d] !== vmDir(a2)) {
-    vmDir(a2) === NO_DIR && (vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix))
-    a2 = setVmDir(a2, DIR_REV[b2d])
-    put(w, o2, a2)
+  if (type(a1) !== ATOM_CON && vmDir(a1) === NO_DIR) {     // creates vm bond from atom 1 to atom2
+    vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
+    put(w, o1, setVmDir(a1, b2d))
+  } else if (type(a2) !== ATOM_CON && vmDir(a2) === NO_DIR) {
+    vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
+    put(w, o2, setVmDir(a2, DIR_REV[b2d]))
   }
   // move vm to the next atom offset
   if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
@@ -143,14 +141,12 @@ function spl(vms, a, vmIdx) {
   const o2      = offs(o1, b2Dir(a))
   let a2        = get(w, o2)
   if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
-  if (vmDir(a1) !== NO_DIR && type(a1) !== ATOM_CON) {
-    a1 = setVmDir(a1, NO_DIR)
-    put(w, o1, a1)
+  if (type(a1) !== ATOM_CON && vmDir(a1) !== NO_DIR) {
     vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
-  } else if (vmDir(a2) !== NO_DIR && type(a2) !== ATOM_CON) {
-    a2 = setVmDir(a2, NO_DIR)
-    put(w, o2, a2)
+    put(w, o1, setVmDir(a1, NO_DIR))
+  } else if (type(a2) !== ATOM_CON && vmDir(a2) !== NO_DIR) {
     vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
+    put(w, o2, setVmDir(a2, NO_DIR))
   }
   // move vm to the next atom offset
   if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
