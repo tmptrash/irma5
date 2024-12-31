@@ -138,13 +138,14 @@ function spl(vms, a, vmIdx) {
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
   if (a1 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
-  const o2      = offs(o1, b2Dir(a))
+  const b2d     = b2Dir(a)
+  const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
   if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
-  if (type(a1) !== ATOM_CON && vmDir(a1) !== NO_DIR) {
+  if (type(a1) !== ATOM_CON && vmDir(a1) !== NO_DIR && b2d === vmDir(a1)) {
     vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
     put(w, o1, setVmDir(a1, NO_DIR))
-  } else if (type(a2) !== ATOM_CON && vmDir(a2) !== NO_DIR) {
+  } else if (type(a2) !== ATOM_CON && vmDir(a2) !== NO_DIR && DIR_REV[b2d] === vmDir(a2)) {
     vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
     put(w, o2, setVmDir(a2, NO_DIR))
   }
