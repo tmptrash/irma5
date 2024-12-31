@@ -127,8 +127,9 @@ function fix(vms, a, vmIdx) {
     vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
     put(w, o2, setVmDir(a2, DIR_REV[b2d]))
   }
-  // move vm to the next atom offset
-  if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
+  // move vm to the next atom offset. we have to get latest atom from
+  // the world, because it may be changed during spl atom work
+  if (vmIdx > -1) vmIdx = moveVm(vms, get(w, vmOffs), vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
   return vmIdx
 }
 
@@ -149,8 +150,9 @@ function spl(vms, a, vmIdx) {
     vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)
     put(w, o2, setVmDir(a2, NO_DIR))
   }
-  // move vm to the next atom offset
-  if (vmIdx > -1) vmIdx = moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
+  // move vm to the next atom offset. we have to get latest atom from
+  // the world, because it may be changed during spl atom work
+  if (vmIdx > -1) vmIdx = moveVm(vms, get(w, vmOffs), vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
   return vmIdx
 }
 
