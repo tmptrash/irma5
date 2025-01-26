@@ -298,12 +298,7 @@ describe('vms module tests', () => {
     // })
     it('spl atom should split itself and near atom', () => {
       const energy = 10;
-      testRun(
-        [[W, spl(2, 2, 6)], [W + 1, mov(NO_DIR, 2)]],
-        [[W, energy]],
-        [[W, spl(NO_DIR, 2, 6)], [W + 1, mov(NO_DIR, 2)]],
-        [[W, energy + CFG.ATOM.NRG.onSpl]]
-      )
+      testRun([[W, spl(2, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy]], [[W, spl(NO_DIR, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy + CFG.ATOM.NRG.onSpl]])
     })
     it('spl atom should split itself and near atom if only near atom has bond', () => {
       const offs = W
