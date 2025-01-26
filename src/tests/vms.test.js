@@ -108,16 +108,9 @@ describe('vms module tests', () => {
       testRun([[offs, mov(0, 2)], [offs - W, fix(4, 0, 2)]], [[offs, nrg * 2]], [[offs - W, fix(3, 0, 2)], [offs + 1, mov(7, 2)]], [[offs - W, nrg]])
     })
     it('mov atom should move itself and neighbour atom behind', () => {
-      const offs = 1
-      const energy = 3 * CFG.ATOM.NRG.mov
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(6, 2))
-      put(w, offs - 1, fix(0, 0, 0))
-      CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(fix(0, 0, 0))
-      expect(get(w, offs + 1)).toBe(mov(6, 2))
-      expect(checkVm(vms, offs, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
-    })
+      const energy = 3 * CFG.ATOM.NRG.mov;
+      testRun([[1, mov(L, R)], [0, fix(U, U, U)]], [[1, energy]], [[1, fix(U, U, U)], [2, mov(L, R)]], [[1, energy - 2 * CFG.ATOM.NRG.mov]]);
+    });
     it('mov atom should move itself and neighbour atom behind and one more', () => {
       const offs = 0
       const energy = 4 * CFG.ATOM.NRG.mov
