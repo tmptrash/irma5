@@ -285,17 +285,6 @@ describe('vms module tests', () => {
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
       expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
     })
-    // it('spl atom should split itself and near atom', () => {
-    //   const offs = W
-    //   const energy = 10
-    //   const vmIdx = addVm(vms, offs, energy)
-    //   put(w, offs, spl(2, 2, 6))
-    //   put(w, offs + 1, mov(NO_DIR, 2))
-    //   CMDS[3](vms, get(w, offs), vmIdx)
-    //   expect(get(w, offs)).toBe(spl(NO_DIR, 2, 6))
-    //   expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-    //   expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
-    // })
     it('spl atom should split itself and near atom', () => {
       const energy = 10;
       testRun([[W, spl(2, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy]], [[W, spl(NO_DIR, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy + CFG.ATOM.NRG.onSpl]])
