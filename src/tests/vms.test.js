@@ -264,17 +264,13 @@ describe('vms module tests', () => {
 
   describe('spl atom tests', () => {
     it('spl atom should split near first atoms', () => {
-      const offs = W
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, spl(2, 2, 7))
-      put(w, 0, mov(4, 2))
-      put(w, offs + 1, mov(6, 2))
-      CMDS[3](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(spl(2, 2, 7))
-      expect(get(w, 0)).toBe(mov(4, 2))
-      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-      expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
+      const energy = 10;
+      testRun(
+        [[W, spl(2, 2, 7)], [0, mov(4, 2)], [W + 1, mov(6, 2)]],
+        [[W, energy]],
+        [[W, spl(2, 2, 7)], [0, mov(4, 2)], [W + 1, mov(6, 2)]],
+        [[W + 1, energy - CFG.ATOM.NRG.spl]]
+      )
     })
     it('spl atom should split near second atom', () => {
       const offs = W
