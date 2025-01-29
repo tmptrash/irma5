@@ -121,6 +121,10 @@ describe('vms module tests', () => {
       const offs = W - 1
       testRun([[offs, mov(NO_DIR, R)]], [[offs, energy]], [[W, mov(NO_DIR, R)]], [[W, energy - CFG.ATOM.NRG.mov]]);
     });
+    it('mov atom can move outside of the world at the left', () => {
+      const energy = 3 * CFG.ATOM.NRG.mov;
+      testRun([[0, mov(NO_DIR, L)]], [[0, energy]], [[W * W - 1, mov(NO_DIR, L)]], [[W * W - 1, energy - CFG.ATOM.NRG.mov]]);
+    });
     it('mov atom should move itself and neighbour atom behind and one more', () => {
       const offs = 0
       const energy = 4 * CFG.ATOM.NRG.mov
