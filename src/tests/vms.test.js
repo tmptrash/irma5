@@ -31,7 +31,7 @@ describe('vms module tests', () => {
     CFG.rpi = 1
     canvas.setAttribute('width', CFG.WORLD.width)
     canvas.setAttribute('height', CFG.WORLD.height)
-    canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h)}}, putImageData: () => {}}}
+    canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h*4)}}, putImageData: () => {}}}
     document.body.appendChild(canvas)
     w = World()
     vms = VMs(w, UInt64Array.create(0))
@@ -110,6 +110,11 @@ describe('vms module tests', () => {
     it('mov atom should move itself and neighbour atom behind', () => {
       const energy = 3 * CFG.ATOM.NRG.mov;
       testRun([[1, mov(L, R)], [0, fix(U, U, U)]], [[1, energy]], [[1, fix(U, U, U)], [2, mov(L, R)]], [[1, energy - 2 * CFG.ATOM.NRG.mov]]);
+    });
+    it('mov atom can move outside of the world', () => {
+      const energy = 3 * CFG.ATOM.NRG.mov;
+      const offs = W * W - W
+      testRun([[offs, mov(NO_DIR, D)]], [[offs, energy]], [[0, mov(NO_DIR, D)]], [[0, energy - CFG.ATOM.NRG.mov]]);
     });
     it('mov atom should move itself and neighbour atom behind and one more', () => {
       const offs = 0
