@@ -513,26 +513,17 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.rep)).toBe(true)
     })
     it('rep atom should not replicate bonds if no near atoms', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, rep(2, 2, 2))
-      CMDS[6](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(rep(2, 2, 2))
-      expect(get(w, offs + 1)).toBe(0)
-      expect(get(w, offs + 2)).toBe(0)
-      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
-    })
+      testRun([[0, rep(R, R, R)]], [[0, 10]], [[0, rep(R, R, R)], [1, 0], [2, 0]], [[0, 10]]);
+    });
     it('rep atom should replicate bonds of itself', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, rep(2, 2, 6))
-      put(w, offs + 1, rep(3, 4, 5))
-      CMDS[6](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(rep(3, 4, 5))
-      expect(get(w, offs + 1)).toBe(rep(3, 4, 5))
-      expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.rep)).toBe(true)
+      const offs = 0;
+      const nrg = 10;
+      testRun(
+        [[offs, rep(R, R, L)], [offs + 1, rep(RD, D, DL)]],
+        [[offs, nrg]],
+        [[offs, rep(RD, D, DL)], [offs + 1, rep(RD, D, DL)]],
+        [[offs + 1, nrg - CFG.ATOM.NRG.rep]]
+      )
     })
   })
 })
