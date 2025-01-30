@@ -224,6 +224,7 @@ function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
  * Adds one VM to vms array and map
  */
 export function addVm(vms, o, energy) {
+  if (!get(vms.w, o)) return
   const m = vms.map
   let offs = vms.offs
   if (offs.end()) offs = vms.offs = offs.double()
