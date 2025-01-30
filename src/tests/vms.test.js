@@ -500,19 +500,6 @@ describe('vms module tests', () => {
 
   describe('rep atom tests', () => {
     it('rep atom should replicate bonds of near atom', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, rep(2, 2, 2))
-      put(w, offs + 1, spl(3, 4, 5))
-      put(w, offs + 2, spl(4, 5, 6))
-      CMDS[6](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(rep(2, 2, 2))
-      expect(get(w, offs + 1)).toBe(spl(3, 4, 5))
-      expect(get(w, offs + 2)).toBe(spl(3, 4, 5))
-      expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.rep)).toBe(true)
-    })
-    it('rep atom should replicate bonds of near atom', () => {
       const r = rep(R, R, R)
       const s = spl(RD, D, DL)
       testRun([[0, r], [1, s], [2, spl(D, DL, L)]], [[0, 10]], [[0, r], [1, s], [2, s]], [[1, 10 - CFG.ATOM.NRG.rep]])
