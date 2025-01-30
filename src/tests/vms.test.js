@@ -512,6 +512,11 @@ describe('vms module tests', () => {
       expect(get(w, offs + 2)).toBe(spl(3, 4, 5))
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.rep)).toBe(true)
     })
+    it('rep atom should replicate bonds of near atom', () => {
+      const r = rep(R, R, R)
+      const s = spl(RD, D, DL)
+      testRun([[0, r], [1, s], [2, spl(D, DL, L)]], [[0, 10]], [[0, r], [1, s], [2, s]], [[1, 10 - CFG.ATOM.NRG.rep]])
+    });
     it('rep atom should not replicate bonds if no near atoms', () => {
       testRun([[0, rep(R, R, R)]], [[0, 10]], [[0, rep(R, R, R)], [1, 0], [2, 0]], [[0, 10]]);
     });
