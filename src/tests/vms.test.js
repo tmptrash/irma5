@@ -463,38 +463,20 @@ describe('vms module tests', () => {
 
   describe('job atom tests', () => {
     it('job atom should create new VM and put it on near atom', () => {
-      const offs = 0
-      const energy = 10 * CFG.ATOM.NRG.job
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, job(2, 2))
-      put(w, offs + 1, spl(NO_DIR, 2, 0))
-      CMDS[5](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(job(2, 2))
-      expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(checkVm(vms, offs + 1, vmIdx, energy - Math.floor(energy / 2) - CFG.ATOM.NRG.job)).toBe(true)
-      expect(vms.map[offs + 1].i).toBe(2)
+      const nrg = 10
+      const s = spl(NO_DIR, R, U)
+      const j = job(R, R)
+      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[1, nrg - Math.floor(nrg / 2) - CFG.ATOM.NRG.job], [1, nrg - Math.floor(nrg / 2)]])
     })
     it('job atom should create new VM, but not move current vm to the next atom if not exist', () => {
-      const offs = 0
-      const energy = 10 * CFG.ATOM.NRG.job
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, job(0, 2))
-      put(w, offs + 1, spl(NO_DIR, 2, 0))
-      CMDS[5](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(job(0, 2))
-      expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(checkVm(vms, offs, vmIdx, energy - Math.floor(energy / 2))).toBe(true)
-      expect(vms.map[offs].i).toBe(1)
-      expect(vms.map[offs + 1].i).toBe(1)
+      const nrg = 10 * CFG.ATOM.NRG.job
+      const j = job(0, 2)
+      const s = spl(NO_DIR, 2, 0)
+      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[0, nrg - Math.floor(nrg / 2)], [1, Math.floor(nrg / 2)]])
     })
     it('job atom should not create new VM, because there is no near atom', () => {
-      const offs = 0
-      const energy = 10 * CFG.ATOM.NRG.job
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, job(2, 2))
-      CMDS[5](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(job(2, 2))
-      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+      const nrg = 10 * CFG.ATOM.NRG.job
+      testRun([[0, job(R, R)]], [[0, nrg]], [[0, job(R, R)]], [[0, nrg]])
     })
   })
 
