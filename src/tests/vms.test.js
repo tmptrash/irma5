@@ -1,5 +1,5 @@
 import CFG from '../cfg'
-import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, D, DL, LU, RD, ATOM_FIX } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD, ATOM_FIX } from '../shared'
 import VMs, { CMDS, vm, addVm } from '../vms'
 import World, { destroy, get, put } from '../world'
 import { mov, fix, spl, con, job, rep, checkVm, testAtoms } from './utils'
@@ -413,29 +413,17 @@ describe('vms module tests', () => {
       expect(get(w, offs + 1)).toBe(0)
       expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
-    it('con atom should not direct VM to else dir if else atom is not exist', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, con(7, 4, 2, 4))
-      put(w, offs + W, spl(NO_DIR, 1, 0))
-      CMDS[4](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(con(7, 4, 2, 4))
-      expect(get(w, offs + W)).toBe(spl(NO_DIR, 1, 0))
-      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+    it('con atom should not direct VM to else dir if else atom does not exist', () => {
+      const energy = 10;
+      const c = con(7, 4, 2, 4);
+      const s = spl(NO_DIR, 1, 0);
+      testRun([[0, c], [W, s]], [[0, energy]], [[0, c], [W, s]], [[0, energy]])
     })
     it('con atom should direct VM to else dir if we compare different atoms', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, con(2, 2, 4, 4))
-      put(w, offs + 1, spl(NO_DIR, 2, 0))
-      put(w, W, fix(NO_DIR, 1, 0))
-      CMDS[4](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(con(2, 2, 4, 4))
-      expect(get(w, offs + 1)).toBe(spl(NO_DIR, 2, 0))
-      expect(get(w, offs + W)).toBe(fix(NO_DIR, 1, 0))
-      expect(checkVm(vms, offs + W, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
+      const c = con(R, R, D, D);
+      const s = spl(NO_DIR, R, U);
+      const f = fix(NO_DIR, UR, U);
+      testRun([[0, c], [1, s], [W, f]], [[0, 10]], [[0, c], [1, s], [W, f]], [[W, 10 - CFG.ATOM.NRG.con]])
     })
     it('con atom should not direct VM to else dir if no atom in VM dir', () => {
       const c = con(R, 2, 5, 4)
