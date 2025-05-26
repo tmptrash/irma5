@@ -260,13 +260,10 @@ describe('vms module tests', () => {
       testRun([[0, f]], [[0, nrg]], [[0, f]], [[0, nrg - CFG.ATOM.NRG.fix]])
     })
     it('fix atom should move VM correctly', () => {
-      const offs = W
-      const energy = 4 * CFG.ATOM.NRG.fix
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, fix(2, 2, 7))
-      put(w, offs + 1, mov(NO_DIR, 2))
-      CMDS[2](vms, get(w, offs), vmIdx)
-      expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.fix)).toBe(true)
+      const nrg = 4 * CFG.ATOM.NRG.fix
+      const f = fix(R, R, LU)
+      const m = mov(NO_DIR, R)
+      testRun([[W, f], [W + 1, m]], [[W, nrg]], [[W, f], [W + 1, m]], [[W + 1, nrg - CFG.ATOM.NRG.fix]])
     })
   })
 
@@ -438,11 +435,11 @@ describe('vms module tests', () => {
       const nrg = 10 * CFG.ATOM.NRG.job
       const j = job(U, R)
       const s = spl(NO_DIR, R, U)
-      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[0, nrg - Math.floor(nrg / 2)], [1, Math.floor(nrg / 2)]])
+      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[0, nrg / 2 - CFG.ATOM.NRG.job], [1, nrg / 2]])
     })
     it('job atom should not create new VM, because there is no near atom', () => {
       const nrg = 10 * CFG.ATOM.NRG.job
-      testRun([[0, job(R, R)]], [[0, nrg]], [[0, job(R, R)]], [[0, nrg]])
+      testRun([[0, job(R, R)]], [[0, nrg]], [[0, job(R, R)]], [[0, nrg - CFG.ATOM.NRG.job]])
     })
   })
 
