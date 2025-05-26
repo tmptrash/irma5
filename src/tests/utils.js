@@ -1,5 +1,7 @@
-import { vm, ticks, addVm } from '../vms'
-import { get, put } from '../world'
+import { vm, ticks, addVm, nrg } from '../vms'
+import { get, put, toOffs } from '../world'
+import { type, vmDir, b1Dir, b2Dir, b3Dir, thenDir, elseDir } from '../atom'
+import { ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP } from '../shared'
 
 export function mov(vmDir, movDir) {
   return parseInt(`001${dir4(vmDir)}${dir(movDir)}000000`, 2)
@@ -63,3 +65,24 @@ function dir(d) {
 function dir4(d) {
   return pad(d+1, 4)
 }
+
+function parseAtom(a) {
+  switch (type(a)) {
+  case ATOM_MOV: return `mov(vmDir=${vmDir(a)}, movDir=${b1Dir(a)})`
+  case ATOM_FIX: return `fix(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
+  case ATOM_SPL: return `spl(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
+  case ATOM_CON: return `con(ifDir=${ifDir(a)}, thenDir=${thenDir(a)}, elseDir=${elseDir(a)}, if2Dir=${b3Dir(a)})`
+  case ATOM_JOB: return `job(vmDir=${vmDir(a)}, newVmDir=${b1Dir(a)})`
+  case ATOM_REP: return `rep(vmDir=${vmDir(a)}, a1Dir=${b1Dir(a)}, a2Dir=${b2Dir(a)})`
+  }
+  return `Unknown atom '${a}' with type '${type(a)}'`
+}
+
+function parseVm(vm) {
+  return `offs: ${toOffs(vm)}, nrg: ${nrg(vm)}`
+}
+//
+// global helpers
+//
+window.parseAtom = parseAtom
+window.parseVm = parseVm

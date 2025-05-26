@@ -136,18 +136,12 @@ describe('vms module tests', () => {
       testRun([[W * W - W - 2, m], [W * W - 1, s]], [[W * W - W - 2, nrg]], [[W * W - 1, m], [W, s]], [[W * W - 1, nrg - CFG.ATOM.NRG.mov * 2]]);
     });
     it('mov atom should move itself and neighbour atom behind and one more', () => {
-      const offs = 0
-      const energy = 4 * CFG.ATOM.NRG.mov
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(2, 2))
-      put(w, offs + 1, fix(0, 0, 0))
-      put(w, offs + W, fix(0, 4, 4))
-      CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, offs + 1)).toBe(mov(2, 2))
-      expect(get(w, offs + 2)).toBe(fix(0, 0, 0))
-      expect(get(w, offs + W)).toBe(fix(1, 4, 4))
-      expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * CFG.ATOM.NRG.mov)).toBe(true)
-    })
+      const nrg = 4 * CFG.ATOM.NRG.mov;
+      const m = mov(R, R)
+      const f1 = fix(U, U, U)
+      const f2 = fix(U, D, D)
+      testRun([[0, m], [1, f1], [W, f2]], [[0, nrg]], [[1, m], [2, f1], [W, fix(UR, D, D)]], [[2, nrg - CFG.ATOM.NRG.mov * 2]]);
+    });
     it('move two mov atoms', () => {
       const offs = W + 1
       const energy = 4 * CFG.ATOM.NRG.mov
@@ -254,7 +248,7 @@ describe('vms module tests', () => {
       const nrg = 5 * CFG.ATOM.NRG.onFix
       testRun([[0, fix(NO_DIR, R, L)], [1, mov(U, U)]], [[0, nrg]], [[0, fix(R, R, L)], [1, mov(U, U)]], [[1, nrg - CFG.ATOM.NRG.onFix - CFG.ATOM.NRG.fix]])
     })
-    it('fix atom should not work if second atom does not exist', () => {
+    xit('fix atom should not work if second atom does not exist', () => {
       const offs = 0
       const energy = 10 * CFG.ATOM.NRG.fix
       const vmIdx = addVm(vms, offs, energy)
@@ -264,6 +258,12 @@ describe('vms module tests', () => {
       expect(get(w, offs)).toBe(fix(2, 2, 2))
       expect(get(w, offs + 1)).toBe(mov(NO_DIR, 0))
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.fix)).toBe(true)
+    })
+    it('fix atom should not work if second atom does not exist', () => {
+      const nrg = 10 * CFG.ATOM.NRG.onFix
+      const f = fix(R, R, R)
+      const m = mov(NO_DIR, U)
+      testRun([[0, f], [1, m]], [[0, nrg]], [[0, f], [1, m]], [[1, nrg - CFG.ATOM.NRG.fix]])
     })
     it('fix atom should not work if no atoms around', () => {
       const offs = 0

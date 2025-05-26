@@ -56,7 +56,7 @@ export function offs(offs, dir) {
  * @returns 32bit offset
  */
 export function toOffs(offs) {
-  return Number((offs & VM_OFFS_MASK) >> VM_OFFS_SHIFT)
+  return Number((BigInt(offs) & VM_OFFS_MASK) >> VM_OFFS_SHIFT)
 }
 /**
  * Returns atom or 0, if no atom
