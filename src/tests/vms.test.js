@@ -391,36 +391,34 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
     it('con atom should not direct VM to then atom if then atom does not exist', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, con(2, 2, 2, NO_DIR))
-      CMDS[4](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(con(2, 2, 2, NO_DIR))
-      expect(get(w, offs + 1)).toBe(0)
-      expect(checkVm(vms, offs, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
+      const nrg = 10;
+      const c = con(R, R, R, NO_DIR);
+      testRun([[0, c]], [[0, nrg]], [[0, c]], [[0, nrg - CFG.ATOM.NRG.con]])
     })
     it('con atom should not direct VM to else dir if else atom does not exist', () => {
-      const energy = 10;
-      const c = con(7, 4, 2, 4);
-      const s = spl(NO_DIR, 1, 0);
-      testRun([[0, c], [W, s]], [[0, energy]], [[0, c], [W, s]], [[0, energy]])
+      const nrg = 10;
+      const c = con(LU, D, R, D);
+      const s = spl(NO_DIR, UR, U);
+      testRun([[0, c], [W, s]], [[0, nrg]], [[0, c], [W, s]], [[0, nrg]])
     })
     it('con atom should direct VM to else dir if we compare different atoms', () => {
+      const nrg = 10
       const c = con(R, R, D, D);
       const s = spl(NO_DIR, R, U);
       const f = fix(NO_DIR, UR, U);
-      testRun([[0, c], [1, s], [W, f]], [[0, 10]], [[0, c], [1, s], [W, f]], [[W, 10 - CFG.ATOM.NRG.con]])
+      testRun([[0, c], [1, s], [W, f]], [[0, nrg]], [[0, c], [1, s], [W, f]], [[W, nrg - CFG.ATOM.NRG.con]])
     })
     it('con atom should not direct VM to else dir if no atom in VM dir', () => {
-      const c = con(R, 2, 5, 4)
-      const s = spl(NO_DIR, 2, 0)
-      const f = fix(NO_DIR, 1, 0)
-      testRun([[0, c], [1, s], [W, f]], [[0, 10]], [[0, c], [1, s], [W, f]], [[0, 10]])
+      const nrg = 10
+      const c = con(R, R, DL, D)
+      const s = spl(NO_DIR, R, U)
+      const f = fix(NO_DIR, UR, U)
+      testRun([[0, c], [1, s], [W, f]], [[0, nrg]], [[0, c], [1, s], [W, f]], [[0, nrg]])
     })
     it('con atom should not move VM to else or if dir if no atoms around', () => {
-      const c = con(R, 2, 5, 4)
-      testRun([[0, c]], [[0, 10]], [[0, c]], [[0, 10]])
+      const nrg = 10
+      const c = con(R, R, DL, D)
+      testRun([[0, c]], [[0, nrg]], [[0, c]], [[0, nrg]])
     })
   })
 
