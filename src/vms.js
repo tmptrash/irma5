@@ -204,9 +204,10 @@ function rep(vms, a, vmIdx) {
  * related vm.offs array
  */
 function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
+  const newIdx = updateNrg(vms, vmIdx, energy)
   const d = dir !== NO_DIR ? dir : vmDir(a)
   const dstOffs = offs(aOffs, d)
-  if (d === NO_DIR || !get(vms.w, dstOffs)) return vmIdx
+  if (d === NO_DIR || !get(vms.w, dstOffs)) return newIdx
   const m = vms.map
   let md = m[dstOffs]
   if (md === undefined) md = m[dstOffs] = UInt32Array.create(1)
@@ -217,7 +218,7 @@ function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
   md.del(md.index(vmIdx))                                  // removed VM old offset index
   if (md.i === 0) delete m[toOffs(o)]
   vms.offs[vmIdx] = vm(dstOffs, nrg(o))                    // sets VM new offset index
-  return updateNrg(vms, vmIdx, energy)
+  return newIdx
 }
 
 /**
