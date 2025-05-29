@@ -356,17 +356,11 @@ describe('vms module tests', () => {
       expect(checkVm(vms, offs + W, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
     })
     it('con atom should direct VM to else dir if near atom is not exist', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, con(0, 4, 2, NO_DIR))
-      put(w, offs + 1, mov(NO_DIR, 2))
-      put(w, W, spl(NO_DIR, 2, 0))
-      CMDS[4](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(con(0, 4, 2, NO_DIR))
-      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-      expect(get(w, W)).toBe(spl(NO_DIR, 2, 0))
-      expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.con)).toBe(true)
+      const nrg = 10;
+      const c = con(U, D, R, NO_DIR);
+      const m = mov(NO_DIR, R);
+      const s = spl(NO_DIR, R, U);
+      testRun([[0, c], [1, m], [W, s]], [[0, nrg]], [[0, c], [1, m], [W, s]], [[1, nrg - CFG.ATOM.NRG.con]])
     })
     it('con atom should not direct VM to else dir if else atom is not exist', () => {
       const nrg = 10;
