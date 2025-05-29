@@ -270,25 +270,17 @@ describe('vms module tests', () => {
   describe('spl atom tests', () => {
     it('spl atom should split near first atoms', () => {
       const energy = 10;
-      testRun(
-        [[W, spl(2, 2, 7)], [0, mov(4, 2)], [W + 1, mov(6, 2)]],
-        [[W, energy]],
-        [[W, spl(2, 2, 7)], [0, mov(4, 2)], [W + 1, mov(6, 2)]],
-        [[W + 1, energy - CFG.ATOM.NRG.spl]]
-      )
+      const s = spl(2, 2, 7)
+      const m = mov(4, 2)
+      const m1 = mov(6, 2)
+      testRun([[W, s], [0, m], [W + 1, m1]], [[W, energy]], [[W, s], [0, m], [W + 1, m1]], [[W + 1, energy - CFG.ATOM.NRG.spl]])
     })
     it('spl atom should split near second atom', () => {
-      const offs = W
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, spl(2, 2, 7))
-      put(w, 0, mov(3, 2))
-      put(w, offs + 1, mov(NO_DIR, 2))
-      CMDS[3](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(spl(2, 2, 7))
-      expect(get(w, 0)).toBe(mov(NO_DIR, 2))
-      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-      expect(checkVm(vms, offs + 1, vmIdx, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl)).toBe(true)
+      const energy = 10;
+      const s = spl(R, R, LU)
+      const m = mov(RD, R)
+      const m1 = mov(NO_DIR, R)
+      testRun([[W, s], [0, m], [W + 1, m1]], [[W, energy]], [[W, s], [0, m1], [W + 1, m1]], [[W + 1, energy + CFG.ATOM.NRG.onSpl - CFG.ATOM.NRG.spl]])
     })
     it('spl atom should split itself and near atom', () => {
       const energy = 10;
