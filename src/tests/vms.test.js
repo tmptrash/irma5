@@ -287,15 +287,10 @@ describe('vms module tests', () => {
       testRun([[W, spl(2, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy]], [[W, spl(NO_DIR, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy + CFG.ATOM.NRG.onSpl]])
     })
     it('spl atom should split itself and near atom if only near atom has bond', () => {
-      const offs = W
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, spl(NO_DIR, 2, 6))
-      put(w, offs + 1, mov(6, 2))
-      CMDS[3](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(spl(NO_DIR, 2, 6))
-      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-      expect(checkVm(vms, offs, vmIdx, energy + CFG.ATOM.NRG.onSpl)).toBe(true)
+      const nrg = 10;
+      const s = spl(NO_DIR, R, L)
+      const m = mov(L, R)
+      testRun([[W, s], [W + 1, m]], [[W, nrg]], [[W, s], [W + 1, mov(NO_DIR, R)]], [[W, nrg + CFG.ATOM.NRG.onSpl]])
     })
     it('spl atom should not split near atoms if they have no bonds', () => {
       const offs = W
