@@ -293,17 +293,10 @@ describe('vms module tests', () => {
       testRun([[W, s], [W + 1, m]], [[W, nrg]], [[W, s], [W + 1, mov(NO_DIR, R)]], [[W, nrg + CFG.ATOM.NRG.onSpl]])
     })
     it('spl atom should not split near atoms if they have no bonds', () => {
-      const offs = W
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, spl(2, 2, 7))
-      put(w, 0, mov(NO_DIR, 2))
-      put(w, offs + 1, mov(NO_DIR, 2))
-      CMDS[3](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(spl(2, 2, 7))
-      expect(get(w, 0)).toBe(mov(NO_DIR, 2))
-      expect(get(w, offs + 1)).toBe(mov(NO_DIR, 2))
-      expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.spl)).toBe(true)
+      const nrg = 10;
+      const s = spl(R, R, LU)
+      const m = mov(NO_DIR, R)
+      testRun([[W, s], [0, m], [W + 1, m]], [[W, nrg]], [[W, s], [0, m], [W + 1, m]], [[W + 1, nrg + CFG.ATOM.NRG.spl]])
     })
     it('spl atom should not split if no second atom', () => {
       const offs = W
