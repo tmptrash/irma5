@@ -85,22 +85,33 @@ describe('vms module tests', () => {
       const nrg = movNrg
       testRun([[offs, m]], [[0, nrg], [0, nrg]], [[offs + 2, m]])
     })
+    it('mov atom with 2 VMs on it should move twice longer & one VM should be removed if no energy', () => {
+      const offs = 0
+      const m = mov(R, R)
+      const nrg = movNrg
+      testRun([[offs, m]], [[0, nrg * 2], [0, nrg]], [[offs + 2, m]], [[offs + 2, nrg]])
+    })
+    it('mov atom with 3 VMs on it should move 3 times longer & second VM should be removed if no energy', () => {
+      const m = mov(R, D)
+      const nrg = movNrg
+      testRun([[0, m]], [[0, nrg * 2], [0, nrg], [0, nrg * 2]], [[3 * W, m]], [[3 * W, nrg], [3 * W, nrg]])
+    })
     it('mov atom should move itself', () => {
       const offs = 0
       const nrg = movNrg
       const m = mov(R, R)
       testRun([[offs, m]], [[offs, nrg * 2]], [[offs + 1, m]], [[offs + 1, nrg]])
     })
-    it('mov atom should move itself and vm should be removed without energy', () => {
+    it('mov atom should move itself and vm should be removed if no energy', () => {
       const offs = 0
-      const m = mov(2, 2)
+      const m = mov(R, R)
       testRun([[offs, m]], [[offs, movNrg]], [[offs + 1, m]])
     })
     it('mov atom should move itself and the atom on the way', () => {
       const offs = 0
       const nrg = movNrg
-      const m = mov(2, 2)
-      const f = fix(2, 0, 2)
+      const m = mov(R, R)
+      const f = fix(R, U, R)
       testRun([[offs, m], [offs + 1, f]], [[offs, nrg * 3]], [[offs + 1, m], [offs + 2, f]], [[offs + 2, nrg]])
     })
     it('mov atom should move itself and update its vm bond and near atom vm bond', () => {
