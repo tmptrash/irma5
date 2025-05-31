@@ -1,8 +1,8 @@
 import CFG from '../cfg'
 import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD, ATOM_FIX } from '../shared'
-import VMs, { CMDS, vm, addVm } from '../vms'
-import World, { destroy, get, put } from '../world'
-import { mov, fix, spl, con, job, rep, checkVm, testAtoms } from './utils'
+import VMs, { CMDS, addVm } from '../vms'
+import World, { destroy, get } from '../world'
+import { mov, fix, spl, con, job, rep, testAtoms } from './utils'
 
 beforeAll(() => {
   //
