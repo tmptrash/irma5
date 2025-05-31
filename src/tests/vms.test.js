@@ -96,6 +96,15 @@ describe('vms module tests', () => {
       const nrg = movNrg
       testRun([[0, m]], [[0, nrg * 2], [0, nrg], [0, nrg * 2]], [[3 * W, m]], [[3 * W, nrg], [3 * W, nrg]])
     })
+    it('2 mov atoms should stay on the same place if move directions are opposite', () => {
+      const m = mov(RD, RD)
+      const m1 = mov(LU, LU)
+      const nrg = movNrg * 8
+      const rpi = CFG.rpi
+      CFG.rpi = 2
+      testRun([[0, m], [W + 1, m1]], [[0, nrg], [0, nrg]], [[0, m], [W + 1, m1]], [[0, nrg - 4 * movNrg], [0, nrg - 4 * movNrg]])
+      CFG.rpi = rpi
+    })
     it('VM of mov atom should be moved to near atom and back if bonds are cyclic', () => {
       const m = mov(D, D)
       const s = spl(U, D, D)
