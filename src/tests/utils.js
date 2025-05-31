@@ -1,6 +1,6 @@
 import { vm, ticks, addVm, nrg } from '../vms'
 import { get, put, toOffs } from '../world'
-import { type, vmDir, b1Dir, b2Dir, b3Dir, thenDir, elseDir } from '../atom'
+import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir } from '../atom'
 import { ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP } from '../shared'
 
 export function mov(vmDir, movDir) {

@@ -152,18 +152,12 @@ describe('vms module tests', () => {
       CFG.rpi = rpi
     });
     it('move three atoms together', () => {
-      const offs = W + 1
-      const energy = 4 * CFG.ATOM.NRG.mov
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(4, 4))
-      put(w, 0, fix(3, 6, 6))
-      put(w, 2, fix(5, 6, 6))
-      CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, offs + W)).toBe(mov(4, 4))
-      expect(get(w, offs - 1)).toBe(fix(3, 6, 6))
-      expect(get(w, offs + 1)).toBe(fix(5, 6, 6))
-      expect(checkVm(vms, offs + W, vmIdx, energy - 3 * CFG.ATOM.NRG.mov)).toBe(true)
-    })
+      const nrg = 4 * CFG.ATOM.NRG.mov;
+      const m = mov(D, D)
+      const f1 = fix(RD, L, L)
+      const f2 = fix(DL, L, L)
+      testRun([[W + 1, m], [0, f1], [2, f2]], [[W + 1, nrg]], [[2 * W + 1, m], [W, f1], [W + 2, f2]], [[2 * W + 1, nrg - CFG.ATOM.NRG.mov * 3]]);
+    });
     it('mov atom should update if atom bonds correctly', () => {
       const offs = W
       const energy = 3 * CFG.ATOM.NRG.mov

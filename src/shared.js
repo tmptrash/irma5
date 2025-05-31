@@ -111,9 +111,9 @@ export const DNA = [
 export const U  = 0 // up
 export const UR = 1 // up-right
 export const R  = 2 // right
-export const RD = 3 // ...
-export const D  = 4
-export const DL = 5
+export const RD = 3 // right-down
+export const D  = 4 // down
+export const DL = 5 // ...
 export const L  = 6
 export const LU = 7
 /**
