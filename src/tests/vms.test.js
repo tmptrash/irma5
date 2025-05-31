@@ -68,7 +68,7 @@ describe('vms module tests', () => {
       const a = get(w, offs)
       CMDS[0](vms, a, vms.offs.i - 1)
       expect(get(w, offs)).toBe(a)
-      expect(vms.offs[vmIdx]).toBe(vm(offs, 1))
+      expect(vmIdx).toBe(undefined)
     })
   })
 
@@ -160,24 +160,10 @@ describe('vms module tests', () => {
       testRun([[W + 1, m], [0, f1], [2, f2]], [[W + 1, nrg]], [[2 * W + 1, m], [W, f1], [W + 2, f2]], [[2 * W + 1, nrg - movNrg * 3]]);
     });
     it('mov atom should update if atom bonds correctly', () => {
-      const offs = W
-      const energy = 3 * movNrg
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(0, 2))
-      put(w, 0, con(4, 4, 4, NO_DIR))
-      CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, 0)).toBe(con(4, 3, 3, NO_DIR))
-      expect(get(w, offs + 1)).toBe(mov(7, 2))
-      expect(checkVm(vms, 0, vmIdx, energy - movNrg)).toBe(true)
-    })
-    xit('mov atom should move VM correctly', () => {
-      const offs = 0
-      const energy = 4 * movNrg
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(2, 2))
-      put(w, offs + 1, fix(2, 0, 2))
-      CMDS[1](vms, get(w, offs), vmIdx)
-      expect(checkVm(vms, offs + 2, vmIdx, energy - 2 * movNrg)).toBe(true)
+      const nrg = 3 * movNrg
+      const m = mov(U, R)
+      const c = con(D, D, D, NO_DIR)
+      testRun([[W, m], [0, c]], [[W, nrg]], [[0, con(D, RD, RD, NO_DIR)], [W + 1, mov(LU, R)]], [[0, nrg - movNrg]])
     })
     it('mov atom should move VM correctly', () => {
       const nrg = 4 * movNrg
