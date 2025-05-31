@@ -143,17 +143,14 @@ describe('vms module tests', () => {
       testRun([[0, m], [1, f1], [W, f2]], [[0, nrg]], [[1, m], [2, f1], [W, fix(UR, D, D)]], [[2, nrg - CFG.ATOM.NRG.mov * 2]]);
     });
     it('move two mov atoms', () => {
-      const offs = W + 1
-      const energy = 4 * CFG.ATOM.NRG.mov
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, mov(7, 3))
-      put(w, 0, mov(3, 4))
-      CMDS[1](vms, get(w, offs), vmIdx)
-      CMDS[1](vms, get(w, offs), vmIdx)
-      expect(get(w, offs + W + 1)).toBe(mov(6, 3))
-      expect(get(w, offs + W)).toBe(mov(2, 4))
-      expect(checkVm(vms, offs + W + 1, vmIdx, energy - 3 * CFG.ATOM.NRG.mov)).toBe(true)
-    })
+      const nrg = 4 * CFG.ATOM.NRG.mov;
+      const m = mov(LU, RD)
+      const m1 = mov(RD, D)
+      const rpi = CFG.rpi
+      CFG.rpi = 2
+      testRun([[W + 1, m], [0, m1]], [[W + 1, nrg]], [[2 * W + 2, mov(L, RD)], [2 * W + 1, mov(R, D)]], [[2 * W + 2, nrg - CFG.ATOM.NRG.mov * 3]]);
+      CFG.rpi = rpi
+    });
     it('move three atoms together', () => {
       const offs = W + 1
       const energy = 4 * CFG.ATOM.NRG.mov
@@ -299,25 +296,15 @@ describe('vms module tests', () => {
       testRun([[W, s], [0, m], [W + 1, m]], [[W, nrg]], [[W, s], [0, m], [W + 1, m]], [[W + 1, nrg + CFG.ATOM.NRG.spl]])
     })
     it('spl atom should not split if no second atom', () => {
-      const offs = W
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, spl(2, 2, 7))
-      put(w, offs + 1, mov(6, 2))
-      CMDS[3](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(spl(2, 2, 7))
-      expect(get(w, offs + 1)).toBe(mov(6, 2))
-      expect(checkVm(vms, offs + 1, vmIdx, energy - CFG.ATOM.NRG.spl)).toBe(true)
+      const nrg = 10;
+      const s = spl(R, R, LU)
+      const m = mov(L, R)
+      testRun([[W, s], [W + 1, m]], [[W, nrg]], [[W, s], [W + 1, m]], [[W + 1, nrg - CFG.ATOM.NRG.spl]])
     })
     it('spl atom should not split if no near atoms', () => {
-      const offs = 0
-      const energy = 10
-      const vmIdx = addVm(vms, offs, energy)
-      put(w, offs, spl(2, 2, 7))
-      CMDS[3](vms, get(w, offs), vmIdx)
-      expect(get(w, offs)).toBe(spl(2, 2, 7))
-      expect(get(w, offs + 1)).toBe(0)
-      expect(checkVm(vms, offs, vmIdx, energy)).toBe(true)
+      const nrg = 10;
+      const s = spl(R, R, LU);
+      testRun([[0, s]], [[0, nrg]], [[0, s]], [[0, nrg]])
     })
   })
 
