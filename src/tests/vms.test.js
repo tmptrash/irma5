@@ -233,7 +233,7 @@ describe('vms module tests', () => {
     it('fix atom should fix itself and near atom', () => {
       const f = fix(NO_DIR, R, L)
       const nrg = CFG.ATOM.NRG.onFix
-      testRun([[0, f], [1, mov(NO_DIR, U)]], [[0, 5 * nrg]], [[0, f], [1, mov(L, U)]], [[0, 4 * nrg]])
+      testRun([[0, f], [1, mov(NO_DIR, U)]], [[0, 5 * nrg]], [[0, f], [1, mov(L, U)]], [[0, 5 * nrg - nrg - CFG.ATOM.NRG.fix]])
     })
     it('fix atom should skip fix itself and near atom if near atom already have a vm bond', () => {
       const nrg = 5 * CFG.ATOM.NRG.onFix
