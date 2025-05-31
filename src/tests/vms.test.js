@@ -96,6 +96,15 @@ describe('vms module tests', () => {
       const nrg = movNrg
       testRun([[0, m]], [[0, nrg * 2], [0, nrg], [0, nrg * 2]], [[3 * W, m]], [[3 * W, nrg], [3 * W, nrg]])
     })
+    it('VM of mov atom should be moved to near atom and back if bonds are cyclic', () => {
+      const m = mov(D, D)
+      const s = spl(U, D, D)
+      const nrg = movNrg * 4
+      const rpi = CFG.rpi
+      CFG.rpi = 2
+      testRun([[0, m], [W, s]], [[0, nrg]], [[W, m], [2 * W, s]], [[W, nrg - movNrg * 2 - CFG.ATOM.NRG.spl]])
+      CFG.rpi = rpi
+    })
     it('mov atom should move itself', () => {
       const offs = 0
       const nrg = movNrg
