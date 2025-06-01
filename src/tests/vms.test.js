@@ -239,6 +239,17 @@ describe('vms module tests', () => {
       testRun([[3, m], [4, j]], [[3, nrg]], [[1, m], [2, j]], [[2, movNrg * 2], [2, movNrg]])
       CFG.rpi = rpi
     })
+    it('mov atom should move itself and spl atom, but spl atom should split them later', () => {
+      const nrg = 8 * movNrg
+      const m = mov(R, L)
+      const s = spl(NO_DIR, L, R)
+      const splNrg = CFG.ATOM.NRG.spl
+      const onSplNrg = CFG.ATOM.NRG.onSpl
+      const rpi = CFG.rpi
+      CFG.rpi = 3
+      testRun([[3, m], [4, s]], [[3, nrg]], [[2, mov(NO_DIR, L)], [3, s]], [[3, nrg - movNrg * 2 - splNrg * 2 + onSplNrg]])
+      CFG.rpi = rpi
+    })
   })
 
   describe('fix atom tests', () => {
