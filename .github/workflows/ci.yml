@@ -1,4 +1,4 @@
-name: irma5 CI
+name: irma5
 
 on:
   push:
