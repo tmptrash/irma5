@@ -48,11 +48,11 @@ export function testAtoms(vms, w, atomsFrom = [], vmsFrom = [], atomsTo = [], vm
  */
 export function checkVm(vms, offs, idx, energy) {
   const idxArr = vms.map[offs]
-  if (idxArr === undefined) throw `vms.map is broken: ${vms.map}. Offset ${offs} not found.`
+  if (idxArr === undefined) throw `There is no VM under offset ${offs}. vms.map: ${JSON.stringify(vms.map, null, 2)}.`
   const vmIdx = idxArr.index(idx)
   if (vmIdx === -1 || idx === -1) throw `Invalid indexes. vmIdx: ${idx}, found vmIdx: ${vmIdx}`
   const res = vms.offs[idx] === vm(offs, energy)
-  if (!res) throw `VM structure broken for vm with index ${idx}. VM should be ${vm(offs, energy)}, but is ${vms.offs[idx]}`
+  if (!res) throw `VM structure broken for VM with index ${idx}. VM should be ${vm(offs, energy)}, but is ${vms.offs[idx]}`
   return res
 }
 

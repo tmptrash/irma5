@@ -4,6 +4,9 @@ import VMs, { CMDS, addVm } from '../vms'
 import World, { destroy, get } from '../world'
 import { mov, fix, spl, con, job, rep, testAtoms } from './utils'
 
+// TODO: add mov-fix atoms moving horizontally and fix two or more atoms above
+// TODO: add complex atoms tests. like more than 3,5,...
+
 beforeAll(() => {
   //
   // This code is used for Node.js environment for the tests
@@ -306,6 +309,15 @@ describe('vms module tests', () => {
       const f = fix(R, R, LU)
       const m = mov(NO_DIR, R)
       testRun([[W, f], [W + 1, m]], [[W, nrg]], [[W, f], [W + 1, m]], [[W + 1, nrg - fixNrg]])
+    })
+    it('two fix atoms should fix each other', () => {
+      const nrg = 13 * fixNrg
+      const f1 = fix(NO_DIR, R, L)
+      const f2 = fix(NO_DIR, L, R)
+      const rpi = CFG.rpi
+      CFG.rpi = 2
+      testRun([[0, f1], [1, f2]], [[0, nrg]], [[0, fix(R, R, L)], [1, fix(L, L, R)]], [[1, nrg - fixNrg * 2 - onFixNrg * 2]])
+      CFG.rpi = rpi
     })
   })
 
