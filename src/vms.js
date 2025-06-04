@@ -205,6 +205,7 @@ function rep(vms, a, vmIdx) {
  */
 function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
   const newIdx = updateNrg(vms, vmIdx, energy)
+  if (newIdx < 0) return newIdx
   const d = dir !== NO_DIR ? dir : vmDir(a)
   const dstOffs = offs(aOffs, d)
   if (d === NO_DIR || !get(vms.w, dstOffs)) return newIdx
