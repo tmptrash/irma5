@@ -490,6 +490,12 @@ describe('vms module tests', () => {
       const mu1 = mut(R, R, 0, 0);
       testRun([[0, mu], [W, mu1]], [[0, nrg]], [[0, mu], [W, mut(R, R, 0b11, 0)]], [[0, nrg - mutNrg]])
     })
+    it('mut atom should mutate near mut atom in value section', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, D, 2, 0b1111);
+      const mu1 = mut(R, R, 0, 0);
+      testRun([[0, mu], [W, mu1]], [[0, nrg]], [[0, mu], [W, mut(R, R, 0, 0b1111)]], [[0, nrg - mutNrg]])
+    })
     it('mut atom should mutate near atom by 0 value', () => {
       const nrg = 10 * CFG.ATOM.NRG.mut;
       const mu  = mut(R, R, 1, U); // U === 0b000
