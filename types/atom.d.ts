@@ -8,7 +8,7 @@ declare module 'irma5/src/atom' {
   /**
    * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom, 1 - mov,...
    * @param {Number} a 2 bytes of Atom value
-   * @returns 0 - no atom, 1 - mov, ...
+   * @returns 0 - nopor no atom, 1 - mov, ...
    */
   export function type(a: number): number;
   /**
@@ -26,6 +26,19 @@ declare module 'irma5/src/atom' {
    * @returns Updated 2bytes atom
    */
   export function setB1Dir(a: number, d: number): number;
+  /**
+   * Returns section index value for the mut atom. Bits: 10..11, values 0..3
+   * @param {Number} a mut atom 
+   * @returns {Number} Index from 0..3
+   */
+  export function secIdx(a: number): number;
+  /**
+   * Returns the offset of first bit, where mutation value should be inserted
+   * @param {Number} typ Atom's type
+   * @param {Number} secIdx Index of the atom section 0..3
+   * @returns {Number} first bit offset or -1 if error
+   */
+  export function getBitIdx(typ: number, secIdx: number): number;
   /**
    * Returns bond 2 3bits direction (0..7). For different atoms it means different.
    * For example: "fix/spl" - it's a second bond; "rep" - atom 2 direction
@@ -47,6 +60,12 @@ declare module 'irma5/src/atom' {
    * @returns {Number} 4bits direction: -1 - no dir, 0 - up, 1 - up-right,...
    */
   export function b3Dir(a: number): number;
+  /**
+   * Returns 4bits value for current section index in a mut atom
+   * @param {Number} a 2bytes atom
+   * @returns {Number} 4bits value
+   */
+  export function secVal(a: number): number;
   /**
    * Sets 4bits bond 3 direction. It make sense only for "con" atom. It means
    * second atom "if" direction in comparison mode.

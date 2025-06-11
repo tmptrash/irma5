@@ -9,7 +9,9 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_BOND2_MASK1, ATOM_BOND2_SHIFT, ATOM_BOND3_MASK, ATOM_BOND3_MASK1, ATOM_IF_BOND_MASK,
   ATOM_IF_BOND_MASK1, ATOM_IF_BOND_SHIFT, ATOM_THEN_BOND_MASK, ATOM_THEN_BOND_MASK1,
   ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT,
-  DIR_MASK_3BITS } from './shared.js'
+  DIR_MASK_3BITS, ATOM_SECTION_MASK, ATOM_SECTION_SHIFT, ATOM_SECTION_VAL_MASK,
+  ATOMS_SECTIONS, 
+  ATOM_CON} from './shared.js'
 /**
  * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom, 1 - mov,...
  * @param {Number} a 2 bytes of Atom value
@@ -38,6 +40,29 @@ export function setB1Dir(a, d) {
   return (a & ATOM_BOND1_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_BOND1_SHIFT)
 }
 /**
+ * Returns section index value for the mut atom. Bits: 10..11, values 0..3
+ * @param {Number} a mut atom 
+ * @returns {Number} Index from 0..3
+ */
+export function secIdx(a) {
+  return (a & ATOM_SECTION_MASK) >> ATOM_SECTION_SHIFT
+}
+/**
+ * Returns the offset of first bit, where mutation value should be inserted
+ * @param {Number} typ Mutation atom's type
+ * @param {Number} secIdx Index of the atom section 0..3
+ * @returns {Number} first bit offset or -1 if error
+ */
+export function getBitIdx(typ, secIdx) {
+  if (!typ) return -1
+  const indexes = ATOMS_SECTIONS[typ]
+  if (secIdx >= indexes.length) return -1
+  const startIdx = typ === ATOM_CON ? 3 : 7       // start index for "con" or other atom types
+  let idx = 0
+  for (let i = 0; i < secIdx; i++) idx += indexes[i]
+  return startIdx + idx
+}
+/**
  * Returns bond 2 3bits direction (0..7). For different atoms it means different.
  * For example: "fix/spl" - it's a second bond; "rep" - atom 2 direction
  * @param {Number} a 2bytes Atom value
@@ -63,6 +88,14 @@ export function setB2Dir(a, d) {
  */
 export function b3Dir(a) {
   return (a & ATOM_BOND3_MASK) - 1
+}
+/**
+ * Returns 4bits value for current section index in a mut atom
+ * @param {Number} a 2bytes atom
+ * @returns {Number} 4bits value
+ */
+export function secVal(a) {
+  return a & ATOM_SECTION_VAL_MASK
 }
 /**
  * Sets 4bits bond 3 direction. It make sense only for "con" atom. It means

@@ -1,10 +1,11 @@
 import CFG from './cfg.js'
 import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK,
   ATOM_TYPE_UNMASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK,
-  DMA, DNA, DMD, DIR_REV, UInt32Array, UInt64Array } from './shared.js'
+  DMA, DNA, DMD, DIR_REV, UInt32Array, UInt64Array, ATOMS_SECTIONS } from './shared.js'
 import { get, move, put, offs, toOffs } from './world.js'
 import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
-  setVmDir, setThenDir, setElseDir, type } from './atom.js'
+  setVmDir, setThenDir, setElseDir, type, secIdx, secVal, 
+  getBitIdx} from './atom.js'
 //
 // Left bit of every number is a flag, which means - "possible to break". It means
 // that we may break mov command running and continue next time. Break is only possible,
@@ -15,7 +16,7 @@ let stackIdx = 0
 let MOVED = {}
 let FROZEN = {}
 
-export const CMDS = [nop, mov, fix, spl, con, job, rep]
+export const CMDS = [nop, mov, fix, spl, con, job, rep, mut]
 
 export default function VMs(w, vmOffs) {
   const vms = {
@@ -197,6 +198,40 @@ function rep(vms, a, vmIdx) {
   if (type(a1) === type(a2)) put(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
   return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.rep)
+}
+
+function mut(vms, a, vmIdx) {
+  const vmOffs = toOffs(vms.offs[vmIdx])                   // gets offset of the current VM on a current atom
+  const a1Offs = offs(vmOffs, b1Dir(a))                    // offset of the destination atom, we are gonna mutate
+  const a1     = get(vms.w, a1Offs)                        // destination atom
+  let nrg      = 0
+  if (a1) {                                                // we found near atom to mutate
+    const typ    = type(a1)                                // near atom's type
+    const idx    = secIdx(a)                               // index of near atom section
+    const bitIdx = getBitIdx(typ, idx)                     // gets index of first bit for the section value "val"
+    if (bitIdx < 0) return vmIdx
+    const val    = secVal(a)                               // value to change inside near atom
+    const valLen = ATOMS_SECTIONS[typ][idx]                // value length
+    put(vms.w, a1Offs, setBits(a1, val, bitIdx, valLen))   // put updated atom into the canvas data array
+    nrg = -CFG.ATOM.NRG.mut                                // mutation completed, it requires energy
+  }
+
+  return moveVm(vms, a, vmIdx, vmOffs, nrg)                // move vm to the next atom offset & decrease energy for mut atom
+}
+/**
+ * Inserts "val" into the atom a at the position "bitIdx"
+ * @param {*} a Atom we are inserting to
+ * @param {*} val Value to insert
+ * @param {*} bitIdx Index of the first bit in the 2 bytes atom
+ * @param {*} bits Length of "val" value
+ * @returns {Number} Udated atom
+ */
+function setBits(a, val, bitIdx, bits) {
+  const lshift = 16 - bitIdx - bits
+  const mask = ((1 << bits) - 1) << (lshift)
+  const cleared = a & ((~mask) & 0xFFFF)
+  const inserted = (val << lshift) & mask
+  return cleared | inserted
 }
 
 /**

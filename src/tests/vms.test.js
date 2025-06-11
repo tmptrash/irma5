@@ -2,7 +2,7 @@ import CFG from '../cfg'
 import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD } from '../shared'
 import VMs, { CMDS, addVm } from '../vms'
 import World, { destroy, get } from '../world'
-import { mov, fix, spl, con, job, rep, testAtoms } from './utils'
+import { mov, fix, spl, con, job, rep, mut, testAtoms } from './utils'
 
 // TODO: add mov-fix atoms moving horizontally and fix two or more atoms above
 // TODO: add complex atoms tests. like more than 3,5,...
@@ -461,6 +461,51 @@ describe('vms module tests', () => {
       const nrg = 10
       const r = rep(RD, D, DL)
       testRun([[0, rep(R, R, L)], [1, r]], [[0, nrg]], [[0, r], [1, r]], [[1, nrg - repNrg]])
+    })
+  })
+
+  describe('mut atom tests', () => {
+    const mutNrg = CFG.ATOM.NRG.mut
+    it('mut atom should mutate near spl atom', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, R, 0, L); // L === 0b110
+      const s   = spl(R, R, R);
+      testRun([[0, mu], [1, s]], [[0, nrg]], [[0, mu], [1, spl(R, L, R)]], [[1, nrg - mutNrg]])
+    })
+    it('mut atom should mutate near mov atom', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, RD, 0, LU); // LU === 0b111
+      const m   = mov(R, RD);
+      testRun([[0, mu], [W + 1, m]], [[0, nrg]], [[0, mu], [W + 1, mov(R, LU)]], [[0, nrg - mutNrg]])
+    })
+    it('mut atom should mutate near con atom', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, D, 3, LU + 1); // LU === 0b111
+      const c   = con(U, R, D, L);
+      testRun([[0, mu], [W, c]], [[0, nrg]], [[0, mu], [W, con(U, R, D, LU)]], [[0, nrg - mutNrg]])
+    })
+    it('mut atom should mutate near mut atom', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, D, 1, 0b11);
+      const mu1 = mut(R, R, 0, 0);
+      testRun([[0, mu], [W, mu1]], [[0, nrg]], [[0, mu], [W, mut(R, R, 0b11, 0)]], [[0, nrg - mutNrg]])
+    })
+    it('mut atom should mutate near atom by 0 value', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, R, 1, U); // U === 0b000
+      const s   = spl(R, R, R);
+      testRun([[0, mu], [1, s]], [[0, nrg]], [[0, mu], [1, spl(R, R, U)]], [[1, nrg - mutNrg]])
+    })
+    it('mut atom should not mutate near atom if direction is wrong', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, U, 1, U); // U === 0b000
+      const s   = spl(R, R, R);
+      testRun([[0, mu], [1, s]], [[0, nrg]], [[0, mu], [1, s]], [[1, nrg]])
+    })
+    it('mut atom should not mutate if no near atom', () => {
+      const nrg = 10 * CFG.ATOM.NRG.mut;
+      const mu  = mut(R, U, 1, L); // L === 0b110
+      testRun([[0, mu]], [[0, nrg]], [[0, mu]], [[0, nrg]])
     })
   })
 })

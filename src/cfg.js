@@ -19,6 +19,7 @@ export default {
       con: 0,
       job: 1,
       rep: 0,
+      mut: 1,
       onFix: 4,
       onSpl: 5
     }

@@ -1,7 +1,7 @@
 import { vm, ticks, addVm, nrg } from '../vms'
 import { get, put, toOffs } from '../world'
-import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir } from '../atom'
-import { ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP } from '../shared'
+import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, secIdx, secVal } from '../atom'
+import { ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT } from '../shared'
 
 export function mov(vmDir, movDir) {
   return parseInt(`001${dir4(vmDir)}${dir(movDir)}000000`, 2)
@@ -20,6 +20,9 @@ export function job(vmDir, newVmDir) {
 }
 export function rep(vmDir, a1Dir, a2Dir) {
   return parseInt(`110${dir4(vmDir)}${dir(a1Dir)}${dir(a2Dir)}000`, 2)
+}
+export function mut(vmDir, mutDir, secIdx, val) {
+  return parseInt(`111${dir4(vmDir)}${dir(mutDir)}${sec(secIdx)}${pad(val, 4)}`, 2)
 }
 /**
  * Tests atoms and VMs in a world. It works like this: we put all atoms from
@@ -65,6 +68,9 @@ function dir(d) {
 function dir4(d) {
   return pad(d+1, 4)
 }
+function sec(sec) {
+  return pad(sec, 2)
+}
 
 function parseAtom(a) {
   switch (type(a)) {
@@ -74,6 +80,7 @@ function parseAtom(a) {
   case ATOM_CON: return `con(ifDir=${ifDir(a)}, thenDir=${thenDir(a)}, elseDir=${elseDir(a)}, if2Dir=${b3Dir(a)})`
   case ATOM_JOB: return `job(vmDir=${vmDir(a)}, newVmDir=${b1Dir(a)})`
   case ATOM_REP: return `rep(vmDir=${vmDir(a)}, a1Dir=${b1Dir(a)}, a2Dir=${b2Dir(a)})`
+  case ATOM_MUT: return `mut(vmDir=${vmDir(a)}, mutDir=${b1Dir(a)}, secIdx=${secIdx(a)}, val=${secVal(a)})`
   }
   return `Unknown atom '${a}' with type '${type(a)}'`
 }

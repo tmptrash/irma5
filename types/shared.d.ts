@@ -35,6 +35,16 @@ declare module 'irma5/src/shared' {
   export const ATOM_ELSE_BOND_MASK: 112;
   export const ATOM_ELSE_BOND_MASK1: 65423;
   export const ATOM_ELSE_BOND_SHIFT: 4;
+  /**
+   * Bits sections offsets of all supported atoms. For example atom spl has these sections:
+   * section 0: 07..09 - bits of bond 1 dir
+   * section 1: 10..12 - bits of bond 2 dir (from the perspective of atom 1)
+   *
+   * All sections start from bit 7. Before that bit we keep atom type and next atom dir. Only
+   * con atom has it's ows structure and has 4 sections
+   */
+  export const ATOMS_SECTIONS = Array<Array<number>>
+
   export function DIR_2_OFFS(dir: any): any;
   /**
    * Reverted directions. 0 (up) - 4 (down), 6 (left) - 2 (right),...
