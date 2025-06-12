@@ -12,6 +12,7 @@ declare module 'irma5/src/shared' {
   export const ATOM_CON: 4;
   export const ATOM_JOB: 5;
   export const ATOM_REP: 6;
+  export const ATOM_MUT: 7;
   export const ATOM_TYPE_MASK: 57344;
   export const ATOM_TYPE_UNMASK: 8191;
   export const ATOM_TYPE_SHIFT: 13;

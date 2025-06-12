@@ -222,7 +222,7 @@ function mut(vms, a, vmIdx) {
  * Inserts "val" into the atom a at the position "bitIdx"
  * @param {*} a Atom we are inserting to
  * @param {*} val Value to insert
- * @param {*} bitIdx Index of the first bit in the 2 bytes atom
+ * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
  * @param {*} bits Length of "val" value
  * @returns {Number} Udated atom
  */
