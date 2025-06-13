@@ -3,9 +3,8 @@ import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK,
   ATOM_TYPE_UNMASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK,
   DMA, DNA, DMD, DIR_REV, UInt32Array, UInt64Array, ATOMS_SECTIONS } from './shared.js'
 import { get, move, put, offs, toOffs } from './world.js'
-import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir,
-  setVmDir, setThenDir, setElseDir, type, secIdx, secVal, 
-  getBitIdx} from './atom.js'
+import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, setThenDir, setElseDir,
+  type, secIdx, secVal, getBitIdx, setBits } from './atom.js'
 //
 // Left bit of every number is a flag, which means - "possible to break". It means
 // that we may break mov command running and continue next time. Break is only possible,
@@ -218,22 +217,6 @@ function mut(vms, a, vmIdx) {
 
   return moveVm(vms, a, vmIdx, vmOffs, nrg)                // move vm to the next atom offset & decrease energy for mut atom
 }
-/**
- * Inserts "val" into the atom a at the position "bitIdx"
- * @param {*} a Atom we are inserting to
- * @param {*} val Value to insert
- * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
- * @param {*} bits Length of "val" value
- * @returns {Number} Udated atom
- */
-function setBits(a, val, bitIdx, bits) {
-  const lshift = 16 - bitIdx - bits
-  const mask = ((1 << bits) - 1) << (lshift)
-  const cleared = a & ((~mask) & 0xFFFF)
-  const inserted = (val << lshift) & mask
-  return cleared | inserted
-}
-
 /**
  * Moves VM from one atom to another if possible and updates
  * related vm.offs array

@@ -9,9 +9,8 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_BOND2_MASK1, ATOM_BOND2_SHIFT, ATOM_BOND3_MASK, ATOM_BOND3_MASK1, ATOM_IF_BOND_MASK,
   ATOM_IF_BOND_MASK1, ATOM_IF_BOND_SHIFT, ATOM_THEN_BOND_MASK, ATOM_THEN_BOND_MASK1,
   ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT,
-  DIR_MASK_3BITS, ATOM_SECTION_MASK, ATOM_SECTION_SHIFT, ATOM_SECTION_VAL_MASK,
-  ATOMS_SECTIONS, 
-  ATOM_CON} from './shared.js'
+  DIR_MASK_4BITS, DIR_MASK_3BITS, DIR_MASK_2BITS, ATOM_SECTION_MASK, ATOM_SECTION_MASK1,
+  ATOM_SECTION_SHIFT, ATOM_SECTION_VAL_MASK, ATOMS_SECTIONS, ATOM_CON} from './shared.js'
 /**
  * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom, 1 - mov,...
  * @param {Number} a 2 bytes of Atom value
@@ -46,6 +45,15 @@ export function setB1Dir(a, d) {
  */
 export function secIdx(a) {
   return (a & ATOM_SECTION_MASK) >> ATOM_SECTION_SHIFT
+}
+/**
+ * Sets section index to specified value
+ * @param {Number} a mut atom we are changing
+ * @param {Number} secIdx 2bits new section index
+ * @returns {Number} Updated 2bytes atom
+ */
+export function setSecIdx(a, secIdx) {
+  return (a & ATOM_SECTION_MASK1) | ((secIdx & DIR_MASK_2BITS) << ATOM_SECTION_SHIFT)
 }
 /**
  * Returns the offset of first bit, where mutation value should be inserted
@@ -96,6 +104,30 @@ export function b3Dir(a) {
  */
 export function secVal(a) {
   return a & ATOM_SECTION_VAL_MASK
+}
+/**
+ * Sets value into the "value" section of the mut atom
+ * @param {Number} a mut atom
+ * @param {Number} val 4bits value
+ * @returns {Number} Updated 2bytes atom
+ */
+export function setSecVal(a, val) {
+  return setBits(a, val & DIR_MASK_4BITS, 16 - 2 - ATOM_SECTION_SHIFT, 4)
+}
+/**
+ * Inserts "val" into the atom "a" at the position "bitIdx"
+ * @param {*} a Atom we are inserting to
+ * @param {*} val Value to insert
+ * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
+ * @param {*} len Length of "val" value
+ * @returns {Number} Udated atom
+ */
+export function setBits(a, val, bitIdx, len) {
+  const lshift = 16 - bitIdx - len
+  const mask = ((1 << len) - 1) << (lshift)
+  const cleared = a & ((~mask) & 0xFFFF)
+  const inserted = (val << lshift) & mask
+  return cleared | inserted
 }
 /**
  * Sets 4bits bond 3 direction. It make sense only for "con" atom. It means

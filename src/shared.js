@@ -17,7 +17,9 @@ export const ATOM_JOB              = 5
 export const ATOM_REP              = 6
 export const ATOM_MUT              = 7
 
+export const DIR_MASK_4BITS        = 0b1111
 export const DIR_MASK_3BITS        = 0b111
+export const DIR_MASK_2BITS        = 0b11
 export const ATOM_TYPE_MASK        = 0b1110000000000000
 export const ATOM_TYPE_UNMASK      = 0b0001111111111111
 export const ATOM_TYPE_SHIFT       = 13
@@ -28,6 +30,7 @@ export const ATOM_BOND1_MASK       = 0b0000000111000000
 export const ATOM_BOND1_MASK1      = 0b1111111000111111
 export const ATOM_BOND1_SHIFT      = 6
 export const ATOM_SECTION_MASK     = 0b0000000000110000
+export const ATOM_SECTION_MASK1    = 0b1111111111001111
 export const ATOM_SECTION_SHIFT    = 4
 export const ATOM_BOND2_MASK       = 0b0000000000111000
 export const ATOM_BOND2_MASK1      = 0b1111111111000111

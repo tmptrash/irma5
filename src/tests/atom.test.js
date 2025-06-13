@@ -1,7 +1,8 @@
 import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir,
-  setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir } from './../atom'
-import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB,
-  ATOM_REP, NO_DIR } from './../shared'
+  setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir, secIdx, setSecIdx
+} from './../atom'
+import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, NO_DIR
+} from './../shared'
 
 describe('Atom tests', () => {
   it('type()', () => {
@@ -12,7 +13,7 @@ describe('Atom tests', () => {
     expect(type(0b1000000000000000)).toBe(ATOM_CON)
     expect(type(0b1010000000000000)).toBe(ATOM_JOB)
     expect(type(0b1100000000000000)).toBe(ATOM_REP)
-    expect(type(0b1110000000000000)).toBe(0b111)
+    expect(type(0b1110000000000000)).toBe(ATOM_MUT)
     expect(type(0b0001111111111111)).toBe(0b000)
     expect(type(0b0101111111111111)).toBe(0b010)
   })
@@ -219,5 +220,27 @@ describe('Atom tests', () => {
     expect(vmDir(setVmDir(0b1111111111111111, 0b111))).toBe(0b111)
     expect(vmDir(setVmDir(0b1111111111111111, 0b010))).toBe(0b010)
     expect(vmDir(setVmDir(0b1111111111111111, 0b11111))).toBe(0b111)
+  })
+
+  it('secIdx()', () => {
+    expect(secIdx(0b0000000000000000)).toBe(0)
+    expect(secIdx(0b0000000000010000)).toBe(1)
+    expect(secIdx(0b0000000000100000)).toBe(2)
+    expect(secIdx(0b0000000000110000)).toBe(3)
+    expect(secIdx(0b0000000001110000)).toBe(3)
+    expect(secIdx(0b0000000001111000)).toBe(3)
+    expect(secIdx(0b1111111111001111)).toBe(0)
+    expect(secIdx(0b1111111111011111)).toBe(1)
+  })
+
+  it('setSecIdx()', () => {
+    expect(secIdx(setSecIdx(0b0000000000000000, 0))).toBe(0)
+    expect(secIdx(setSecIdx(0b0000000000010000, 0))).toBe(0)
+    expect(secIdx(setSecIdx(0b0000000000100000, 1))).toBe(1)
+    expect(secIdx(setSecIdx(0b0000000000110000, 2))).toBe(2)
+    expect(secIdx(setSecIdx(0b0000000001110000, 3))).toBe(3)
+    expect(secIdx(setSecIdx(0b0000000001111000, 4))).toBe(0)
+    expect(secIdx(setSecIdx(0b1111111111001111, 2))).toBe(2)
+    expect(secIdx(setSecIdx(0b1111111111011111, 3))).toBe(3)
   })
 })

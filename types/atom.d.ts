@@ -33,6 +33,13 @@ declare module 'irma5/src/atom' {
    */
   export function secIdx(a: number): number;
   /**
+   * Sets section index to specified value
+   * @param {Number} a mut atom we are changing
+   * @param {Number} secIdx 2bits new section index
+   * @returns {Number} Updated 2bytes atom
+   */
+  export function setSecIdx(a: number): number;
+  /**
    * Returns the offset of first bit, where mutation value should be inserted
    * @param {Number} typ Atom's type
    * @param {Number} secIdx Index of the atom section 0..3
@@ -66,6 +73,22 @@ declare module 'irma5/src/atom' {
    * @returns {Number} 4bits value
    */
   export function secVal(a: number): number;
+  /**
+   * Sets value into the "value" section of the mut atom
+   * @param {Number} a mut atom
+   * @param {Number} val 4bits value 
+   * @returns {Number} Updated 2bytes atom
+   */
+  export function setSecVal(a: number, val: number): number;
+  /**
+   * Inserts "val" into the atom "a" at the position "bitIdx"
+   * @param {*} a Atom we are inserting to
+   * @param {*} val Value to insert
+   * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
+   * @param {*} len Length of "val" value
+   * @returns {Number} Udated atom
+   */
+  export function setBits(a: number, val: number, bitIdx: number, len: number): number;
   /**
    * Sets 4bits bond 3 direction. It make sense only for "con" atom. It means
    * second atom "if" direction in comparison mode.
