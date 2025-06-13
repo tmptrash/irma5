@@ -20,6 +20,23 @@ export function type(a) {
   return (a & ATOM_TYPE_MASK) >> ATOM_TYPE_SHIFT
 }
 /**
+ * Returns 4bits VM direction. Works for all atoms.
+ * @param {Number} a 2bytes atom
+ * @returns {Number} 4bits VM direction
+ */
+export function vmDir(a) {
+  return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1
+}
+/**
+ * Sets VM 4bits direction for all atoms.
+ * @param {Number} a 2bytes atom
+ * @param {Number} d 4bits direction
+ * @returns {Number} 2bytes atom
+ */
+export function setVmDir(a, d) {
+  return (a & ATOM_VM_DIR_MASK1) | (((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1) << ATOM_VM_DIR_SHIFT)
+}
+/**
  * Returns 3bit bond 1 value. For different atoms it means different. For example
  * b1Dir() for "mov" atom returns move direction (0..7); For the "fix/spl" it's bond 1;
  * For "job" it's new VM direction; For "rep" it's atom 1 direction.
@@ -37,38 +54,6 @@ export function b1Dir(a) {
  */
 export function setB1Dir(a, d) {
   return (a & ATOM_BOND1_MASK1) | ((d & MASK_3BITS) << ATOM_BOND1_SHIFT)
-}
-/**
- * Returns section index value for the mut atom. Bits: 10..11, values 0..3
- * @param {Number} a mut atom 
- * @returns {Number} Index from 0..3
- */
-export function secIdx(a) {
-  return (a & ATOM_SECTION_MASK) >> ATOM_SECTION_SHIFT
-}
-/**
- * Sets section index to specified value
- * @param {Number} a mut atom we are changing
- * @param {Number} secIdx 2bits new section index
- * @returns {Number} Updated 2bytes atom
- */
-export function setSecIdx(a, secIdx) {
-  return (a & ATOM_SECTION_MASK1) | ((secIdx & MASK_2BITS) << ATOM_SECTION_SHIFT)
-}
-/**
- * Returns the offset of first bit, where mutation value should be inserted
- * @param {Number} typ Mutation atom's type
- * @param {Number} secIdx Index of the atom section 0..3
- * @returns {Number} first bit offset or -1 if error
- */
-export function getBitIdx(typ, secIdx) {
-  if (!typ) return -1
-  const indexes = ATOMS_SECTIONS[typ]
-  if (secIdx >= indexes.length) return -1
-  const startIdx = typ === ATOM_CON ? 3 : 7       // start index for "con" or other atom types
-  let idx = 0
-  for (let i = 0; i < secIdx; i++) idx += indexes[i]
-  return startIdx + idx
 }
 /**
  * Returns bond 2 3bits direction (0..7). For different atoms it means different.
@@ -96,38 +81,6 @@ export function setB2Dir(a, d) {
  */
 export function b3Dir(a) {
   return (a & ATOM_BOND3_MASK) - 1
-}
-/**
- * Returns 4bits value for current section index in a mut atom
- * @param {Number} a 2bytes atom
- * @returns {Number} 4bits value
- */
-export function secVal(a) {
-  return a & ATOM_SECTION_VAL_MASK
-}
-/**
- * Sets value into the "value" section of the mut atom
- * @param {Number} a mut atom
- * @param {Number} val 4bits value
- * @returns {Number} Updated 2bytes atom
- */
-export function setSecVal(a, val) {
-  return setBits(a, val & MASK_4BITS, 12, 4)
-}
-/**
- * Inserts "val" into the atom "a" at the position "bitIdx"
- * @param {*} a Atom we are inserting to
- * @param {*} val Value to insert
- * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
- * @param {*} len Length of "val" value
- * @returns {Number} Udated atom
- */
-export function setBits(a, val, bitIdx, len) {
-  const lshift = 16 - bitIdx - len
-  const mask = ((1 << len) - 1) << (lshift)
-  const cleared = a & ((~mask) & 0xFFFF)
-  const inserted = (val << lshift) & mask
-  return cleared | inserted
 }
 /**
  * Sets 4bits bond 3 direction. It make sense only for "con" atom. It means
@@ -191,19 +144,66 @@ export function setElseDir(a, d) {
   return (a & ATOM_ELSE_BOND_MASK1) | ((d & MASK_3BITS) << ATOM_ELSE_BOND_SHIFT)
 }
 /**
- * Returns 4bits VM direction. Works for all atoms.
- * @param {Number} a 2bytes atom
- * @returns {Number} 4bits VM direction
+ * Returns section index value for the mut atom. Bits: 10..11, values 0..3
+ * @param {Number} a mut atom 
+ * @returns {Number} Index from 0..3
  */
-export function vmDir(a) {
-  return ((a & ATOM_VM_DIR_MASK) >> ATOM_VM_DIR_SHIFT) - 1
+export function secIdx(a) {
+  return (a & ATOM_SECTION_MASK) >> ATOM_SECTION_SHIFT
 }
 /**
- * Sets VM 4bits direction for all atoms.
- * @param {Number} a 2bytes atom
- * @param {Number} d 4bits direction
- * @returns {Number} 2bytes atom
+ * Sets section index to specified value
+ * @param {Number} a mut atom we are changing
+ * @param {Number} secIdx 2bits new section index
+ * @returns {Number} Updated 2bytes atom
  */
-export function setVmDir(a, d) {
-  return (a & ATOM_VM_DIR_MASK1) | (((d > 7 ? 7 : (d < -1 ? -1 : d)) + 1) << ATOM_VM_DIR_SHIFT)
+export function setSecIdx(a, secIdx) {
+  return (a & ATOM_SECTION_MASK1) | ((secIdx & MASK_2BITS) << ATOM_SECTION_SHIFT)
+}
+/**
+ * Returns the offset of first bit, where mutation value should be inserted
+ * @param {Number} typ Mutation atom's type
+ * @param {Number} secIdx Index of the atom section 0..3
+ * @returns {Number} first bit offset or -1 if error
+ */
+export function getBitIdx(typ, secIdx) {
+  if (!typ) return -1
+  const indexes = ATOMS_SECTIONS[typ]
+  if (secIdx >= indexes.length) return -1
+  const startIdx = typ === ATOM_CON ? 3 : 7       // start index for "con" or other atom types
+  let idx = 0
+  for (let i = 0; i < secIdx; i++) idx += indexes[i]
+  return startIdx + idx
+}
+/**
+ * Returns 4bits value for current section index in a mut atom
+ * @param {Number} a 2bytes atom
+ * @returns {Number} 4bits value
+ */
+export function secVal(a) {
+  return a & ATOM_SECTION_VAL_MASK
+}
+/**
+ * Sets value into the "value" section of the mut atom
+ * @param {Number} a mut atom
+ * @param {Number} val 4bits value
+ * @returns {Number} Updated 2bytes atom
+ */
+export function setSecVal(a, val) {
+  return setBits(a, val & MASK_4BITS, 12, 4)
+}
+/**
+ * Inserts "val" into the atom "a" at the position "bitIdx"
+ * @param {*} a Atom we are inserting to
+ * @param {*} val Value to insert
+ * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
+ * @param {*} len Length of "val" value
+ * @returns {Number} Udated atom
+ */
+export function setBits(a, val, bitIdx, len) {
+  const lshift = 16 - bitIdx - len
+  const mask = ((1 << len) - 1) << (lshift)
+  const cleared = a & ((~mask) & 0xFFFF)
+  const inserted = (val << lshift) & mask
+  return cleared | inserted
 }
