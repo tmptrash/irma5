@@ -9,7 +9,7 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_BOND2_MASK1, ATOM_BOND2_SHIFT, ATOM_BOND3_MASK, ATOM_BOND3_MASK1, ATOM_IF_BOND_MASK,
   ATOM_IF_BOND_MASK1, ATOM_IF_BOND_SHIFT, ATOM_THEN_BOND_MASK, ATOM_THEN_BOND_MASK1,
   ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT,
-  DIR_MASK_4BITS, DIR_MASK_3BITS, DIR_MASK_2BITS, ATOM_SECTION_MASK, ATOM_SECTION_MASK1,
+  MASK_4BITS, MASK_3BITS, MASK_2BITS, ATOM_SECTION_MASK, ATOM_SECTION_MASK1,
   ATOM_SECTION_SHIFT, ATOM_SECTION_VAL_MASK, ATOMS_SECTIONS, ATOM_CON} from './shared.js'
 /**
  * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom, 1 - mov,...
@@ -36,7 +36,7 @@ export function b1Dir(a) {
  * @returns Updated 2bytes atom
  */
 export function setB1Dir(a, d) {
-  return (a & ATOM_BOND1_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_BOND1_SHIFT)
+  return (a & ATOM_BOND1_MASK1) | ((d & MASK_3BITS) << ATOM_BOND1_SHIFT)
 }
 /**
  * Returns section index value for the mut atom. Bits: 10..11, values 0..3
@@ -53,7 +53,7 @@ export function secIdx(a) {
  * @returns {Number} Updated 2bytes atom
  */
 export function setSecIdx(a, secIdx) {
-  return (a & ATOM_SECTION_MASK1) | ((secIdx & DIR_MASK_2BITS) << ATOM_SECTION_SHIFT)
+  return (a & ATOM_SECTION_MASK1) | ((secIdx & MASK_2BITS) << ATOM_SECTION_SHIFT)
 }
 /**
  * Returns the offset of first bit, where mutation value should be inserted
@@ -86,7 +86,7 @@ export function b2Dir(a) {
  * @returns Changed 2bytes atom
  */
 export function setB2Dir(a, d) {
-  return (a & ATOM_BOND2_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_BOND2_SHIFT)
+  return (a & ATOM_BOND2_MASK1) | ((d & MASK_3BITS) << ATOM_BOND2_SHIFT)
 }
 /**
  * Returns 4bits bond 3 direction value. Only for "con" atom it means second atom "if"
@@ -112,7 +112,7 @@ export function secVal(a) {
  * @returns {Number} Updated 2bytes atom
  */
 export function setSecVal(a, val) {
-  return setBits(a, val & DIR_MASK_4BITS, 16 - 2 - ATOM_SECTION_SHIFT, 4)
+  return setBits(a, val & MASK_4BITS, 12, 4)
 }
 /**
  * Inserts "val" into the atom "a" at the position "bitIdx"
@@ -154,7 +154,7 @@ export function ifDir(a) {
  * @returns {Number} 2bytes updated atom
  */
 export function setIfDir(a, d) {
-  return (a & ATOM_IF_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_IF_BOND_SHIFT)
+  return (a & ATOM_IF_BOND_MASK1) | ((d & MASK_3BITS) << ATOM_IF_BOND_SHIFT)
 }
 /**
  * Returns 3bits "then" direction for "con" atom. Has no sense for other atoms.
@@ -171,7 +171,7 @@ export function thenDir(a) {
  * @returns {Number} updated 2bytes atom
  */
 export function setThenDir(a, d) {
-  return (a & ATOM_THEN_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_THEN_BOND_SHIFT)
+  return (a & ATOM_THEN_BOND_MASK1) | ((d & MASK_3BITS) << ATOM_THEN_BOND_SHIFT)
 }
 /**
  * Returns "else" direction for the "con" atom. Has no sense for other atoms.
@@ -188,7 +188,7 @@ export function elseDir(a) {
  * @returns {Number} Updated atom
  */
 export function setElseDir(a, d) {
-  return (a & ATOM_ELSE_BOND_MASK1) | ((d & DIR_MASK_3BITS) << ATOM_ELSE_BOND_SHIFT)
+  return (a & ATOM_ELSE_BOND_MASK1) | ((d & MASK_3BITS) << ATOM_ELSE_BOND_SHIFT)
 }
 /**
  * Returns 4bits VM direction. Works for all atoms.

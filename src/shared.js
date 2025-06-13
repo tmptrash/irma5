@@ -8,6 +8,10 @@ export const MOV_BREAK_UNMASK      = 0b01111111111111111111111111111111
 
 export const NO_DIR                = -1
 
+export const MASK_4BITS            = 0b1111
+export const MASK_3BITS            = 0b111
+export const MASK_2BITS            = 0b11
+
 export const ATOM_NOP              = 0
 export const ATOM_MOV              = 1
 export const ATOM_FIX              = 2
@@ -17,9 +21,6 @@ export const ATOM_JOB              = 5
 export const ATOM_REP              = 6
 export const ATOM_MUT              = 7
 
-export const DIR_MASK_4BITS        = 0b1111
-export const DIR_MASK_3BITS        = 0b111
-export const DIR_MASK_2BITS        = 0b11
 export const ATOM_TYPE_MASK        = 0b1110000000000000
 export const ATOM_TYPE_UNMASK      = 0b0001111111111111
 export const ATOM_TYPE_SHIFT       = 13

@@ -1,6 +1,6 @@
 import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir,
-  setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir, secIdx, setSecIdx, secVal
-} from './../atom'
+  setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir, secIdx, setSecIdx, secVal,
+  setSecVal } from './../atom'
 import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, NO_DIR
 } from './../shared'
 
@@ -261,5 +261,24 @@ describe('Atom tests', () => {
     expect(secVal(0b0000000000001101)).toBe(13)
     expect(secVal(0b0000000000001110)).toBe(14)
     expect(secVal(0b0000000000001111)).toBe(15)
+  })
+
+  it('setSecVal()', () => {
+    expect(secVal(setSecVal(0b0000000000000000, 0b0000))).toBe(0)
+    expect(secVal(setSecVal(0b0000000000000001, 0b0001))).toBe(1)
+    expect(secVal(setSecVal(0b0000000000000010, 0b0011))).toBe(3)
+    expect(secVal(setSecVal(0b0000000000000011, 0b0010))).toBe(2)
+    expect(secVal(setSecVal(0b0000000000000100, 0b0001))).toBe(1)
+    expect(secVal(setSecVal(0b0000000000000101, 0b0100))).toBe(4)
+    expect(secVal(setSecVal(0b0000000000000110, 0b0101))).toBe(5)
+    expect(secVal(setSecVal(0b0000000000000111, 0b0110))).toBe(6)
+    expect(secVal(setSecVal(0b0000000000001000, 0b0101))).toBe(5)
+    expect(secVal(setSecVal(0b0000000000001001, 0b0111))).toBe(7)
+    expect(secVal(setSecVal(0b0000000000001010, 0b0101))).toBe(5)
+    expect(secVal(setSecVal(0b0000000000001011, 0b0111))).toBe(7)
+    expect(secVal(setSecVal(0b0000000000001100, 0b01100))).toBe(12)
+    expect(secVal(setSecVal(0b0000000000001101, 0b01110))).toBe(14)
+    expect(secVal(setSecVal(0b0000000000001110, 0b01011))).toBe(11)
+    expect(secVal(setSecVal(0b0000000000001111, 0b00111))).toBe(7)
   })
 })
