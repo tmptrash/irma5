@@ -11,18 +11,29 @@ export default {
     fullscreenBtnQuery: '.fullscreen'
   },
   ATOM: {
-    stackBufSize: 1024,                   // stack size for mov atom (amount of moved atoms)
+    seed: 1,                              // seed for all random numbers in a system
+    stackBufSize: 128,                    // stack size for mov atom (amount of moved atoms)
+    percent: .333,                        // affects to amount of atoms in the world
     NRG: {
-      mov: 1,
-      fix: 1,
+      mov: 0,
+      fix: 0,
       spl: 0,
       con: 0,
-      job: 1,
+      job: 0,
       rep: 0,
-      mut: 1,
-      onFix: 4,
-      onSpl: 5
-    }
+      mut: 0,
+      onFix: 0,
+      onSpl: 0
+    },
+    PROB: [                               // probability of appearing of the concrete atom sum() === 1
+      .4,
+      .1,
+      .1,
+      .1,
+      .1,
+      .1,
+      .1
+    ]
   },
   rpi: 1                                  // rounds per iteration
 }

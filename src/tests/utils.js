@@ -1,29 +1,5 @@
-import { vm, ticks, addVm, nrg } from '../vms'
-import { get, put, toOffs } from '../world'
-import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, secIdx, secVal } from '../atom'
-import { ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT } from '../shared'
-
-export function mov(vmDir, movDir) {
-  return parseInt(`001${dir4(vmDir)}${dir(movDir)}000000`, 2)
-}
-export function fix(vmDir, b1Dir, b2Dir) {
-  return parseInt(`010${dir4(vmDir)}${dir(b1Dir)}${dir(b2Dir)}000`, 2)
-}
-export function spl(vmDir, b1Dir, b2Dir) {
-  return parseInt(`011${dir4(vmDir)}${dir(b1Dir)}${dir(b2Dir)}000`, 2)
-}
-export function con(ifDir, thenDir, elseDir, cmpDir) {
-  return parseInt(`100${dir(ifDir)}${dir(thenDir)}${dir(elseDir)}${dir4(cmpDir)}`, 2)
-}
-export function job(vmDir, newVmDir) {
-  return parseInt(`101${dir4(vmDir)}${dir(newVmDir)}000000`, 2)
-}
-export function rep(vmDir, a1Dir, a2Dir) {
-  return parseInt(`110${dir4(vmDir)}${dir(a1Dir)}${dir(a2Dir)}000`, 2)
-}
-export function mut(vmDir, mutDir, secIdx, val) {
-  return parseInt(`111${dir4(vmDir)}${dir(mutDir)}${sec(secIdx)}${pad(val, 4)}`, 2)
-}
+import { vm, ticks, addVm } from '../vms'
+import { get, put } from '../world'
 /**
  * Tests atoms and VMs in a world. It works like this: we put all atoms from
  * "atomsFrom" array into the world, put all VMs from "vmsFrom" array into the
@@ -58,38 +34,3 @@ export function checkVm(vms, offs, idx, energy) {
   if (!res) throw `VM structure broken for VM with index ${idx}. VM should be ${vm(offs, energy)}, but is ${vms.offs[idx]}`
   return res
 }
-
-function pad(n, l) {
-  return n.toString(2).padStart(l, '0')
-}
-function dir(d) {
-  return pad(d, 3)
-}
-function dir4(d) {
-  return pad(d+1, 4)
-}
-function sec(sec) {
-  return pad(sec, 2)
-}
-
-function parseAtom(a) {
-  switch (type(a)) {
-  case ATOM_MOV: return `mov(vmDir=${vmDir(a)}, movDir=${b1Dir(a)})`
-  case ATOM_FIX: return `fix(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
-  case ATOM_SPL: return `spl(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
-  case ATOM_CON: return `con(ifDir=${ifDir(a)}, thenDir=${thenDir(a)}, elseDir=${elseDir(a)}, if2Dir=${b3Dir(a)})`
-  case ATOM_JOB: return `job(vmDir=${vmDir(a)}, newVmDir=${b1Dir(a)})`
-  case ATOM_REP: return `rep(vmDir=${vmDir(a)}, a1Dir=${b1Dir(a)}, a2Dir=${b2Dir(a)})`
-  case ATOM_MUT: return `mut(vmDir=${vmDir(a)}, mutDir=${b1Dir(a)}, secIdx=${secIdx(a)}, val=${secVal(a)})`
-  }
-  return `Unknown atom '${a}' with type '${type(a)}'`
-}
-
-function parseVm(vm) {
-  return `offs: ${toOffs(vm)}, nrg: ${nrg(vm)}`
-}
-//
-// global helpers
-//
-window.parseAtom = parseAtom
-window.parseVm = parseVm

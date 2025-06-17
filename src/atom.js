@@ -4,13 +4,15 @@
  * a - 2bytes atom, d - 3 or 4 bits direction. Has no additional checks of inner arguments.
  * It mean that a - should always be a number, same as direction.
  */
+import CFG from './cfg'
 import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_VM_DIR_MASK1, ATOM_BOND1_MASK, ATOM_BOND1_MASK1, ATOM_BOND1_SHIFT, ATOM_BOND2_MASK,
   ATOM_BOND2_MASK1, ATOM_BOND2_SHIFT, ATOM_BOND3_MASK, ATOM_BOND3_MASK1, ATOM_IF_BOND_MASK,
   ATOM_IF_BOND_MASK1, ATOM_IF_BOND_SHIFT, ATOM_THEN_BOND_MASK, ATOM_THEN_BOND_MASK1,
   ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT,
   MASK_4BITS, MASK_3BITS, MASK_2BITS, ATOM_SECTION_MASK, ATOM_SECTION_MASK1,
-  ATOM_SECTION_SHIFT, ATOM_SECTION_VAL_MASK, ATOMS_SECTIONS, ATOM_CON} from './shared.js'
+  ATOM_SECTION_SHIFT, ATOM_SECTION_VAL_MASK, ATOMS_SECTIONS, ATOM_CON, ATOM_MOV, ATOM_FIX, ATOM_SPL,
+  ATOM_JOB, ATOM_REP, ATOM_MUT, rnd } from './shared.js'
 /**
  * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom, 1 - mov,...
  * @param {Number} a 2 bytes of Atom value
@@ -207,3 +209,67 @@ export function setBits(a, val, bitIdx, len) {
   const inserted = (val << lshift) & mask
   return cleared | inserted
 }
+//
+// Atom generator functions
+//
+export function mov(vmDir, movDir) { return parseInt(`001${dir4(vmDir)}${dir(movDir)}000000`, 2) }
+export function fix(vmDir, b1Dir, b2Dir) { return parseInt(`010${dir4(vmDir)}${dir(b1Dir)}${dir(b2Dir)}000`, 2) }
+export function spl(vmDir, b1Dir, b2Dir) { return parseInt(`011${dir4(vmDir)}${dir(b1Dir)}${dir(b2Dir)}000`, 2) }
+export function con(ifDir, thenDir, elseDir, cmpDir) { return parseInt(`100${dir(ifDir)}${dir(thenDir)}${dir(elseDir)}${dir4(cmpDir)}`, 2) }
+export function job(vmDir, newVmDir) { return parseInt(`101${dir4(vmDir)}${dir(newVmDir)}000000`, 2) }
+export function rep(vmDir, a1Dir, a2Dir) { return parseInt(`110${dir4(vmDir)}${dir(a1Dir)}${dir(a2Dir)}000`, 2) }
+export function mut(vmDir, mutDir, secIdx, val) { return parseInt(`111${dir4(vmDir)}${dir(mutDir)}${sec(secIdx)}${pad(val, 4)}`, 2) }
+/**
+ * Returns random type of the atom according to CFG.ATOM.PROB array
+ */
+export function rndType() {
+  const r = rnd()
+  const prob = CFG.ATOM.PROB
+  if (Math.round(prob.reduce((p, c) => p + c, 0)) !== 1) throw new Error(`CFG.ATOM.PROB must === 1. Current value: ${JSON.stringify(prob)}`)
+  let s = 0
+  for (let i = 0; i < 8; i++) {
+    if (r >= s && r < s + prob[i]) return i
+    s += prob[i]
+  }
+  return 0                                        // wrong probability array, returns no atom
+}
+/**
+ * Generates random atoms. With random VM direction, random bonds and so on...
+ */
+export function rndMov() { return mov(rndDir(), rndDir()) }
+export function rndFix() { return fix(rndDir(), rndDir(), rndDir()) }
+export function rndSpl() { return spl(rndDir(), rndDir(), rndDir()) }
+export function rndCon() { return con(rndDir(), rndDir(), rndDir(), rndDir()) }
+export function rndJob() { return job(rndDir(), rndDir()) }
+export function rndRep() { return rep(rndDir(), rndDir(), rndDir()) }
+export function rndMut() { return mut(rndDir(), rndDir(), rndSecIdx(), rndSecVal()) }
+/**
+ * Helper for debugging. Parses 2bytes atom and returns human-readable string of it
+ * @param {Number} a 2bytes atom number
+ * @returns {String} Human readable atom representation
+ */
+export function parseAtom(a) {
+  switch (type(a)) {
+    case ATOM_MOV: return `mov(vmDir=${vmDir(a)}, movDir=${b1Dir(a)})`
+    case ATOM_FIX: return `fix(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
+    case ATOM_SPL: return `spl(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
+    case ATOM_CON: return `con(ifDir=${ifDir(a)}, thenDir=${thenDir(a)}, elseDir=${elseDir(a)}, if2Dir=${b3Dir(a)})`
+    case ATOM_JOB: return `job(vmDir=${vmDir(a)}, newVmDir=${b1Dir(a)})`
+    case ATOM_REP: return `rep(vmDir=${vmDir(a)}, a1Dir=${b1Dir(a)}, a2Dir=${b2Dir(a)})`
+    case ATOM_MUT: return `mut(vmDir=${vmDir(a)}, mutDir=${b1Dir(a)}, secIdx=${secIdx(a)}, val=${secVal(a)})`
+  }
+  return `Unknown atom '${a}' with type '${type(a)}'`
+}
+//
+// Module's private functions
+//
+function pad(n, l) { return n.toString(2).padStart(l, '0') }
+function dir(d) { return pad(d, 3) }
+function dir4(d) { return pad(d + 1, 4) }
+function sec(sec) { return pad(sec, 2) }
+//
+// Random direction functions
+//
+function rndDir() { return Math.floor(rnd() * 8) }
+function rndSecIdx() { return Math.floor(rnd() * 4) }
+function rndSecVal() { return Math.floor(rnd() * 16) }

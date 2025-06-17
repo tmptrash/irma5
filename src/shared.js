@@ -1,5 +1,7 @@
 import CFG from './cfg.js'
 
+let seed = CFG.ATOM.seed
+
 export const VM_OFFS_MASK          = 0xFFFFFFFF00000000n
 export const VM_OFFS_SHIFT         = 32n
 export const VM_ENERGY_MASK        = 0x00000000FFFFFFFFn
@@ -142,6 +144,17 @@ export const D  = 4 // down
 export const DL = 5 // ...
 export const L  = 6
 export const LU = 7
+/**
+ * Random numbers generator with seed
+ * @param {Number} seed Start number (seed) for numbers generation
+ * @returns {Function} rnd function
+ */
+export function rnd() {
+  let t = seed += 0x6D2B79F5
+  t = Math.imul(t ^ (t >>> 15), t | 1)
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+}
 /**
  * Wrapper for Uint32Array type with an ability to create, resize, add,
  * remove elements. The difference between this version and original is 

@@ -1,6 +1,6 @@
 import CFG from '../cfg.js'
 
-export default function Title(w) {
+export default function Buttons(w) {
   const $ = document.querySelector.bind(document)
   const b = {
     w,
@@ -9,10 +9,10 @@ export default function Title(w) {
     fullscreen: $(CFG.HTML.fullscreenBtnQuery),
     animateFn: w.animateFn
   }
-  b.visualize.onclick = () => onVisualize(w)
+  b.visualize.onclick = () => visualize(b)
   b.doc.onkeydown = e => onKeyDown(b.w, e)
-  b.fullscreen.onclick = b.fullscreen.firstChild.onclick = () => onFullscreen(b.w)
-  onFullscreen(b.w)
+  b.fullscreen.onclick = b.fullscreen.firstChild.onclick = () => onFullscreen(b)
+  onFullscreen(b)
   return b
 }
 
@@ -20,34 +20,28 @@ export function destroy(b) {
   w.doc = b.fullscreen = b.visualize = null
 }
 
-function onVisualize(b, visualize) {
-  b.animateFn = visualize ? b.w.animateFn : null
-  b.visualize.style.backgroundColor = visualize ? '#FFEB3B' : '#000'
-  b.animateFn && b.animateFn(b.w)
+function visualize(b) {
+  b.w.animateFn = b.w.animateFn ? null : b.animateFn
+  b.visualize.style.backgroundColor = b.w.animateFn ? '#FFEB3B' : '#000'
+  b.w.animateFn?.(b.w)
 }
 
-function onKeyDown(w, event) {
+function onKeyDown(b, event) {
   if (event.ctrlKey && (event.key === 'V' || event.key === 'v')) {
-    onVisualize(w)
+    visualize(b)
     event.preventDefault()
     return false
   }
   if (event.ctrlKey && (event.key === 'F' || event.key === 'f')) {
-    onFullscreen(w)
+    onFullscreen(b)
     event.preventDefault()
     return false
   }
 }
 
-function onFullscreen(w) {
-  w.zoom.zoomAbs(0, 0, 1.0)
-  w.zoom.moveTo(0, 0)
-  w.canvas.style.width  = '100%'
-  w.canvas.style.height = '100%'
+function onFullscreen(b) {
+  b.w.zoom.zoomAbs(0, 0, 1.0)
+  b.w.zoom.moveTo(0, 0)
+  b.w.canvas.style.width  = '100%'
+  b.w.canvas.style.height = '100%'
 }
-
-// export function visualize(w, visualize = true) {
-//   w.visualizeOn = visualize
-//   onVisualize(w, visualize)
-//   onAnimate(w)
-// }
