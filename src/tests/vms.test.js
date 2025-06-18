@@ -29,11 +29,24 @@ describe('vms module tests', () => {
   let w = null
   let vms = null
   let W = 0
+  //
+  // Set default config values
+  //
+  CFG.ATOM.NRG.mov = 1
+  CFG.ATOM.NRG.fix = 1
+  CFG.ATOM.NRG.spl = 1
+  CFG.ATOM.NRG.con = 1
+  CFG.ATOM.NRG.job = 1
+  CFG.ATOM.NRG.rep = 1
+  CFG.ATOM.NRG.mut = 1
+  CFG.ATOM.NRG.onFix = 2
+  CFG.ATOM.NRG.onSpl = 2
+  W = CFG.WORLD.width = CFG.WORLD.height = 10
+  CFG.rpi = 1
+
   beforeEach(() => {
     const canvas = document.createElement("canvas")
     canvas.id = 'irma5'
-    W = CFG.WORLD.width = CFG.WORLD.height = 10
-    CFG.rpi = 1
     canvas.setAttribute('width', CFG.WORLD.width)
     canvas.setAttribute('height', CFG.WORLD.height)
     canvas.getContext = () => { return {getImageData: (x,y,w,h) => { return {data: new Uint8ClampedArray(w*h*4)}}, putImageData: () => {}}}
@@ -342,19 +355,19 @@ describe('vms module tests', () => {
     })
     it('spl atom should split itself and near atom', () => {
       const energy = 10;
-      testRun([[W, spl(2, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy]], [[W, spl(NO_DIR, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy + onSplNrg]])
+      testRun([[W, spl(2, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy]], [[W, spl(NO_DIR, 2, 6)], [W + 1, mov(NO_DIR, 2)]], [[W, energy + onSplNrg - splNrg]])
     })
     it('spl atom should split itself and near atom if only near atom has bond', () => {
       const nrg = 10;
       const s = spl(NO_DIR, R, L)
       const m = mov(L, R)
-      testRun([[W, s], [W + 1, m]], [[W, nrg]], [[W, s], [W + 1, mov(NO_DIR, R)]], [[W, nrg + onSplNrg]])
+      testRun([[W, s], [W + 1, m]], [[W, nrg]], [[W, s], [W + 1, mov(NO_DIR, R)]], [[W, nrg + onSplNrg - splNrg]])
     })
     it('spl atom should not split near atoms if they have no bonds', () => {
       const nrg = 10;
       const s = spl(R, R, LU)
       const m = mov(NO_DIR, R)
-      testRun([[W, s], [0, m], [W + 1, m]], [[W, nrg]], [[W, s], [0, m], [W + 1, m]], [[W + 1, nrg + splNrg]])
+      testRun([[W, s], [0, m], [W + 1, m]], [[W, nrg]], [[W, s], [0, m], [W + 1, m]], [[W + 1, nrg - splNrg]])
     })
     it('spl atom should not split if no second atom', () => {
       const nrg = 10;
@@ -365,7 +378,7 @@ describe('vms module tests', () => {
     it('spl atom should not split if no near atoms', () => {
       const nrg = 10;
       const s = spl(R, R, LU);
-      testRun([[0, s]], [[0, nrg]], [[0, s]], [[0, nrg]])
+      testRun([[0, s]], [[0, nrg]], [[0, s]], [[0, nrg - splNrg]])
     })
   })
 
@@ -406,7 +419,7 @@ describe('vms module tests', () => {
       const nrg = 10;
       const c = con(LU, D, R, D);
       const s = spl(NO_DIR, UR, U);
-      testRun([[0, c], [W, s]], [[0, nrg]], [[0, c], [W, s]], [[0, nrg]])
+      testRun([[0, c], [W, s]], [[0, nrg]], [[0, c], [W, s]], [[0, nrg - conNrg]])
     })
     it('con atom should direct VM to else dir if we compare different atoms', () => {
       const nrg = 10
@@ -420,12 +433,12 @@ describe('vms module tests', () => {
       const c = con(R, R, DL, D)
       const s = spl(NO_DIR, R, U)
       const f = fix(NO_DIR, UR, U)
-      testRun([[0, c], [1, s], [W, f]], [[0, nrg]], [[0, c], [1, s], [W, f]], [[0, nrg]])
+      testRun([[0, c], [1, s], [W, f]], [[0, nrg]], [[0, c], [1, s], [W, f]], [[0, nrg - conNrg]])
     })
     it('con atom should not move VM to else or if dir if no atoms around', () => {
       const nrg = 10
       const c = con(R, R, DL, D)
-      testRun([[0, c]], [[0, nrg]], [[0, c]], [[0, nrg]])
+      testRun([[0, c]], [[0, nrg]], [[0, c]], [[0, nrg - conNrg]])
     })
   })
 
@@ -435,13 +448,13 @@ describe('vms module tests', () => {
       const nrg = 10
       const s = spl(NO_DIR, R, U)
       const j = job(R, R)
-      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[1, nrg - Math.floor(nrg / 2) - jobNrg], [1, nrg - Math.floor(nrg / 2)]])
+      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[1, nrg - Math.floor(nrg / 2) - jobNrg], [1, nrg - Math.floor(nrg / 2) - CFG.ATOM.NRG.spl]])
     })
     it('job atom should create new VM, but not move current vm to the next atom if not exist', () => {
       const nrg = 10 * jobNrg
       const j = job(U, R)
       const s = spl(NO_DIR, R, U)
-      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[0, nrg / 2 - jobNrg], [1, nrg / 2]])
+      testRun([[0, j], [1, s]], [[0, nrg]], [[0, j], [1, s]], [[0, nrg / 2 - jobNrg], [1, nrg / 2 - CFG.ATOM.NRG.spl]])
     })
     it('job atom should not create new VM, because there is no near atom', () => {
       const nrg = 10 * jobNrg
@@ -457,7 +470,7 @@ describe('vms module tests', () => {
       testRun([[0, r], [1, s], [2, spl(D, DL, L)]], [[0, 10]], [[0, r], [1, s], [2, s]], [[1, 10 - repNrg]])
     });
     it('rep atom should not replicate bonds if no near atoms', () => {
-      testRun([[0, rep(R, R, R)]], [[0, 10]], [[0, rep(R, R, R)], [1, 0], [2, 0]], [[0, 10]]);
+      testRun([[0, rep(R, R, R)]], [[0, 10]], [[0, rep(R, R, R)], [1, 0], [2, 0]], [[0, 10 - repNrg]]);
     });
     it('rep atom should replicate bonds of itself', () => {
       const nrg = 10
