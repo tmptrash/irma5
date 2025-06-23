@@ -12,6 +12,7 @@ export default function Buttons(w) {
   b.visualize.onclick = () => visualize(b)
   b.doc.onkeydown = e => onKeyDown(b.w, e)
   b.fullscreen.onclick = b.fullscreen.firstChild.onclick = () => onFullscreen(b)
+  window.onresize = () => onResize(b)
   onFullscreen(b)
   return b
 }
@@ -40,8 +41,19 @@ function onKeyDown(b, event) {
 }
 
 function onFullscreen(b) {
+  const w = window.innerWidth
+  const h = window.innerHeight
+  const cfgw = CFG.WORLD.width
+  const cfgh = CFG.WORLD.height
+
   b.w.zoom.zoomAbs(0, 0, 1.0)
   b.w.zoom.moveTo(0, 0)
-  b.w.canvas.style.width  = '100%'
-  b.w.canvas.style.height = '100%'
+  b.w.canvas.style.width  = `${w}px`
+  b.w.canvas.style.height = `${h}px`
+  b.w.canvas.setAttribute('width', cfgw)
+  b.w.canvas.setAttribute('height', cfgh)
+}
+
+function onResize(b) {
+  CFG.WORLD.width < window.innerWidth && CFG.WORLD.height < window.innerHeight && onFullscreen(b)
 }

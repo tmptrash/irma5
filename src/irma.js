@@ -4,10 +4,10 @@
  */
 import './styles.css'
 import CFG from './cfg'
-import World, { put, toOffs } from './world.js'
-import { rnd, ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, UInt64Array
-} from './shared'
-import { rndType, rndMov, rndFix, rndSpl, rndCon, rndRep, rndJob, rndMut } from './atom'
+import World, { put } from './world.js'
+import { rnd, ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, UInt64Array,
+  NO_DIR, L } from './shared'
+import { rndType, rndMov, rndFix, rndSpl, rndCon, rndRep, rndJob, rndMut, mov } from './atom'
 import VMs, { ticks, vm, set } from './vms.js'
 import Title from './plugins/title.js'
 import Buttons from './plugins/buttons.js'
@@ -81,7 +81,7 @@ function addVMs(vms, vmOffs) {
 function run() {
   ticks(vms)
   for (let p of plugins) p.update?.(p)
-  postMessage(0)
+  //postMessage(0)
 }
 //
 // Create instances of the world, plugins, atoms & VMs
@@ -90,6 +90,9 @@ const w       = World()                           // 2D world
 const plugins = [Title(w), Buttons(w)]            // plugins of the world
 let atoms     = createAtoms(w)                    // array of atoms [{x, y, a},...]
 let vmOffs    = createVMs(w, atoms)               // array of virtual machines by coordinates + energies
+//let atoms = [{x: 3, y: 3, a: 0x21bf}]
+//let vmOffs =  UInt64Array.create(1)
+//vmOffs.add(vm(3 * w.w + 3, 1))
 const vms     = VMs(w)                            // VMs instance
 //
 // Adds atoms and VMs into the canvas and the memory
@@ -100,5 +103,5 @@ atoms = vmOffs = undefined                        // we have to remove global va
 //
 // Run infinite loop of the simulator
 //
-addEventListener('message', e => e.data === 0 && (e.stopPropagation() || run()), true)
-run()                                             // runs the emulator
+//addEventListener('message', e => e.data === 0 && (e.stopPropagation() || run()), true)
+setInterval(run, 1000)                                             // runs the emulator

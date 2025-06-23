@@ -13,7 +13,7 @@ export default {
   ATOM: {
     seed: 1,                              // seed for all random numbers in a system
     stackBufSize: 128,                    // stack size for mov atom (amount of moved atoms)
-    percent: .333,                        // affects to amount of atoms in the world
+    percent: .15,                         // affects to amount of atoms in the world
     NRG: {
       mov: 0,
       fix: 0,
