@@ -201,10 +201,11 @@ export function setSecVal(a, val) {
  * @param {*} a Atom we are inserting to
  * @param {*} val Value to insert
  * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
- * @param {*} len Length of "val" value
+ * @param {*} len Length of "val" value in bits. 0b101 === 3
  * @returns {Number} Udated atom
  */
 export function setBits(a, val, bitIdx, len) {
+  if (bitIdx < 0 || bitIdx > 15 || len < 1 || len > 16) return a
   const lshift = 16 - bitIdx - len
   const mask = ((1 << len) - 1) << (lshift)
   const cleared = a & ((~mask) & 0xFFFF)

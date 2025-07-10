@@ -1,8 +1,7 @@
 import { U } from 'irma5/src/shared'
 import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir,
   setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir, secIdx, setSecIdx, secVal,
-  setSecVal, mov, 
-  getBitIdx} from './../atom'
+  setSecVal, setBits, getBitIdx} from './../atom'
 import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, NO_DIR
 } from './../shared'
 
@@ -334,5 +333,15 @@ describe('Atom tests', () => {
     expect(secVal(setSecVal(0b0000000000001101, 0b01110))).toBe(14)
     expect(secVal(setSecVal(0b0000000000001110, 0b01011))).toBe(11)
     expect(secVal(setSecVal(0b0000000000001111, 0b00111))).toBe(7)
+  })
+
+  it('setBits()', () => {
+    expect(setBits(0b1111111111111111, 0b0101, 1, 4)).toBe(0b1010111111111111)
+    expect(setBits(0b1111111111111111, 0b0, 2, 1)).toBe(0b1101111111111111)
+    expect(setBits(0b0000000000000000, 0b11, 0, 2)).toBe(0b1100000000000000)
+    expect(setBits(0b0000000000000000, 0b1, 15, 1)).toBe(0b0000000000000001)
+    expect(setBits(0b0000000000000000, 0b1, 16, 1)).toBe(0b0000000000000000)
+    expect(setBits(0b0000000000000000, 0b1, -2, 1)).toBe(0b0000000000000000)
+    expect(setBits(0b0000000000000000, 0b1, 0, 17)).toBe(0b0000000000000000)
   })
 })
