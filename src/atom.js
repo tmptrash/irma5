@@ -163,7 +163,9 @@ export function setSecIdx(a, secIdx) {
   return (a & ATOM_SECTION_MASK1) | ((secIdx & MASK_2BITS) << ATOM_SECTION_SHIFT)
 }
 /**
- * Returns the offset of first bit, where mutation value should be inserted
+ * Returns the offset of first bit, where mutation value should be inserted.
+ * Pay attention on a start bit index. 7 for all atoms except of "con" - 3. 7
+ * is used because we should not change atom's type & VM dirrection
  * @param {Number} typ Mutation atom's type
  * @param {Number} secIdx Index of the atom section 0..3
  * @returns {Number} first bit offset or -1 if error
@@ -171,7 +173,7 @@ export function setSecIdx(a, secIdx) {
 export function getBitIdx(typ, secIdx) {
   if (!typ) return -1
   const indexes = ATOMS_SECTIONS[typ]
-  if (secIdx >= indexes.length) return -1
+  if (secIdx >= indexes.length || secIdx < 0) return -1
   const startIdx = typ === ATOM_CON ? 3 : 7       // start index for "con" or other atom types
   let idx = 0
   for (let i = 0; i < secIdx; i++) idx += indexes[i]
