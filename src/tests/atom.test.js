@@ -281,6 +281,21 @@ describe('Atom tests', () => {
     expect(getBitIdx(ATOM_JOB, 2)).toBe(-1)
     expect(getBitIdx(ATOM_JOB, -1)).toBe(-1)
     expect(getBitIdx(ATOM_JOB, -18)).toBe(-1)
+
+    expect(getBitIdx(ATOM_REP, 0)).toBe(7)
+    expect(getBitIdx(ATOM_REP, 1)).toBe(10)
+    expect(getBitIdx(ATOM_REP, 2)).toBe(-1)
+    expect(getBitIdx(ATOM_REP, 3)).toBe(-1)
+    expect(getBitIdx(ATOM_REP, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_REP, -6)).toBe(-1)
+
+    expect(getBitIdx(ATOM_MUT, 0)).toBe(7)
+    expect(getBitIdx(ATOM_MUT, 1)).toBe(10)
+    expect(getBitIdx(ATOM_MUT, 2)).toBe(12)
+    expect(getBitIdx(ATOM_MUT, 3)).toBe(-1)
+    expect(getBitIdx(ATOM_MUT, 4)).toBe(-1)
+    expect(getBitIdx(ATOM_MUT, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_MUT, -8)).toBe(-1)
   })
 
   it('secVal()', () => {
