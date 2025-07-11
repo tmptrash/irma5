@@ -1,7 +1,8 @@
 import { U, R, UR, D } from 'irma5/src/shared'
 import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir,
   setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir, secIdx, setSecIdx, secVal,
-  setSecVal, setBits, getBitIdx, mov } from './../atom'
+  setSecVal, setBits, getBitIdx, mov, 
+  fix} from './../atom'
 import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, NO_DIR
 } from './../shared'
 
@@ -351,5 +352,9 @@ describe('Atom tests', () => {
     expect(mov(UR, D)).toBe(0b0010010100000000)
     expect(mov(NO_DIR, D)).toBe(0b0010000100000000)
     expect(mov(NO_DIR, R)).toBe(0b0010000010000000)
+  })
+
+  it('fix()', () => {
+    expect(fix(R, U, D)).toBe(0b0100011000100000)
   })
 })
