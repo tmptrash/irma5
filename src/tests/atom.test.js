@@ -1,4 +1,4 @@
-import { U, R, UR, D } from 'irma5/src/shared'
+import { U, R, UR, D, L } from 'irma5/src/shared'
 import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir,
   setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir, secIdx, setSecIdx, secVal,
   setSecVal, setBits, getBitIdx, mov, 
@@ -356,5 +356,7 @@ describe('Atom tests', () => {
 
   it('fix()', () => {
     expect(fix(R, U, D)).toBe(0b0100011000100000)
+    expect(fix(D, D, D)).toBe(0b0100101100100000)
+    expect(fix(NO_DIR, D, L)).toBe(0b0100000100110000)
   })
 })
