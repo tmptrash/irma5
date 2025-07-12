@@ -221,7 +221,7 @@ export function spl(vmDir, b1Dir, b2Dir) { return parseInt(`011${dir4(vmDir)}${d
 export function con(ifDir, thenDir, elseDir, cmpDir) { return parseInt(`100${dir(ifDir)}${dir(thenDir)}${dir(elseDir)}${dir4(cmpDir)}`, 2) }
 export function job(vmDir, newVmDir) { return parseInt(`101${dir4(vmDir)}${dir(newVmDir)}000000`, 2) }
 export function rep(vmDir, a1Dir, a2Dir) { return parseInt(`110${dir4(vmDir)}${dir(a1Dir)}${dir(a2Dir)}000`, 2) }
-export function mut(vmDir, mutDir, secIdx, val) { return parseInt(`111${dir4(vmDir)}${dir(mutDir)}${sec(secIdx)}${pad(val, 4)}`, 2) }
+export function mut(vmDir, mutDir, secIdx, val) { return parseInt(`111${dir4(vmDir)}${dir(mutDir)}${sec(secIdx)}${pad(val)}`, 2) }
 /**
  * Returns random type of the atom according to CFG.ATOM.PROB array
  */
@@ -263,13 +263,13 @@ export function parseAtom(a) {
   }
   return `Unknown atom '${a}' with type '${type(a)}'`
 }
-//
-// Module's private functions
-//
-function pad(n, l) { return n.toString(2).padStart(l, '0') }
-function dir(d) { return pad(d, 3) }
-function dir4(d) { return pad(d + 1, 4) }
-function sec(sec) { return pad(sec, 2) }
+/**
+ * Module's private functions
+ */
+function pad(n, l = 4) { return n.toString(2).padStart(l, '0') }
+function dir(d) { return pad(d % 8, 3) }       // % 8 means that we use 0..7 directions
+function dir4(d) { return pad(d % 8 + 1) }
+function sec(sec) { return pad(sec % 4, 2) }   // only 0..3 sections are possible
 //
 // Random direction functions
 //
