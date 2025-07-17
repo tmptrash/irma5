@@ -162,7 +162,9 @@ export function setSecIdx(a, secIdx) {
   return (a & ATOM_SECTION_MASK1) | ((secIdx & MASK_2BITS) << ATOM_SECTION_SHIFT)
 }
 /**
- * Returns the offset of first bit, where mutation value should be inserted
+ * Returns the offset of first bit, where mutation value should be inserted.
+ * Pay attention on a start bit index. 7 for all atoms except of "con" - 3. 7
+ * is used because we should not change atom's type & VM dirrection
  * @param {Number} typ Mutation atom's type
  * @param {Number} secIdx Index of the atom section 0..3
  * @returns {Number} first bit offset or -1 if error
@@ -170,7 +172,7 @@ export function setSecIdx(a, secIdx) {
 export function getBitIdx(typ, secIdx) {
   if (!typ) return -1
   const indexes = ATOMS_SECTIONS[typ]
-  if (secIdx >= indexes.length) return -1
+  if (secIdx >= indexes.length || secIdx < 0) return -1
   const startIdx = typ === ATOM_CON ? 3 : 7       // start index for "con" or other atom types
   let idx = 0
   for (let i = 0; i < secIdx; i++) idx += indexes[i]
@@ -198,10 +200,11 @@ export function setSecVal(a, val) {
  * @param {*} a Atom we are inserting to
  * @param {*} val Value to insert
  * @param {*} bitIdx Index of the first bit in the 2 bytes atom 
- * @param {*} len Length of "val" value
+ * @param {*} len Length of "val" value in bits. 0b101 === 3
  * @returns {Number} Udated atom
  */
 export function setBits(a, val, bitIdx, len) {
+  if (bitIdx < 0 || bitIdx > 15 || len < 1 || len > 16) return a
   const lshift = 16 - bitIdx - len
   const mask = ((1 << len) - 1) << (lshift)
   const cleared = a & ((~mask) & 0xFFFF)
@@ -217,7 +220,7 @@ export function spl(vmDir, b1Dir, b2Dir) { return parseInt(`011${dir4(vmDir)}${d
 export function con(ifDir, thenDir, elseDir, cmpDir) { return parseInt(`100${dir(ifDir)}${dir(thenDir)}${dir(elseDir)}${dir4(cmpDir)}`, 2) }
 export function job(vmDir, newVmDir) { return parseInt(`101${dir4(vmDir)}${dir(newVmDir)}000000`, 2) }
 export function rep(vmDir, a1Dir, a2Dir) { return parseInt(`110${dir4(vmDir)}${dir(a1Dir)}${dir(a2Dir)}000`, 2) }
-export function mut(vmDir, mutDir, secIdx, val) { return parseInt(`111${dir4(vmDir)}${dir(mutDir)}${sec(secIdx)}${pad(val, 4)}`, 2) }
+export function mut(vmDir, mutDir, secIdx, val) { return parseInt(`111${dir4(vmDir)}${dir(mutDir)}${sec(secIdx)}${pad(val)}`, 2) }
 /**
  * Returns random type of the atom according to CFG.ATOM.PROB array
  */
@@ -259,13 +262,13 @@ export function parseAtom(a) {
   }
   return `Unknown atom '${a}' with type '${type(a)}'`
 }
-//
-// Module's private functions
-//
-function pad(n, l) { return n.toString(2).padStart(l, '0') }
-function dir(d) { return pad(d, 3) }
-function dir4(d) { return pad(d + 1, 4) }
-function sec(sec) { return pad(sec, 2) }
+/**
+ * Module's private functions
+ */
+function pad(n, l = 4) { return n.toString(2).padStart(l, '0') }
+function dir(d) { return pad(d % 8, 3) }       // % 8 means that we use 0..7 directions
+function dir4(d) { return pad(d % 8 + 1) }
+function sec(sec) { return pad(sec % 4, 2) }   // only 0..3 sections are possible
 //
 // Random direction functions
 //

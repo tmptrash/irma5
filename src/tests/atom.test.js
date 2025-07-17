@@ -1,6 +1,8 @@
+import { U, R, UR, D, L, LU } from 'irma5/src/shared'
 import { type, vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir,
   setB1Dir, setB2Dir, setB3Dir, setIfDir, setThenDir, setElseDir, secIdx, setSecIdx, secVal,
-  setSecVal } from './../atom'
+  setSecVal, setBits, getBitIdx, mov, 
+  fix} from './../atom'
 import { ATOM_MOV, ATOM_NOP, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, NO_DIR
 } from './../shared'
 
@@ -16,6 +18,36 @@ describe('Atom tests', () => {
     expect(type(0b1110000000000000)).toBe(ATOM_MUT)
     expect(type(0b0001111111111111)).toBe(0b000)
     expect(type(0b0101111111111111)).toBe(0b010)
+  })
+
+  it('vmDir()', () => {
+    expect(vmDir(0b0000000000000000)).toBe(NO_DIR)
+    expect(vmDir(0b0000001000000000)).toBe(0b000)
+    expect(vmDir(0b0000010100100010)).toBe(0b001)
+    expect(vmDir(0b0000011110110011)).toBe(0b010)
+    expect(vmDir(0b0000100001000100)).toBe(0b011)
+    expect(vmDir(0b0000101011010101)).toBe(0b100)
+    expect(vmDir(0b0000110101100110)).toBe(0b101)
+    expect(vmDir(0b0000111111110011)).toBe(0b110)
+    expect(vmDir(0b1110000000001111)).toBe(NO_DIR)
+    expect(vmDir(0b1100011110110011)).toBe(0b010)
+    expect(vmDir(0b1110111111110011)).toBe(0b110)
+    expect(vmDir(0b1110100110110010)).toBe(0b011)
+  })
+
+  it('setVmDir()', () => {
+    expect(vmDir(setVmDir(0b0000000000000000, NO_DIR))).toBe(NO_DIR)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b000))).toBe(0b000)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b001))).toBe(0b001)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b010))).toBe(0b010)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b011))).toBe(0b011)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b100))).toBe(0b100)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b101))).toBe(0b101)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b110))).toBe(0b110)
+    expect(vmDir(setVmDir(0b0000000000000000, 0b111))).toBe(0b111)
+    expect(vmDir(setVmDir(0b1111111111111111, 0b111))).toBe(0b111)
+    expect(vmDir(setVmDir(0b1111111111111111, 0b010))).toBe(0b010)
+    expect(vmDir(setVmDir(0b1111111111111111, 0b11111))).toBe(0b111)
   })
 
   it('b1Dir()', () => {
@@ -192,36 +224,6 @@ describe('Atom tests', () => {
     expect(elseDir(setElseDir(0b0000000000000000, 0b11111))).toBe(0b111)
   })
 
-  it('vmDir()', () => {
-    expect(vmDir(0b0000000000000000)).toBe(NO_DIR)
-    expect(vmDir(0b0000001000000000)).toBe(0b000)
-    expect(vmDir(0b0000010100100010)).toBe(0b001)
-    expect(vmDir(0b0000011110110011)).toBe(0b010)
-    expect(vmDir(0b0000100001000100)).toBe(0b011)
-    expect(vmDir(0b0000101011010101)).toBe(0b100)
-    expect(vmDir(0b0000110101100110)).toBe(0b101)
-    expect(vmDir(0b0000111111110011)).toBe(0b110)
-    expect(vmDir(0b1110000000001111)).toBe(NO_DIR)
-    expect(vmDir(0b1100011110110011)).toBe(0b010)
-    expect(vmDir(0b1110111111110011)).toBe(0b110)
-    expect(vmDir(0b1110100110110010)).toBe(0b011)
-  })
-
-  it('setVmDir()', () => {
-    expect(vmDir(setVmDir(0b0000000000000000, NO_DIR))).toBe(NO_DIR)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b000))).toBe(0b000)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b001))).toBe(0b001)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b010))).toBe(0b010)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b011))).toBe(0b011)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b100))).toBe(0b100)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b101))).toBe(0b101)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b110))).toBe(0b110)
-    expect(vmDir(setVmDir(0b0000000000000000, 0b111))).toBe(0b111)
-    expect(vmDir(setVmDir(0b1111111111111111, 0b111))).toBe(0b111)
-    expect(vmDir(setVmDir(0b1111111111111111, 0b010))).toBe(0b010)
-    expect(vmDir(setVmDir(0b1111111111111111, 0b11111))).toBe(0b111)
-  })
-
   it('secIdx()', () => {
     expect(secIdx(0b0000000000000000)).toBe(0)
     expect(secIdx(0b0000000000010000)).toBe(1)
@@ -242,6 +244,58 @@ describe('Atom tests', () => {
     expect(secIdx(setSecIdx(0b0000000001111000, 4))).toBe(0)
     expect(secIdx(setSecIdx(0b1111111111001111, 2))).toBe(2)
     expect(secIdx(setSecIdx(0b1111111111011111, 3))).toBe(3)
+  })
+
+  it('getBitIdx()', () => {
+    expect(getBitIdx(ATOM_MOV, 0)).toBe(7)
+    expect(getBitIdx(ATOM_MOV, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_MOV, -13)).toBe(-1)
+    expect(getBitIdx(ATOM_MOV, 1)).toBe(-1)
+    expect(getBitIdx(ATOM_MOV, 2)).toBe(-1)
+    expect(getBitIdx(ATOM_MOV, 3)).toBe(-1)
+
+    expect(getBitIdx(ATOM_FIX, 0)).toBe(7)
+    expect(getBitIdx(ATOM_FIX, 1)).toBe(10)
+    expect(getBitIdx(ATOM_FIX, 2)).toBe(-1)
+    expect(getBitIdx(ATOM_FIX, 3)).toBe(-1)
+    expect(getBitIdx(ATOM_FIX, -3)).toBe(-1)
+
+    expect(getBitIdx(ATOM_SPL, 0)).toBe(7)
+    expect(getBitIdx(ATOM_SPL, 1)).toBe(10)
+    expect(getBitIdx(ATOM_SPL, 2)).toBe(-1)
+    expect(getBitIdx(ATOM_SPL, 8)).toBe(-1)
+    expect(getBitIdx(ATOM_SPL, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_SPL, -10)).toBe(-1)
+
+    expect(getBitIdx(ATOM_CON, 0)).toBe(3)
+    expect(getBitIdx(ATOM_CON, 1)).toBe(6)
+    expect(getBitIdx(ATOM_CON, 2)).toBe(9)
+    expect(getBitIdx(ATOM_CON, 3)).toBe(12)
+    expect(getBitIdx(ATOM_CON, 4)).toBe(-1)
+    expect(getBitIdx(ATOM_CON, 5)).toBe(-1)
+    expect(getBitIdx(ATOM_CON, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_CON, -19)).toBe(-1)
+
+    expect(getBitIdx(ATOM_JOB, 0)).toBe(7)
+    expect(getBitIdx(ATOM_JOB, 1)).toBe(-1)
+    expect(getBitIdx(ATOM_JOB, 2)).toBe(-1)
+    expect(getBitIdx(ATOM_JOB, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_JOB, -18)).toBe(-1)
+
+    expect(getBitIdx(ATOM_REP, 0)).toBe(7)
+    expect(getBitIdx(ATOM_REP, 1)).toBe(10)
+    expect(getBitIdx(ATOM_REP, 2)).toBe(-1)
+    expect(getBitIdx(ATOM_REP, 3)).toBe(-1)
+    expect(getBitIdx(ATOM_REP, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_REP, -6)).toBe(-1)
+
+    expect(getBitIdx(ATOM_MUT, 0)).toBe(7)
+    expect(getBitIdx(ATOM_MUT, 1)).toBe(10)
+    expect(getBitIdx(ATOM_MUT, 2)).toBe(12)
+    expect(getBitIdx(ATOM_MUT, 3)).toBe(-1)
+    expect(getBitIdx(ATOM_MUT, 4)).toBe(-1)
+    expect(getBitIdx(ATOM_MUT, -1)).toBe(-1)
+    expect(getBitIdx(ATOM_MUT, -8)).toBe(-1)
   })
 
   it('secVal()', () => {
@@ -280,5 +334,30 @@ describe('Atom tests', () => {
     expect(secVal(setSecVal(0b0000000000001101, 0b01110))).toBe(14)
     expect(secVal(setSecVal(0b0000000000001110, 0b01011))).toBe(11)
     expect(secVal(setSecVal(0b0000000000001111, 0b00111))).toBe(7)
+  })
+
+  it('setBits()', () => {
+    expect(setBits(0b1111111111111111, 0b0101, 1, 4)).toBe(0b1010111111111111)
+    expect(setBits(0b1111111111111111, 0b0, 2, 1)).toBe(0b1101111111111111)
+    expect(setBits(0b0000000000000000, 0b11, 0, 2)).toBe(0b1100000000000000)
+    expect(setBits(0b0000000000000000, 0b1, 15, 1)).toBe(0b0000000000000001)
+    expect(setBits(0b0000000000000000, 0b1, 16, 1)).toBe(0b0000000000000000)
+    expect(setBits(0b0000000000000000, 0b1, -2, 1)).toBe(0b0000000000000000)
+    expect(setBits(0b0000000000000000, 0b1, 0, 17)).toBe(0b0000000000000000)
+  })
+
+  it('mov()', () => {
+    expect(mov(U, R)).toBe(0b0010001010000000)
+    expect(mov(R, R)).toBe(0b0010011010000000)
+    expect(mov(UR, D)).toBe(0b0010010100000000)
+    expect(mov(NO_DIR, D)).toBe(0b0010000100000000)
+    expect(mov(NO_DIR, R)).toBe(0b0010000010000000)
+    expect(mov(NO_DIR, LU + 2)).toBe(0b0010000001000000)
+  })
+
+  it('fix()', () => {
+    expect(fix(R, U, D)).toBe(0b0100011000100000)
+    expect(fix(D, D, D)).toBe(0b0100101100100000)
+    expect(fix(NO_DIR, D, L)).toBe(0b0100000100110000)
   })
 })
