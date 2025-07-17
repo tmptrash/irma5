@@ -2,54 +2,54 @@ import CFG from './cfg.js'
 
 let seed = CFG.ATOM.seed
 
-export const VM_OFFS_MASK          = 0xFFFFFFFF00000000n
-export const VM_OFFS_SHIFT         = 32n
-export const VM_ENERGY_MASK        = 0x00000000FFFFFFFFn
-export const MOV_BREAK_MASK        = 0b10000000000000000000000000000000
-export const MOV_BREAK_UNMASK      = 0b01111111111111111111111111111111
+export const VM_OFFS_MASK           = 0xFFFFFFFF00000000n
+export const VM_OFFS_SHIFT          = 32n
+export const VM_ENERGY_MASK         = 0x00000000FFFFFFFFn
+export const MOV_BREAK_MASK         = 0b10000000000000000000000000000000
+export const MOV_BREAK_UNMASK       = 0b01111111111111111111111111111111
 
-export const NO_DIR                = -1
+export const NO_DIR                 = -1
 
-export const MASK_4BITS            = 0b1111
-export const MASK_3BITS            = 0b111
-export const MASK_2BITS            = 0b11
+export const MASK_4BITS             = 0b1111
+export const MASK_3BITS             = 0b111
+export const MASK_2BITS             = 0b11
 
-export const ATOM_NOP              = 0
-export const ATOM_MOV              = 1
-export const ATOM_FIX              = 2
-export const ATOM_SPL              = 3
-export const ATOM_CON              = 4
-export const ATOM_JOB              = 5
-export const ATOM_REP              = 6
-export const ATOM_MUT              = 7
+export const ATOM_NOP               = 0
+export const ATOM_MOV               = 1
+export const ATOM_FIX               = 2
+export const ATOM_SPL               = 3
+export const ATOM_CON               = 4
+export const ATOM_JOB               = 5
+export const ATOM_REP               = 6
+export const ATOM_MUT               = 7
 
-export const ATOM_TYPE_MASK        = 0b1110000000000000
-export const ATOM_TYPE_UNMASK      = 0b0001111111111111
-export const ATOM_TYPE_SHIFT       = 13
-export const ATOM_VM_DIR_MASK      = 0b0001111000000000
-export const ATOM_VM_DIR_MASK1     = 0b1110000111111111
-export const ATOM_VM_DIR_SHIFT     = 9
-export const ATOM_BOND1_MASK       = 0b0000000111000000
-export const ATOM_BOND1_MASK1      = 0b1111111000111111
-export const ATOM_BOND1_SHIFT      = 6
-export const ATOM_SECTION_MASK     = 0b0000000000110000
-export const ATOM_SECTION_MASK1    = 0b1111111111001111
-export const ATOM_SECTION_SHIFT    = 4
-export const ATOM_BOND2_MASK       = 0b0000000000111000
-export const ATOM_BOND2_MASK1      = 0b1111111111000111
-export const ATOM_BOND2_SHIFT      = 3
-export const ATOM_BOND3_MASK       = 0b0000000000001111
-export const ATOM_BOND3_MASK1      = 0b1111111111110000
-export const ATOM_SECTION_VAL_MASK = 0b0000000000001111
-export const ATOM_IF_BOND_MASK     = 0b0001110000000000
-export const ATOM_IF_BOND_MASK1    = 0b1110001111111111
-export const ATOM_IF_BOND_SHIFT    = 10
-export const ATOM_THEN_BOND_MASK   = 0b0000001110000000
-export const ATOM_THEN_BOND_MASK1  = 0b1111110001111111
-export const ATOM_THEN_BOND_SHIFT  = 7
-export const ATOM_ELSE_BOND_MASK   = 0b0000000001110000
-export const ATOM_ELSE_BOND_MASK1  = 0b1111111110001111
-export const ATOM_ELSE_BOND_SHIFT  = 4
+export const ATOM_TYPE_MASK         = 0b1110000000000000
+export const ATOM_TYPE_UNMASK       = 0b0001111111111111
+export const ATOM_TYPE_SHIFT        = 13
+export const ATOM_VM_DIR_MASK       = 0b0001111000000000
+export const ATOM_VM_DIR_MASK1      = 0b1110000111111111
+export const ATOM_VM_DIR_SHIFT      = 9
+export const ATOM_BOND1_MASK        = 0b0000000111000000
+export const ATOM_BOND1_MASK1       = 0b1111111000111111
+export const ATOM_BOND1_SHIFT       = 6
+export const ATOM_SECTION_MASK      = 0b0000000000110000
+export const ATOM_SECTION_MASK1     = 0b1111111111001111
+export const ATOM_SECTION_SHIFT     = 4
+export const ATOM_BOND2_MASK        = 0b0000000000111000
+export const ATOM_BOND2_MASK1       = 0b1111111111000111
+export const ATOM_BOND2_SHIFT       = 3
+export const ATOM_BOND3_MASK        = 0b0000000000001111
+export const ATOM_BOND3_MASK1       = 0b1111111111110000
+export const ATOM_SECTION_VAL_MASK  = 0b0000000000001111
+export const ATOM_IF_BOND_MASK      = 0b0001110000000000
+export const ATOM_IF_BOND_MASK1     = 0b1110001111111111
+export const ATOM_IF_BOND_SHIFT     = 10
+export const ATOM_THEN_BOND_MASK    = 0b0000001110000000
+export const ATOM_THEN_BOND_MASK1   = 0b1111110001111111
+export const ATOM_THEN_BOND_SHIFT   = 7
+export const ATOM_ELSE_BOND_MASK    = 0b0000000001110000
+export const ATOM_ELSE_BOND_MASK1   = 0b1111111110001111
+export const ATOM_ELSE_BOND_SHIFT   = 4
 /**
  * Bits sections offsets of all supported atoms. For example atom spl has these sections:
  * section 0: 07..09 - bits of bond 1 dir
@@ -146,7 +146,6 @@ export const L  = 6
 export const LU = 7
 /**
  * Random numbers generator with seed
- * @param {Number} seed Start number (seed) for numbers generation
  * @returns {Function} rnd function
  */
 export function rnd() {

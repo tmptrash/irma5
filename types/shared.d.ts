@@ -102,6 +102,11 @@ declare module 'irma5/src/shared' {
   export const L:  6;
   export const LU: 7;
   /**
+   * Random numbers generator with seed
+   * @returns {Function} rnd function
+   */
+  export function rnd(): number
+  /**
    * Wrapper for Uint32Array type with an ability to create, resize, add,
    * remove elements. The difference between this version and original is 
    * in using index (i) as a length property. So if user needs to resize 

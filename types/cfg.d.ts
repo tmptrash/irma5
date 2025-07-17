@@ -11,8 +11,14 @@ declare module 'irma5/src/cfg' {
       visualizeBtnQuery: string
       fullscreenBtnQuery: string
     },
+    VM: {
+      percent: number
+    },
     ATOM: {
+      seed: number
       stackBufSize: number
+      percent: number
+      moveTries: number
       NRG: {
         mov: number
         fix: number
@@ -20,9 +26,19 @@ declare module 'irma5/src/cfg' {
         con: number
         job: number
         rep: number
+        mut: number
         onFix: number
         onSpl: number
-      }
+      },
+      PROB: [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number
+      ]
     },
     rpi: number;
   }

@@ -32,6 +32,11 @@ describe('vms module tests', () => {
   //
   // Set default config values
   //
+  CFG.ATOM.seed = 1
+  CFG.ATOM.stackBufSize = 128
+  CFG.ATOM.percent = .15
+  CFG.ATOM.moveTries = 5
+
   CFG.ATOM.NRG.mov = 1
   CFG.ATOM.NRG.fix = 1
   CFG.ATOM.NRG.spl = 1
@@ -98,10 +103,9 @@ describe('vms module tests', () => {
       testRun([[offs, m]], [], [[offs, m]])
     })
     it('mov atom with 2 VMs on it should move twice longer', () => {
-      const offs = 0
       const m = mov(R, R)
       const nrg = movNrg
-      testRun([[offs, m]], [[0, nrg], [0, nrg]], [[offs + 2, m]])
+      testRun([[0, m]], [[0, nrg], [0, nrg]], [[2, m]])
     })
     it('mov atom with 2 VMs on it should move twice longer & one VM should be removed if no energy', () => {
       const offs = 0
@@ -124,10 +128,7 @@ describe('vms module tests', () => {
       const m = mov(RD, RD)
       const m1 = mov(LU, LU)
       const nrg = movNrg * 8
-      const rpi = CFG.rpi
-      CFG.rpi = 2
-      testRun([[0, m], [W + 1, m1]], [[0, nrg], [0, nrg]], [[0, m], [W + 1, m1]], [[0, nrg - 4 * movNrg], [0, nrg - 4 * movNrg]])
-      CFG.rpi = rpi
+      testRun([[0, m], [W + 1, m1]], [[0, nrg], [W + 1, nrg]], [[0, m], [W + 1, m1]], [[W + 1, nrg - 2 * movNrg], [0, nrg - 2 * movNrg]])
     })
     it('VM of mov atom should be moved to near atom and back if bonds are cyclic', () => {
       const m = mov(D, D)

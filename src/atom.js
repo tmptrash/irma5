@@ -1,8 +1,7 @@
 /**
- * Module of the atom. Describes all atom related stuff. Uses config & shared modules
- * as dependencies. Uses 2bytes atom as a data for almost all functions. We use shrortcuts
- * a - 2bytes atom, d - 3 or 4 bits direction. Has no additional checks of inner arguments.
- * It mean that a - should always be a number, same as direction.
+ * Module of the atom. Describes all atom related functions. Uses 2bytes atom as a data for almost
+ * all functions. We use shrortcuts a - 2bytes atom, d - 3 or 4 bits direction. Has no additional
+ * checks of inner arguments. It mean that a - should always be a number, same as direction.
  */
 import CFG from './cfg'
 import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,

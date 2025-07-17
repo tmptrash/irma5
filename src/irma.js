@@ -4,9 +4,10 @@
  */
 import './styles.css'
 import CFG from './cfg'
+import './global'
 import World, { put } from './world.js'
-import { rnd, ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, UInt64Array,
-  NO_DIR, L } from './shared'
+import { rnd, ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, UInt64Array
+} from './shared'
 import { rndType, rndMov, rndFix, rndSpl, rndCon, rndRep, rndJob, rndMut, mov } from './atom'
 import VMs, { ticks, vm, set } from './vms.js'
 import Title from './plugins/title.js'
@@ -47,13 +48,14 @@ function createAtoms(w) {
  * @returns {UInt64Array} Array of VMs
  */
 function createVMs(w, atoms) {
-  const coef = 5                                  // divider for amount of atoms
-  const vmsAmount = Math.round(atoms.length / coef)
+  const coef = CFG.VM.percent                    // divider for amount of atoms
+  const inc = Math.round(1 / coef)
+  const vmsAmount = Math.round(atoms.length * coef)
   if (vmsAmount <= 0) throw new Error(`Invalid VM amount. Current amount: ${vmsAmount}`)
   const vms = UInt64Array.create(vmsAmount)
-  for (let i = 0; i < atoms.length; i += coef) {
-    const a = atoms[i]
-    vms.add(vm(a.y * w.w + a.x, 1))               // energy === 1
+  for (let i = 0; i < vmsAmount; i++) {
+    const a = atoms[i * inc]
+    a && vms.add(vm(a.y * w.w + a.x, 1))         // energy === 1
   }
   return vms
 }
@@ -81,7 +83,7 @@ function addVMs(vms, vmOffs) {
 function run() {
   ticks(vms)
   for (let p of plugins) p.update?.(p)
-  //postMessage(0)
+  postMessage(0)
 }
 //
 // Create instances of the world, plugins, atoms & VMs
@@ -103,5 +105,6 @@ atoms = vmOffs = undefined                        // we have to remove global va
 //
 // Run infinite loop of the simulator
 //
-//addEventListener('message', e => e.data === 0 && (e.stopPropagation() || run()), true)
-setInterval(run, 1000)                                             // runs the emulator
+addEventListener('message', e => e.data === 0 && (e.stopPropagation() || run()), true)
+run()
+// setInterval(run, 1000)                                             // runs the emulator
