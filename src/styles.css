@@ -52,9 +52,9 @@ body {
 
 .title {
   position   : absolute;
-  top        : 7px;
+  top        : 6px;
   left       : 60px;
   color      : #fff;
   font-size  : 18px;
-  font-family: Consolas;
+  font-family: JetBrainsMono;
 }

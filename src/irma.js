@@ -89,7 +89,6 @@ function run() {
 // Create instances of the world, plugins, atoms & VMs
 //
 const w       = World()                           // 2D world
-const plugins = [Title(w), Buttons(w)]            // plugins of the world
 let atoms     = createAtoms(w)                    // array of atoms [{x, y, a},...]
 let vmOffs    = createVMs(w, atoms)               // array of virtual machines by coordinates + energies
 //let atoms = [{x: 3, y: 3, a: 0x21bf}]
@@ -102,6 +101,7 @@ const vms     = VMs(w)                            // VMs instance
 addAtoms(w, atoms)
 addVMs(vms, vmOffs)
 atoms = vmOffs = undefined                        // we have to remove global vars manually
+const plugins = [Title(w, vms), Buttons(w)]       // plugins of the world
 //
 // Run infinite loop of the simulator
 //
