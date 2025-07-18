@@ -29,6 +29,7 @@ describe('vms module tests', () => {
   let w = null
   let vms = null
   let W = 0
+  const RPI = 1
   //
   // Set default config values
   //
@@ -47,7 +48,7 @@ describe('vms module tests', () => {
   CFG.ATOM.NRG.onFix = 2
   CFG.ATOM.NRG.onSpl = 2
   W = CFG.WORLD.width = CFG.WORLD.height = 10
-  CFG.rpi = 1
+  CFG.rpi = RPI
 
   beforeEach(() => {
     const canvas = document.createElement("canvas")
@@ -63,6 +64,7 @@ describe('vms module tests', () => {
     destroy(w)
     document.querySelector(CFG.HTML.canvasQuery).remove()
     vms = w = null
+    CFG.rpi = RPI
   })
 
  /**
@@ -134,10 +136,8 @@ describe('vms module tests', () => {
       const m = mov(D, D)
       const s = spl(U, D, D)
       const nrg = movNrg * 4
-      const rpi = CFG.rpi
       CFG.rpi = 2
       testRun([[0, m], [W, s]], [[0, nrg]], [[W, m], [2 * W, s]], [[W, nrg - movNrg * 2 - CFG.ATOM.NRG.spl]])
-      CFG.rpi = rpi
     })
     it('mov atom should move itself', () => {
       const offs = 0
@@ -201,10 +201,8 @@ describe('vms module tests', () => {
       const nrg = 4 * movNrg;
       const m = mov(LU, RD)
       const m1 = mov(RD, D)
-      const rpi = CFG.rpi
       CFG.rpi = 2
       testRun([[W + 1, m], [0, m1]], [[W + 1, nrg]], [[2 * W + 2, mov(L, RD)], [2 * W + 1, mov(R, D)]], [[2 * W + 2, nrg - movNrg * 3]]);
-      CFG.rpi = rpi
     });
     it('move three atoms together', () => {
       const nrg = 4 * movNrg;
@@ -219,10 +217,8 @@ describe('vms module tests', () => {
       const f1 = fix(NO_DIR, R, R)
       const f2 = fix(NO_DIR, R, R)
       const f3 = fix(NO_DIR, R, R)
-      const rpi = CFG.rpi
       CFG.rpi = 2
       testRun([[0, m], [1, f1], [2, f2], [3, f3]], [[0, nrg]], [[1, m], [2, f1], [3, f2], [4, f3]]);
-      CFG.rpi = rpi
     });
     it('mov atom should update if atom bonds correctly', () => {
       const nrg = 3 * movNrg
@@ -240,10 +236,8 @@ describe('vms module tests', () => {
       const nrg = 6 * movNrg
       const m = mov(R, R)
       const m1 = mov(L, L)
-      const rpi = CFG.rpi
       CFG.rpi = 2
       testRun([[0, m], [1, m1]], [[0, nrg]], [[0, m], [1, m1]], [[0, nrg - movNrg * 4]])
-      CFG.rpi = rpi
     })
     it('after move mov atom should keep all near and it\'s own bonds consistent', () => {
       const nrg = 5 * movNrg
@@ -253,10 +247,8 @@ describe('vms module tests', () => {
       const nrg = 8 * movNrg
       const m = mov(R, L)
       const j = job(NO_DIR, L)
-      const rpi = CFG.rpi
       CFG.rpi = 2
       testRun([[3, m], [4, j]], [[3, nrg]], [[1, m], [2, j]], [[2, movNrg * 2], [2, movNrg]])
-      CFG.rpi = rpi
     })
     it('mov atom should move itself and spl atom, but spl atom should split them later', () => {
       const nrg = 8 * movNrg
@@ -264,10 +256,8 @@ describe('vms module tests', () => {
       const s = spl(NO_DIR, L, R)
       const splNrg = CFG.ATOM.NRG.spl
       const onSplNrg = CFG.ATOM.NRG.onSpl
-      const rpi = CFG.rpi
       CFG.rpi = 3
       testRun([[3, m], [4, s]], [[3, nrg]], [[2, mov(NO_DIR, L)], [3, s]], [[3, nrg - movNrg * 2 - splNrg * 2 + onSplNrg]])
-      CFG.rpi = rpi
     })
   })
 
@@ -330,10 +320,8 @@ describe('vms module tests', () => {
       const nrg = 13 * fixNrg
       const f1 = fix(NO_DIR, R, L)
       const f2 = fix(NO_DIR, L, R)
-      const rpi = CFG.rpi
       CFG.rpi = 2
       testRun([[0, f1], [1, f2]], [[0, nrg]], [[0, fix(R, R, L)], [1, fix(L, L, R)]], [[1, nrg - fixNrg * 2 - onFixNrg * 2]])
-      CFG.rpi = rpi
     })
   })
 
@@ -522,6 +510,7 @@ describe('vms module tests', () => {
       const nrg = 10 * CFG.ATOM.NRG.mut;
       const mu  = mut(R, U, 1, U); // U === 0b000
       const s   = spl(R, R, R);
+      console.log('start', CFG.rpi)
       testRun([[0, mu], [1, s]], [[0, nrg]], [[0, mu], [1, s]], [[1, nrg]])
     })
     it('mut atom should not mutate if no near atom', () => {
