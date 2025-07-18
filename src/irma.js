@@ -2,7 +2,7 @@
  * This is entry point of irma5 simulator. It creates global instances of the world, atoms, VMs and 
  * other objects and runs the simulator.
  */
-import './styles.css'
+import './assets/styles.css'
 import CFG from './cfg'
 import './global'
 import World, { put } from './world.js'

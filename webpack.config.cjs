@@ -13,7 +13,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Development',
-      template: __dirname + '/src/index.html',
+      template: __dirname + '/src/assets/index.html',
       inject: 'body',
       filename: 'index.html'
     })
@@ -28,6 +28,12 @@ module.exports = {
   },
   module: {
     rules: [{
+      test: /\.(woff2?|eot|ttf|otf)$/i,
+      type: 'asset/resource',
+      generator: {
+        filename: '[name][ext]'
+      }
+    }, {
       test: /\.(png|svg|jpg|jpeg|gif)$/i,
       type: 'asset/resource'
     }, {
