@@ -184,12 +184,12 @@ export class UInt32Array extends Uint32Array {
   }
 
   has(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return true
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return true
     return false
   }
 
   index(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return i
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return i
     return -1
   }
 
@@ -219,12 +219,12 @@ export class UInt64Array extends BigUint64Array {
   }
 
   has(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return true
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return true
     return false
   }
 
   index(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return i
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return i
     return -1
   }
 
