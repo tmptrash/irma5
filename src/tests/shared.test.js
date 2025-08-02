@@ -201,5 +201,20 @@ describe('Shared functions', () => {
       expect(a.end()).toBe(false)
       expect(a.i).toBe(3)
     })
+    it('end() should return true for the empty array', () => {
+      const a = UInt32Array.create(0)
+      expect(a.end()).toBe(true)
+    })
+    it('end() should work correctly if array is resized', () => {
+      let a = UInt32Array.create(2)
+      a.add(42)
+      a.add(43)
+      expect(a.end()).toBe(true)
+      a = a.resize(1)
+      expect(a.end()).toBe(true)
+      a = a.resize(2)
+      a.add(44)
+      expect(a.end()).toBe(true)
+    })
   })
 });
