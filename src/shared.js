@@ -145,6 +145,15 @@ export const DL = 5 // ...
 export const L  = 6
 export const LU = 7
 /**
+ * It affects rnd() function. If you want to use your own seed
+ * you can set it here. If you want to use default seed, just run rnd() function
+ * and it will use CFG.ATOM.seed value.
+ * @param {Number} rndSeed - New seed value
+ */
+export function setRndSeed(rndSeed) {
+  seed = rndSeed
+}
+/**
  * Random numbers generator with seed
  * @returns {Function} rnd function
  */
