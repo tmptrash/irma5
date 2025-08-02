@@ -157,5 +157,18 @@ describe('Shared functions', () => {
       expect(a.index(43)).toBe(0)
       expect(a.index(44)).toBe(1)
     })
+    it('index() should work if we remove a value in the center of the array', () => {
+      const a = UInt32Array.create(3)
+      a.add(42)
+      a.add(43)
+      a.add(44)
+      expect(a.index(42)).toBe(0)
+      expect(a.index(43)).toBe(1)
+      expect(a.index(44)).toBe(2)
+      a.del(1)
+      expect(a.index(42)).toBe(0)
+      expect(a.index(43)).toBe(-1)
+      expect(a.index(44)).toBe(1)
+    })
   })
 });
