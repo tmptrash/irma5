@@ -183,5 +183,23 @@ describe('Shared functions', () => {
       expect(a.has(42)).toBe(true)
       expect(a.has(44)).toBe(true)
     })
+    it('double() twice should double the size twice', () => {
+      let a = UInt32Array.create(1)
+      a.add(42)
+      expect(a.end()).toBe(true)
+      a = a.double()
+      expect(a.end()).toBe(false)
+      a.add(44)
+      expect(a.has(44)).toBe(true)
+      expect(a.end()).toBe(true)
+      expect(a.i).toBe(2)
+
+      a = a.double()
+      expect(a.end()).toBe(false)
+      a.add(45)
+      expect(a.has(45)).toBe(true)
+      expect(a.end()).toBe(false)
+      expect(a.i).toBe(3)
+    })
   })
 });
