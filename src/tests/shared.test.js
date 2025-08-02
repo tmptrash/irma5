@@ -170,5 +170,18 @@ describe('Shared functions', () => {
       expect(a.index(43)).toBe(-1)
       expect(a.index(44)).toBe(1)
     })
+    it('double() should double the size of the array', () => {
+      let a = UInt32Array.create(1)
+      a.add(42)
+      expect(a.end()).toBe(true)
+      a = a.double()
+      expect(a.end()).toBe(false)
+      a.add(44)
+      expect(a[1]).toBe(44)
+      expect(a.end()).toBe(true)
+      expect(a.i).toBe(2)
+      expect(a.has(42)).toBe(true)
+      expect(a.has(44)).toBe(true)
+    })
   })
 });
