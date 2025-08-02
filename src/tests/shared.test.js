@@ -62,5 +62,15 @@ describe('Shared functions', () => {
       expect(a.end()).toBe(true)
       expect(a.i).toBe(2)
     })
+    it('resize() should reduce array size if size is less than current', () => {
+      let a = UInt32Array.create(2)
+      a.add(42)
+      a.add(43)
+      expect(a.end()).toBe(true)
+      a = a.resize(1)
+      expect(a.end()).toBe(true)
+      expect(a[0]).toBe(42)
+      expect(a.i).toBe(1)
+    })
   })
 });

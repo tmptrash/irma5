@@ -179,7 +179,7 @@ export class UInt32Array extends Uint32Array {
   resize(size) {
     const idx = this.length
     const a = new UInt32Array(this.buffer.transfer((size || 1) * UInt32Array.BYTES_PER_ELEMENT))
-    a.i = idx
+    a.i = size < idx ? size : idx
     return a
   }
 
@@ -214,7 +214,7 @@ export class UInt64Array extends BigUint64Array {
   resize(size) {
     const idx = this.length
     const a = new UInt64Array(this.buffer.transfer((size || 1) * UInt64Array.BYTES_PER_ELEMENT))
-    a.i = idx
+    a.i = size < idx ? size : idx
     return a
   }
 
