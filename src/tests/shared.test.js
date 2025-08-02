@@ -218,7 +218,7 @@ describe('Shared functions', () => {
       a.del(0)
       expect(a.end()).toBe(false)
     })
-   it('add() should add value to the array', () => {
+   it('add() ? del() functions should add and delete value to/from the array', () => {
       const a = UInt32Array.create(2)
       expect(a.i).toBe(0)
       a.add(42)
