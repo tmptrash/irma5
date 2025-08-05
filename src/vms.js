@@ -15,13 +15,12 @@
  * related data is located in vms.movMap, which contains a map of arrays of generator functions.
  */
 import CFG from './cfg.js'
-import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK,
-  ATOM_TYPE_UNMASK, NO_DIR, ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK,
-  DMA, DNA, DMD, DIR_REV, UInt32Array, UInt64Array, ATOMS_SECTIONS, 
-  ATOM_MOV} from './shared.js'
+import { VM_OFFS_SHIFT, VM_OFFS_MASK, VM_ENERGY_MASK, ATOM_TYPE_MASK, ATOM_TYPE_UNMASK, NO_DIR,
+  ATOM_CON, MOV_BREAK_MASK, MOV_BREAK_UNMASK, DMA, DNA, DMD, DIR_REV, UInt32Array, UInt64Array,
+  ATOMS_SECTIONS, ATOM_MOV, ATOM_MOV_MOVING_MASK, ATOM_MOV_DONE_MASK, ATOM_MOV_UNMASK } from './shared.js'
 import { get, move, put, offs, toOffs } from './world.js'
-import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, setThenDir, setElseDir,
-  type, secIdx, secVal, getBitIdx, setBits } from './atom.js'
+import { vmDir, b1Dir, b2Dir, b3Dir, ifDir, thenDir, elseDir, setVmDir, setThenDir, setElseDir, type,
+  secIdx, secVal, getBitIdx, setBits } from './atom.js'
 
 export const CMDS = [nop, mov, fix, spl, con, job, rep, mut]
 
@@ -69,15 +68,26 @@ export function ticks(vms) {
  * @returns {Number} next VM index to run
  */
 export function tick(vms, vmIdx) {
-  let offs  = toOffs(vms.offs[vmIdx])
-  const a   = get(vms.w, offs)
-  const typ = type(a)
+  let offs = toOffs(vms.offs[vmIdx])
+  let a    = get(vms.w, offs)
+  let typ  = type(a)
   let inc
   if (typ === ATOM_MOV) {                                            // for "mov" atom we do it's generator fn run or continue
-    if (!vms.movMap[offs]) vms.movMap[offs] = mov(vms, a, vmIdx)     // this is a first time we run a mov() on this offs, so we create a generator fn
-    const val = vms.movMap[offs].next()                              // val === new vmIdx
-    inc = val.value
-    if (val.done) delete vms.movMap[offs]                            // we have to remove "mov" atom generator fn
+    if (a & ATOM_MOV_DONE_MASK) {                                    // "mov" atom completed moving of near atoms on prev call, we have to move VM to the next atom & skip this call
+      // TODO: we have to check if second and more mov() atom call is the last one or not, because here
+      // TODO: we reset the flag every time. We have to have more states for moving atom
+      // TODO: moving, !moving, done and check done here
+      // TODO: we have to move this code inside mov() function
+      put(vms.w, offs, a & ATOM_MOV_UNMASK)                          // removes "moving" bit
+      delete vms.movMap[offs]                                        // we have to remove "mov" atom generator fn from a map
+      if (vmIdx > -1) return moveVm(vms, a, vmIdx, offs)             // we move VM to the next atom & run VM again on next atom
+    }
+    if (typ === ATOM_MOV) {                                          // it's possiblr that a VM was moved to near atom, so we have to check it again
+      if (!vms.movMap[offs]) vms.movMap[offs] = mov(vms, a, vmIdx)   // this is a first time we run a mov() on this offs, so we create a generator fn
+      const val = vms.movMap[offs].next()                            // val === new vmIdx
+      inc = val.value
+      if (val.done) delete vms.movMap[offs]                          // we have to remove "mov" atom generator fn
+    } else inc = CMDS[typ](vms, a, vmIdx)                            // for all other atoms we run just normal functions (spl, rep,...)
   } else inc = CMDS[typ](vms, a, vmIdx)                              // for all other atoms we run just normal functions (spl, rep,...)
   // TODO: why do we start from 0 if inc < 0
   return vmIdx + (inc < 0 ? 0 : 1)
@@ -107,10 +117,9 @@ function* mov(vms, a, vmIdx) {
     frozen: {}                                                       // frozen[offset] = direction, means that this atom's bond shouldn't be updated
   }
   const vmOffs = atoms.stack[atoms.idx++] = toOffs(vms.offs[vmIdx])  // put "mov" atom offs into the stack
-  const oldAtom = a
-  const atomOffs = vmOffs                                            // offset of moved atom
-  const movDir = b1Dir(a)                                            // mov direction
   const w = vms.w
+  put(w, vmOffs, (a & ATOM_MOV_UNMASK) | ATOM_MOV_MOVING_MASK)       // sets "moving" bit. means that "moving" is active now
+  const movDir = b1Dir(a)                                            // mov direction
   let moved = 0
   let tries = 0
   while (atoms.idx > 0) {                                            // go for all items in stack
@@ -150,13 +159,12 @@ function* mov(vms, a, vmIdx) {
     oldA !== a && put(w, dstOffs, a)                                 // put updated atom back to the world
   }
 
-  if (oldAtom !== get(w, atomOffs)) {                                // move VM to the next atom
-    const newOffs = offs(atomOffs, movDir)
-    vmIdx = updateNrg(vms, vmIdx, -moved * CFG.ATOM.NRG.mov)
-    vmIdx > -1 && moveVm(vms, get(w, newOffs), vmIdx, newOffs, 0, movDir)
-    delete vms.movMap[newOffs]                                       // we have to remove "mov" atom generator fn
-  } else delete vms.movMap[atomOffs]                                 // we have to remove "mov" atom generator fn
-  return vmIdx
+  const aOffs = toOffs(vms.offs[vmIdx])                              // gets current "mov" atom offset
+  a = get(w, aOffs)
+  if (a && type(a) === ATOM_MOV) {                                   // it should be "mov" atom, so we set "moving" bit to "done" state
+    put(w, aOffs, (a & ATOM_MOV_UNMASK) | ATOM_MOV_DONE_MASK)        // sets "moving" bit for current mov atom to "done"
+  }
+  return updateNrg(vms, vmIdx, -moved * CFG.ATOM.NRG.mov)            // after all near atoms moved we have to decrease VM energy
 }
 
 function fix(vms, a, vmIdx) {
@@ -278,9 +286,6 @@ function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
   const dstOffs = offs(aOffs, d)
   if (d === NO_DIR || !get(vms.w, dstOffs)) return newIdx            // move VM dir is not set or destination atom doesn't exist
   const m = vms.map
-  if (Number.isNaN(dstOffs)) {
-    console.log('got it!')
-  }
   let md = m[dstOffs]
   if (md === undefined) md = m[dstOffs] = UInt32Array.create(1)
   else if (md.end()) md = m[dstOffs] = md.double()
@@ -389,6 +394,7 @@ function fromStack(atoms) {
 }
 
 function updateNrg(vms, vmIdx, energy) {
+  if (!energy) return vmIdx
   const o = vms.offs[vmIdx]
   const newNrg = nrg(o) + energy
   if (newNrg < 1) {

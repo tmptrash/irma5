@@ -1,6 +1,6 @@
 import CFG from '../cfg'
 import './../global'
-import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD, ATOM_MOV_DONE_MASK } from '../shared'
 import VMs, { CMDS, addVm } from '../vms'
 import World, { destroy, get } from '../world'
 import { mov, fix, spl, con, job, rep, mut } from './../atom'
@@ -30,6 +30,7 @@ describe('vms module tests', () => {
   let vms = null
   let W = 0
   const RPI = 1
+  const DONE = ATOM_MOV_DONE_MASK
   //
   // Set default config values
   //
@@ -107,109 +108,109 @@ describe('vms module tests', () => {
     it('mov atom with 2 VMs on it should move twice longer', () => {
       const m = mov(R, R)
       const nrg = movNrg
-      testRun([[0, m]], [[0, nrg], [0, nrg]], [[2, m]])
+      testRun([[0, m]], [[0, nrg], [0, nrg]], [[2, mov(R, R, DONE)]])
     })
     it('mov atom with 2 VMs on it should move twice longer & one VM should be removed if no energy', () => {
       const offs = 0
       const m = mov(R, R)
       const nrg = movNrg
-      testRun([[offs, m]], [[0, nrg * 2], [0, nrg]], [[offs + 2, m]], [[offs + 2, nrg]])
+      testRun([[offs, m]], [[0, nrg * 2], [0, nrg]], [[offs + 2, mov(R, R, DONE)]], [[offs + 2, nrg]])
     })
     it('mov atom with 2 VMs on it should move twice longer & both VMs should be removed if no energy', () => {
       const offs = 0
       const m = mov(R, R)
       const nrg = movNrg
-      testRun([[offs, m]], [[0, nrg], [0, nrg]], [[offs + 2, m]])
+      testRun([[offs, m]], [[0, nrg], [0, nrg]], [[offs + 2, mov(R, R, DONE)]])
     })
     it('mov atom with 3 VMs on it should move 3 times longer & second VM should be removed if no energy', () => {
       const m = mov(R, D)
       const nrg = movNrg
-      testRun([[0, m]], [[0, nrg * 2], [0, nrg], [0, nrg * 2]], [[3 * W, m]], [[3 * W, nrg], [3 * W, nrg]])
+      testRun([[0, m]], [[0, nrg * 2], [0, nrg], [0, nrg * 2]], [[3 * W, mov(R, D, DONE)]], [[3 * W, nrg], [3 * W, nrg]])
     })
     it('2 mov atoms should stay on the same place if move directions are opposite', () => {
       const m = mov(RD, RD)
       const m1 = mov(LU, LU)
       const nrg = movNrg * 8
-      testRun([[0, m], [W + 1, m1]], [[0, nrg], [W + 1, nrg]], [[0, m], [W + 1, m1]], [[W + 1, nrg - 2 * movNrg], [0, nrg - 2 * movNrg]])
+      testRun([[0, m], [W + 1, m1]], [[0, nrg], [W + 1, nrg]], [[0, mov(RD, RD, DONE)], [W + 1, mov(LU, LU, DONE)]], [[0, nrg - 2 * movNrg], [W + 1, nrg - 2 * movNrg]])
     })
     it('VM of mov atom should be moved to near atom and back if bonds are cyclic', () => {
       const m = mov(D, D)
       const s = spl(U, D, D)
       const nrg = movNrg * 4
       CFG.rpi = 2
-      testRun([[0, m], [W, s]], [[0, nrg]], [[W, m], [2 * W, s]], [[W, nrg - movNrg * 2 - CFG.ATOM.NRG.spl]])
+      testRun([[0, m], [W, s]], [[0, nrg]], [[W, mov(D, D)], [2 * W, s]], [[W, nrg - movNrg * 2 - CFG.ATOM.NRG.spl]])
     })
     it('mov atom should move itself', () => {
       const offs = 0
       const nrg = movNrg
       const m = mov(R, R)
-      testRun([[offs, m]], [[offs, nrg * 2]], [[offs + 1, m]], [[offs + 1, nrg]])
+      testRun([[offs, m]], [[offs, nrg * 2]], [[offs + 1, mov(R, R, DONE)]], [[offs + 1, nrg]])
     })
     it('mov atom should move itself and vm should be removed if no energy', () => {
       const offs = 0
       const m = mov(R, R)
-      testRun([[offs, m]], [[offs, movNrg]], [[offs + 1, m]])
+      testRun([[offs, m]], [[offs, movNrg]], [[offs + 1, mov(R, R, DONE)]])
     })
     it('mov atom should move itself and the atom on the way', () => {
       const offs = 0
       const nrg = movNrg
       const m = mov(R, R)
       const f = fix(R, U, R)
-      testRun([[offs, m], [offs + 1, f]], [[offs, nrg * 3]], [[offs + 1, m], [offs + 2, f]], [[offs + 2, nrg]])
+      testRun([[offs, m], [offs + 1, f]], [[offs, nrg * 3]], [[offs + 1, mov(R, R, DONE)], [offs + 2, f]], [[offs + 1, nrg]])
     })
     it('mov atom should move itself and update its vm bond and near atom vm bond', () => {
-      const offs = W
       const nrg = movNrg
-      testRun([[offs, mov(0, 2)], [offs - W, fix(4, 0, 2)]], [[offs, nrg * 2]], [[offs - W, fix(3, 0, 2)], [offs + 1, mov(7, 2)]], [[offs - W, nrg]])
+      testRun([[W, mov(U, R)], [0, fix(D, U, R)]], [[W, nrg * 2]], [[0, fix(RD, U, R)], [W + 1, mov(LU, R, DONE)]], [[W + 1, nrg]])
     })
     it('mov atom should move itself and neighbour atom behind', () => {
       const energy = 3 * movNrg;
-      testRun([[1, mov(L, R)], [0, fix(U, U, U)]], [[1, energy]], [[1, fix(U, U, U)], [2, mov(L, R)]], [[1, energy - 2 * movNrg]]);
+      const f = fix(U, U, U)
+      testRun([[1, mov(L, R)], [0, f]], [[1, energy]], [[1, f], [2, mov(L, R, true)]], [[2, energy - 2 * movNrg]]);
     });
     it('mov atom can move outside of the world at the bottom', () => {
       const energy = 3 * movNrg;
       const offs = W * W - W
-      testRun([[offs, mov(NO_DIR, D)]], [[offs, energy]], [[0, mov(NO_DIR, D)]], [[0, energy - movNrg]]);
+      testRun([[offs, mov(NO_DIR, D)]], [[offs, energy]], [[0, mov(NO_DIR, D, true)]], [[0, energy - movNrg]]);
     });
     it('mov atom can move outside of the world at the right', () => {
       const energy = 3 * movNrg;
       const offs = W - 1
-      testRun([[offs, mov(NO_DIR, R)]], [[offs, energy]], [[W, mov(NO_DIR, R)]], [[W, energy - movNrg]]);
+      testRun([[offs, mov(NO_DIR, R)]], [[offs, energy]], [[W, mov(NO_DIR, R, true)]], [[W, energy - movNrg]]);
     });
     it('mov atom can move outside of the world at the left', () => {
       const energy = 3 * movNrg;
-      testRun([[0, mov(NO_DIR, L)]], [[0, energy]], [[W * W - 1, mov(NO_DIR, L)]], [[W * W - 1, energy - movNrg]]);
+      testRun([[0, mov(NO_DIR, L)]], [[0, energy]], [[W * W - 1, mov(NO_DIR, L, true)]], [[W * W - 1, energy - movNrg]]);
     });
     it('mov atom can move outside of the world at the right-bottom', () => {
       const nrg = 3 * movNrg;
-      testRun([[W * W - 1, mov(NO_DIR, RD)]], [[W * W - 1, nrg]], [[W, mov(NO_DIR, RD)]], [[W, nrg - movNrg]]);
+      testRun([[W * W - 1, mov(NO_DIR, RD)]], [[W * W - 1, nrg]], [[W, mov(NO_DIR, RD, true)]], [[W, nrg - movNrg]]);
     });
     it('mov atom should move near atom outside of the world at the right-bottom', () => {
       const nrg = 3 * movNrg;
       const m = mov(NO_DIR, RD)
       const s = spl(NO_DIR, U, U)
-      testRun([[W * W - W - 2, m], [W * W - 1, s]], [[W * W - W - 2, nrg]], [[W * W - 1, m], [W, s]], [[W * W - 1, nrg - movNrg * 2]]);
+      testRun([[W * W - W - 2, m], [W * W - 1, s]], [[W * W - W - 2, nrg]], [[W * W - 1, mov(NO_DIR, RD, true)], [W, s]], [[W * W - 1, nrg - movNrg * 2]]);
     });
     it('mov atom should move itself and neighbour atom behind and one more', () => {
       const nrg = 4 * movNrg;
       const m = mov(R, R)
       const f1 = fix(U, U, U)
       const f2 = fix(U, D, D)
-      testRun([[0, m], [1, f1], [W, f2]], [[0, nrg]], [[1, m], [2, f1], [W, fix(UR, D, D)]], [[2, nrg - movNrg * 2]]);
+      testRun([[0, m], [1, f1], [W, f2]], [[0, nrg]], [[1, mov(R, R, true)], [2, f1], [W, fix(UR, D, D)]], [[1, nrg - movNrg * 2]]);
     });
     it('move two mov atoms 2 times', () => {
       const nrg = 4 * movNrg;
       const m = mov(LU, RD)
       const m1 = mov(RD, D)
       CFG.rpi = 2
-      testRun([[W + 1, m], [0, m1]], [[W + 1, nrg]], [[2 * W + 2, mov(L, RD)], [2 * W + 1, mov(R, D)]], [[2 * W + 2, nrg - movNrg * 3]]);
+      testRun([[W + 1, m], [0, m1]], [[W + 1, nrg]], [[2 * W + 2, mov(L, RD)], [2 * W + 1, mov(R, D, true)]], [[2 * W + 1, nrg - movNrg * 3]]);
     });
     it('move three atoms together', () => {
       const nrg = 4 * movNrg;
       const m = mov(D, D)
       const f1 = fix(RD, L, L)
       const f2 = fix(DL, L, L)
-      testRun([[W + 1, m], [0, f1], [2, f2]], [[W + 1, nrg]], [[2 * W + 1, m], [W, f1], [W + 2, f2]], [[2 * W + 1, nrg - movNrg * 3]]);
+      testRun([[W + 1, m], [0, f1], [2, f2]], [[W + 1, nrg]], [[2 * W + 1, mov(D, D, true)], [W, f1], [W + 2, f2]], [[2 * W + 1, nrg - movNrg * 3]]);
     });
     it('move 3 atoms together, before the mov atom', () => {
       const nrg = 4 * movNrg;
@@ -218,37 +219,37 @@ describe('vms module tests', () => {
       const f2 = fix(NO_DIR, R, R)
       const f3 = fix(NO_DIR, R, R)
       CFG.rpi = 2
-      testRun([[0, m], [1, f1], [2, f2], [3, f3]], [[0, nrg]], [[1, m], [2, f1], [3, f2], [4, f3]]);
+      testRun([[0, m], [1, f1], [2, f2], [3, f3]], [[0, nrg]], [[1, mov(NO_DIR, R, DONE)], [2, f1], [3, f2], [4, f3]]);
     });
     it('mov atom should update if atom bonds correctly', () => {
       const nrg = 3 * movNrg
       const m = mov(U, R)
       const c = con(D, D, D, NO_DIR)
-      testRun([[W, m], [0, c]], [[W, nrg]], [[0, con(D, RD, RD, NO_DIR)], [W + 1, mov(LU, R)]], [[0, nrg - movNrg]])
+      testRun([[W, m], [0, c]], [[W, nrg]], [[0, con(D, RD, RD, NO_DIR)], [W + 1, mov(LU, R, DONE)]], [[W + 1, nrg - movNrg]])
     })
     it('mov atom should move VM correctly', () => {
       const nrg = 4 * movNrg
       const m = mov(R, R)
       const f = fix(R, U, R)
-      testRun([[0, m], [1, f]], [[0, nrg]], [[1, m], [2, f]], [[2, nrg - movNrg * 2]])
+      testRun([[0, m], [1, f]], [[0, nrg]], [[1, mov(R, R, DONE)], [2, f]], [[1, nrg - movNrg * 2]])
     })
     it('two near mov atoms should move on the same place after two ticks', () => {
       const nrg = 6 * movNrg
       const m = mov(R, R)
       const m1 = mov(L, L)
       CFG.rpi = 2
-      testRun([[0, m], [1, m1]], [[0, nrg]], [[0, m], [1, m1]], [[0, nrg - movNrg * 4]])
+      testRun([[0, m], [1, m1]], [[0, nrg]], [[0, m], [1, mov(L, L, DONE)]], [[1, nrg - movNrg * 4]])
     })
     it('after move mov atom should keep all near and it\'s own bonds consistent', () => {
       const nrg = 5 * movNrg
-      testRun([[W, fix(NO_DIR, U, U)], [W + 1, mov(DL, U)], [2 * W, mov(LU, U)]], [[W + 1, nrg]], [[0, fix(NO_DIR, U, U)], [1, mov(DL, U)], [W, mov(LU, U)]], [[W, nrg - movNrg * 3]])
+      testRun([[W, fix(NO_DIR, U, U)], [W + 1, mov(DL, U)], [2 * W, mov(LU, U)]], [[W + 1, nrg]], [[0, fix(NO_DIR, U, U)], [1, mov(DL, U, DONE)], [W, mov(LU, U)]], [[1, nrg - movNrg * 3]])
     })
     it('mov atom should move itself and job atom together & new VM should be created', () => {
       const nrg = 8 * movNrg
       const m = mov(R, L)
       const j = job(NO_DIR, L)
       CFG.rpi = 2
-      testRun([[3, m], [4, j]], [[3, nrg]], [[1, m], [2, j]], [[2, movNrg * 2], [2, movNrg]])
+      testRun([[3, m], [4, j]], [[3, nrg]], [[1, mov(R, L, DONE)], [2, j]], [[2, movNrg * 2], [1, movNrg]])
     })
     it('mov atom should move itself and spl atom, but spl atom should split them later', () => {
       const nrg = 8 * movNrg
@@ -510,7 +511,6 @@ describe('vms module tests', () => {
       const nrg = 10 * CFG.ATOM.NRG.mut;
       const mu  = mut(R, U, 1, U); // U === 0b000
       const s   = spl(R, R, R);
-      console.log('start', CFG.rpi)
       testRun([[0, mu], [1, s]], [[0, nrg]], [[0, mu], [1, s]], [[1, nrg]])
     })
     it('mut atom should not mutate if no near atom', () => {

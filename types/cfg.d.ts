@@ -13,6 +13,7 @@ declare module 'irma5/src/cfg' {
     },
     VM: {
       percent: number
+      nrg: number
     },
     ATOM: {
       seed: number

@@ -55,7 +55,7 @@ function createVMs(w, atoms) {
   const vms = UInt64Array.create(vmsAmount)
   for (let i = 0; i < vmsAmount; i++) {
     const a = atoms[i * inc]
-    a && vms.add(vm(a.y * w.w + a.x, 1))         // energy === 1
+    a && vms.add(vm(a.y * w.w + a.x, CFG.VM.nrg))
   }
   return vms
 }

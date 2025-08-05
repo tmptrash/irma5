@@ -50,6 +50,9 @@ export const ATOM_THEN_BOND_SHIFT   = 7
 export const ATOM_ELSE_BOND_MASK    = 0b0000000001110000
 export const ATOM_ELSE_BOND_MASK1   = 0b1111111110001111
 export const ATOM_ELSE_BOND_SHIFT   = 4
+export const ATOM_MOV_MOVING_MASK   = 0b0000000000100000
+export const ATOM_MOV_DONE_MASK     = 0b0000000000010000
+export const ATOM_MOV_UNMASK        = 0b1111111111001111
 /**
  * Bits sections offsets of all supported atoms. For example atom spl has these sections:
  * section 0: 07..09 - bits of bond 1 dir
@@ -144,6 +147,19 @@ export const D  = 4 // down
 export const DL = 5 // ...
 export const L  = 6
 export const LU = 7
+/**
+ * Human readable directions
+ */
+export const DIRS = {
+  [U]: 'U',
+  [UR]: 'UR',
+  [R]: 'R',
+  [RD]: 'RD',
+  [D]: 'D',
+  [DL]: 'DL',
+  [L]: 'L',
+  [LU]: 'LU'
+} 
 /**
  * Random numbers generator with seed
  * @returns {Function} rnd function

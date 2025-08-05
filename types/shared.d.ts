@@ -47,6 +47,8 @@ declare module 'irma5/src/shared' {
   export const ATOM_ELSE_BOND_MASK: 112;
   export const ATOM_ELSE_BOND_MASK1: 65423;
   export const ATOM_ELSE_BOND_SHIFT: 4;
+  export const ATOM_MOV_MOVING_MASK: 0b0000000000100000;
+  export const ATOM_MOV_MOVING_UNMASK: 0b1111111111011111;
   /**
    * Bits sections offsets of all supported atoms. For example atom spl has these sections:
    * section 0: 07..09 - bits of bond 1 dir
@@ -101,6 +103,19 @@ declare module 'irma5/src/shared' {
   export const DL: 5; // ...
   export const L:  6;
   export const LU: 7;
+  /**
+   * Human readable directions
+   */
+  export const DIRS = {
+    [U]: 'U',
+    [UR]: 'UR',
+    [R]: 'R',
+    [RD]: 'RD',
+    [D]: 'D',
+    [DL]: 'DL',
+    [L]: 'L',
+    [LU]: 'LU'
+  } as const;
   /**
    * Random numbers generator with seed
    * @returns {Function} rnd function

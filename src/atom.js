@@ -11,7 +11,8 @@ import { ATOM_TYPE_MASK, ATOM_TYPE_SHIFT, ATOM_VM_DIR_SHIFT, ATOM_VM_DIR_MASK,
   ATOM_THEN_BOND_SHIFT, ATOM_ELSE_BOND_MASK, ATOM_ELSE_BOND_MASK1, ATOM_ELSE_BOND_SHIFT,
   MASK_4BITS, MASK_3BITS, MASK_2BITS, ATOM_SECTION_MASK, ATOM_SECTION_MASK1,
   ATOM_SECTION_SHIFT, ATOM_SECTION_VAL_MASK, ATOMS_SECTIONS, ATOM_CON, ATOM_MOV, ATOM_FIX, ATOM_SPL,
-  ATOM_JOB, ATOM_REP, ATOM_MUT, rnd } from './shared.js'
+  ATOM_JOB, ATOM_REP, ATOM_MUT, rnd, DIRS, ATOM_MOV_MOVING_MASK, ATOM_MOV_DONE_MASK, ATOM_MOV_UNMASK
+} from './shared.js'
 /**
  * Returns a 3bit atom type. Atom is a two bytes number, where 0 - is no atom, 1 - mov,...
  * @param {Number} a 2 bytes of Atom value
@@ -214,7 +215,7 @@ export function setBits(a, val, bitIdx, len) {
 //
 // Atom generator functions
 //
-export function mov(vmDir, movDir) { return parseInt(`001${dir4(vmDir)}${dir(movDir)}000000`, 2) }
+export function mov(vmDir, movDir, moving = ATOM_MOV_UNMASK) { return parseInt(`001${dir4(vmDir)}${dir(movDir)}${moving === ATOM_MOV_MOVING_MASK ? '10' : (moving === ATOM_MOV_UNMASK ? '00' : '01')}0000`, 2) }
 export function fix(vmDir, b1Dir, b2Dir) { return parseInt(`010${dir4(vmDir)}${dir(b1Dir)}${dir(b2Dir)}000`, 2) }
 export function spl(vmDir, b1Dir, b2Dir) { return parseInt(`011${dir4(vmDir)}${dir(b1Dir)}${dir(b2Dir)}000`, 2) }
 export function con(ifDir, thenDir, elseDir, cmpDir) { return parseInt(`100${dir(ifDir)}${dir(thenDir)}${dir(elseDir)}${dir4(cmpDir)}`, 2) }
@@ -252,13 +253,13 @@ export function rndMut() { return mut(rndDir(), rndDir(), rndSecIdx(), rndSecVal
  */
 export function parseAtom(a) {
   switch (type(a)) {
-    case ATOM_MOV: return `mov(vmDir=${vmDir(a)}, movDir=${b1Dir(a)})`
-    case ATOM_FIX: return `fix(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
-    case ATOM_SPL: return `spl(vmDir=${vmDir(a)}, b1Dir=${b1Dir(a)}, b2Dir=${b2Dir(a)})`
-    case ATOM_CON: return `con(ifDir=${ifDir(a)}, thenDir=${thenDir(a)}, elseDir=${elseDir(a)}, if2Dir=${b3Dir(a)})`
-    case ATOM_JOB: return `job(vmDir=${vmDir(a)}, newVmDir=${b1Dir(a)})`
-    case ATOM_REP: return `rep(vmDir=${vmDir(a)}, a1Dir=${b1Dir(a)}, a2Dir=${b2Dir(a)})`
-    case ATOM_MUT: return `mut(vmDir=${vmDir(a)}, mutDir=${b1Dir(a)}, secIdx=${secIdx(a)}, val=${secVal(a)})`
+    case ATOM_MOV: return `mov(vmDir=${DIRS[vmDir(a)]}, movDir=${DIRS[b1Dir(a)]}, moving=${(a & ATOM_MOV_MOVING_MASK) ? '1' : ((a & ATOM_MOV_DONE_MASK) ? 'done' : '0')})`
+    case ATOM_FIX: return `fix(vmDir=${DIRS[vmDir(a)]}, b1Dir=${DIRS[b1Dir(a)]}, b2Dir=${DIRS[b2Dir(a)]})`
+    case ATOM_SPL: return `spl(vmDir=${DIRS[vmDir(a)]}, b1Dir=${DIRS[b1Dir(a)]}, b2Dir=${DIRS[b2Dir(a)]})`
+    case ATOM_CON: return `con(ifDir=${DIRS[ifDir(a)]}, thenDir=${DIRS[thenDir(a)]}, elseDir=${DIRS[elseDir(a)]}, if2Dir=${DIRS[b3Dir(a)]})`
+    case ATOM_JOB: return `job(vmDir=${DIRS[vmDir(a)]}, newVmDir=${DIRS[b1Dir(a)]})`
+    case ATOM_REP: return `rep(vmDir=${DIRS[vmDir(a)]}, a1Dir=${DIRS[b1Dir(a)]}, a2Dir=${DIRS[b2Dir(a)]})`
+    case ATOM_MUT: return `mut(vmDir=${DIRS[vmDir(a)]}, mutDir=${DIRS[b1Dir(a)]}, secIdx=${secIdx(a)}, val=${secVal(a)})`
   }
   return `Unknown atom '${a}' with type '${type(a)}'`
 }
