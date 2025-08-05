@@ -159,7 +159,16 @@ export const DIRS = {
   [DL]: 'DL',
   [L]: 'L',
   [LU]: 'LU'
-} 
+}
+/**
+ * It affects rnd() function. If you want to use your own seed
+ * you can set it here. If you want to use default seed, just run rnd() function
+ * and it will use CFG.ATOM.seed value.
+ * @param {Number} rndSeed - New seed value
+ */
+export function setRndSeed(rndSeed) {
+  seed = rndSeed
+}
 /**
  * Random numbers generator with seed
  * @returns {Function} rnd function
@@ -186,17 +195,17 @@ export class UInt32Array extends Uint32Array {
   resize(size) {
     const idx = this.length
     const a = new UInt32Array(this.buffer.transfer((size || 1) * UInt32Array.BYTES_PER_ELEMENT))
-    a.i = idx
+    a.i = size < idx ? size : idx
     return a
   }
 
   has(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return true
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return true
     return false
   }
 
   index(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return i
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return i
     return -1
   }
 
@@ -221,17 +230,17 @@ export class UInt64Array extends BigUint64Array {
   resize(size) {
     const idx = this.length
     const a = new UInt64Array(this.buffer.transfer((size || 1) * UInt64Array.BYTES_PER_ELEMENT))
-    a.i = idx
+    a.i = size < idx ? size : idx
     return a
   }
 
   has(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return true
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return true
     return false
   }
 
   index(val) {
-    for (let i = 0; i <= this.i; i++) if (this[i] === val) return i
+    for (let i = 0; i < this.i; i++) if (this[i] === val) return i
     return -1
   }
 
