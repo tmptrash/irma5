@@ -4,7 +4,7 @@ import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD, ATOM_
 import VMs, { CMDS, addVm } from '../vms'
 import World, { destroy, get } from '../world'
 import { mov, fix, spl, con, job, rep, mut } from './../atom'
-import { testAtoms } from './utils.test'
+import { testAtoms } from './utils'
 
 // TODO: add mov-fix atoms moving horizontally and fix two or more atoms above
 // TODO: add complex atoms tests. like more than 3,5,...
