@@ -1,6 +1,7 @@
 import CFG from '../cfg'
 import './../global'
-import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD, ATOM_MOV_DONE_MASK } from '../shared'
+import { ATOM_TYPE_SHIFT, NO_DIR, UInt64Array, R, L, U, UR, D, DL, LU, RD, ATOM_MOV_DONE_MASK,
+  ATOM_MOV_MOVING_MASK } from '../shared'
 import VMs, { CMDS, addVm } from '../vms'
 import World, { destroy, get } from '../world'
 import { mov, fix, spl, con, job, rep, mut } from './../atom'
@@ -31,6 +32,7 @@ describe('vms module tests', () => {
   let W = 0
   const RPI = 1
   const DONE = ATOM_MOV_DONE_MASK
+  const MOVING = ATOM_MOV_MOVING_MASK
   //
   // Set default config values
   //
@@ -248,7 +250,7 @@ describe('vms module tests', () => {
       const nrg = 8 * movNrg
       const m = mov(R, L)
       const j = job(NO_DIR, L)
-      CFG.rpi = 2
+      CFG.rpi = 3
       testRun([[3, m], [4, j]], [[3, nrg]], [[1, mov(R, L, DONE)], [2, j]], [[2, movNrg * 2], [1, movNrg]])
     })
     it('mov atom should move itself and spl atom, but spl atom should split them later', () => {

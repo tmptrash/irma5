@@ -74,13 +74,10 @@ export function tick(vms, vmIdx) {
   let inc
   if (typ === ATOM_MOV) {                                            // for "mov" atom we do it's generator fn run or continue
     if (a & ATOM_MOV_DONE_MASK) {                                    // "mov" atom completed moving of near atoms on prev call, we have to move VM to the next atom & skip this call
-      // TODO: we have to check if second and more mov() atom call is the last one or not, because here
-      // TODO: we reset the flag every time. We have to have more states for moving atom
-      // TODO: moving, !moving, done and check done here
-      // TODO: we have to move this code inside mov() function
       put(vms.w, offs, a & ATOM_MOV_UNMASK)                          // removes "moving" bit
       delete vms.movMap[offs]                                        // we have to remove "mov" atom generator fn from a map
-      if (vmIdx > -1) return moveVm(vms, a, vmIdx, offs)             // we move VM to the next atom & run VM again on next atom
+      inc = moveVm(vms, a, vmIdx, offs)                              // we move VM to the next atom & run VM again on next atom
+      return vmIdx + (inc < 0 ? 0 : 1)                               // if VM was removed, then we return -1, otherwise we return next VM index
     }
     if (typ === ATOM_MOV) {                                          // it's possiblr that a VM was moved to near atom, so we have to check it again
       if (!vms.movMap[offs]) vms.movMap[offs] = mov(vms, a, vmIdx)   // this is a first time we run a mov() on this offs, so we create a generator fn
@@ -142,8 +139,8 @@ function* mov(vms, a, vmIdx) {
     move(w, aOffs, dstOffs)                                          // dest place is free, move atom
     const m = vms.map[aOffs]                                         // if atom have > 1 VMs, then we move them all to the dst position
     while (m && m.i > 0) {                                           // move all VMs from old atom pos to moved pos
-      if (aOffs === vmOffs && m[0] === vmIdx) vmIdx = moveVm(vms, a, m[0], aOffs, 0, movDir)
-      else moveVm(vms, a, m[0], aOffs, 0, movDir)
+      if (vmIdx === m[0]) vmIdx = moveVm(vms, a, m[0], aOffs, 0, movDir) // moving current VM, so we update vmIdx
+      else moveVm(vms, a, m[0], aOffs, 0, movDir)                    // moving a VM of near atom, so we do not need to update vmIdx
       if (vmIdx < 0) {
         delete vms.movMap[vmOffs]                                    // we have to remove "mov" atom generator fn
         return vmIdx                                                 // no energy for current VM
