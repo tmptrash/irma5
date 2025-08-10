@@ -1,5 +1,5 @@
-import { vm, ticks, addVm } from '../vms'
-import { get, put } from '../world'
+import { vm, ticks, addVm, nrg } from '../vms'
+import { get, put, toOffs } from '../world'
 /**
  * Tests atoms and VMs in a world. It works like this: we put all atoms from
  * "atomsFrom" array into the world, put all VMs from "vmsFrom" array into the
@@ -31,6 +31,6 @@ export function checkVm(vms, offs, idx, energy) {
   const vmIdx = idxArr.index(idx)
   if (vmIdx === -1 || idx === -1) throw `Invalid indexes. vmIdx: ${idx}, found vmIdx: ${vmIdx}`
   const res = vms.offs[idx] === vm(offs, energy)
-  if (!res) throw `VM structure broken for VM with index ${idx}. VM should be ${vm(offs, energy)}, but is ${vms.offs[idx]}`
+  if (!res) throw `VM with index ${idx} broken. Should be (offs:${offs}, nrg:${energy}), but is (offs:${toOffs(vms.offs[idx])}, nrg:${nrg(vms.offs[idx])})`
   return res
 }
