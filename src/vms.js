@@ -139,12 +139,10 @@ function* mov(vms, a, vmIdx) {
     move(w, aOffs, dstOffs)                                          // dest place is free, move atom
     const m = vms.map[aOffs]                                         // if atom have > 1 VMs, then we move them all to the dst position
     while (m && m.i > 0) {                                           // move all VMs from old atom pos to moved pos
-      if (vmIdx === m[0]) vmIdx = moveVm(vms, a, m[0], aOffs, 0, movDir) // moving current VM, so we update vmIdx
-      else moveVm(vms, a, m[0], aOffs, 0, movDir)                    // moving a VM of near atom, so we do not need to update vmIdx
-      if (vmIdx < 0) {
-        delete vms.movMap[vmOffs]                                    // we have to remove "mov" atom generator fn
-        return vmIdx                                                 // no energy for current VM
-      }
+      let inc
+      if (vmIdx === m[0]) inc = moveVm(vms, a, m[0], aOffs, 0, movDir)// moving current VM, so we update vmIdx
+      else inc = moveVm(vms, a, m[0], aOffs, 0, movDir)              // moving a VM of near atom, so we do not need to update vmIdx
+      if (inc < 0) break                                             // if destination atom offs is the same like current VM offs, we have to just break the loop
     }
     atoms.offs[dstOffs] = true                                       // add moved atom to moved store
     moved++                                                          // calc amount of moved near atoms
@@ -282,6 +280,9 @@ function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
   const d = dir !== NO_DIR ? dir : vmDir(a)                          // if dir is not set, then we use vmDir of atom
   const dstOffs = offs(aOffs, d)
   if (d === NO_DIR || !get(vms.w, dstOffs)) return newIdx            // move VM dir is not set or destination atom doesn't exist
+  if (dstOffs === toOffs(vms.offs[vmIdx])) {
+    return -1                                                        // this is rare case, where destination atom offs is the same like before the move
+  }
   const m = vms.map
   let md = m[dstOffs]
   if (md === undefined) md = m[dstOffs] = UInt32Array.create(1)
