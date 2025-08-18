@@ -1,7 +1,7 @@
 export default {
   WORLD: {                                // section, where the world config leaves
-    width: 100,                          // world width in pixels
-    height: 100,                         // world height in pixels
+    width: 100,                           // world width in pixels
+    height: 100,                          // world height in pixels
     zoom: 0.1                             // zoom speed coefficient
   },
   HTML: {                                 // DOM related config

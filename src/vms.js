@@ -76,12 +76,12 @@ export function tick(vms, vmIdx) {
     if (a & ATOM_MOV_DONE_MASK) {                                    // "mov" atom completed moving of near atoms on prev call, we have to move VM to the next atom & skip this call
       put(vms.w, offs, a & ATOM_MOV_UNMASK)                          // removes "moving" bit
       delete vms.movMap[offs]                                        // we have to remove "mov" atom generator fn from a map
-      inc = moveVm(vms, a, vmIdx, offs)                              // we move VM to the next atom & run VM again on next atom
+      inc = moveVm(vms, a, vmIdx)                                    // we move VM to the next atom & run VM again on next atom
       return vmIdx + (inc < 0 ? 0 : 1)                               // if VM was removed, then we return -1, otherwise we return next VM index
     }
     if (typ === ATOM_MOV) {                                          // it's possiblr that a VM was moved to near atom, so we have to check it again
       if (!vms.movMap[offs]) vms.movMap[offs] = mov(vms, a, vmIdx)   // this is a first time we run a mov() on this offs, so we create a generator fn
-      const val = vms.movMap[offs].next()                            // val === new vmIdx
+      const val = vms.movMap[offs].next(vmIdx)                       // val === new vmIdx
       inc = val.value
       if (val.done) delete vms.movMap[offs]                          // we have to remove "mov" atom generator fn
     } else inc = CMDS[typ](vms, a, vmIdx)                            // for all other atoms we run just normal functions (spl, rep,...)
@@ -120,10 +120,11 @@ function* mov(vms, a, vmIdx) {
   let moved = 0
   let tries = 0
   while (atoms.idx > 0) {                                            // go for all items in stack
-    tries++ >= CFG.ATOM.moveTries && (tries = 0, yield vmIdx)        // after few move attempts we have to leave this fn
+    tries++ >= CFG.ATOM.moveTries && (tries = 0, vmIdx = yield vmIdx)// after few move attempts we have to leave this fn
     const aOffs = fromStack(atoms)                                   // last offs in stack (not pop)
+    if (atoms.offs[aOffs]) { atoms.idx--; continue }                 // this offs was already moved or no atom
     a = get(w, aOffs)
-    if (atoms.offs[aOffs] || !a) { atoms.idx--; continue }           // this offs was already moved or no atom
+    if (!a) break                                                    // moves atoms were changes since last moving attempt, so we stom moving
     const dstOffs = offs(aOffs, movDir)                              // dest offset we are going to move
     if (get(w, dstOffs)) {                                           // dest place is not free
       atoms.stack[atoms.idx++] = dstOffs | MOV_BREAK_MASK            // MOV_BREAK_MASK means "we may interrupt mov here"
@@ -138,12 +139,7 @@ function* mov(vms, a, vmIdx) {
     }
     move(w, aOffs, dstOffs)                                          // dest place is free, move atom
     const m = vms.map[aOffs]                                         // if atom have > 1 VMs, then we move them all to the dst position
-    while (m && m.i > 0) {                                           // move all VMs from old atom pos to moved pos
-      let inc
-      if (vmIdx === m[0]) inc = moveVm(vms, a, m[0], aOffs, 0, movDir)// moving current VM, so we update vmIdx
-      else inc = moveVm(vms, a, m[0], aOffs, 0, movDir)              // moving a VM of near atom, so we do not need to update vmIdx
-      if (inc < 0) break                                             // if destination atom offs is the same like current VM offs, we have to just break the loop
-    }
+    while (m && m.i > 0) moveVm(vms, a, m[0], 0, movDir)             // move all VMs from old atom pos to moved pos
     atoms.offs[dstOffs] = true                                       // add moved atom to moved store
     moved++                                                          // calc amount of moved near atoms
     if (type(a) === ATOM_CON) {                                      // update bonds of "if" atom. we don't neet to update spl, fix
@@ -167,11 +163,11 @@ function fix(vms, a, vmIdx) {
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
-  if (a1 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
+  if (a1 === 0) return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.fix)
   const b2d     = b2Dir(a)
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
-  if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
+  if (a2 === 0) return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.fix)
   if (type(a1) !== ATOM_CON && vmDir(a1) === NO_DIR) {               // creates vm bond from atom 1 to atom 2
     vmIdx = updateNrg(vms, vmIdx, -CFG.ATOM.NRG.onFix)
     put(w, o1, setVmDir(a1, b2d))
@@ -181,7 +177,7 @@ function fix(vms, a, vmIdx) {
   }
   // move vm to the next atom offset. we have to get latest atom from
   // the world, because it may be changed during fix atom work
-  if (vmIdx > -1) vmIdx = moveVm(vms, get(w, vmOffs), vmIdx, vmOffs, -CFG.ATOM.NRG.fix)
+  if (vmIdx > -1) vmIdx = moveVm(vms, get(w, vmOffs), vmIdx, -CFG.ATOM.NRG.fix)
   return vmIdx
 }
 
@@ -190,11 +186,11 @@ function spl(vms, a, vmIdx) {
   const vmOffs  = toOffs(vms.offs[vmIdx])
   const o1      = offs(vmOffs, b1Dir(a))
   let a1        = get(w, o1)
-  if (a1 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
+  if (a1 === 0) return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.spl)
   const b2d     = b2Dir(a)
   const o2      = offs(o1, b2d)
   let a2        = get(w, o2)
-  if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
+  if (a2 === 0) return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.spl)
   if (type(a1) !== ATOM_CON && vmDir(a1) !== NO_DIR && b2d === vmDir(a1)) {
     vmIdx = updateNrg(vms, vmIdx, CFG.ATOM.NRG.onSpl)                // splits vm bond from atom 1 to atom 2
     put(w, o1, setVmDir(a1, NO_DIR))
@@ -204,7 +200,7 @@ function spl(vms, a, vmIdx) {
   }
   // move vm to the next atom offset. we have to get latest atom from
   // the world, because it may be changed during spl atom work
-  if (vmIdx > -1) vmIdx = moveVm(vms, get(w, vmOffs), vmIdx, vmOffs, -CFG.ATOM.NRG.spl)
+  if (vmIdx > -1) vmIdx = moveVm(vms, get(w, vmOffs), vmIdx, -CFG.ATOM.NRG.spl)
   return vmIdx
 }
 
@@ -215,11 +211,11 @@ function con(vms, a, vmIdx) {
   // if then else mode
   if (dir3 == NO_DIR) {
     const atom = get(vms.w, ifOffs)
-    return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.con, atom ? thenDir(a) : elseDir(a))
+    return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.con, atom ? thenDir(a) : elseDir(a))
   }
   // atoms compare mode
   const similar = type(get(vms.w, ifOffs)) === type(get(vms.w, offs(vmOffs, dir3)))
-  return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.con, similar ? thenDir(a) : elseDir(a))
+  return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.con, similar ? thenDir(a) : elseDir(a))
 }
 
 function job(vms, a, vmIdx) {
@@ -234,21 +230,21 @@ function job(vms, a, vmIdx) {
   }
 
   // move vm to the next atom offset
-  return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.job)
+  return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.job)
 }
 
 function rep(vms, a, vmIdx) {
   const vmOffs = toOffs(vms.offs[vmIdx])
   const a1Offs = offs(vmOffs, b1Dir(a))
   const a1     = get(vms.w, a1Offs)
-  if (a1 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.rep)
+  if (a1 === 0) return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.rep)
   const a2Offs = offs(a1Offs, b2Dir(a))
   const a2     = get(vms.w, a2Offs)
-  if (a2 === 0) return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.rep)
+  if (a2 === 0) return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.rep)
 
   if (type(a1) === type(a2)) put(vms.w, a2Offs, (a2 & ATOM_TYPE_MASK) | (a1 & ATOM_TYPE_UNMASK))
   // move vm to the next atom offset
-  return moveVm(vms, a, vmIdx, vmOffs, -CFG.ATOM.NRG.rep)
+  return moveVm(vms, a, vmIdx, -CFG.ATOM.NRG.rep)
 }
 
 function mut(vms, a, vmIdx) {
@@ -267,33 +263,36 @@ function mut(vms, a, vmIdx) {
     nrg = -CFG.ATOM.NRG.mut                                          // mutation completed, it requires energy
   }
 
-  return moveVm(vms, a, vmIdx, vmOffs, nrg)                          // move vm to the next atom offset & decrease energy for mut atom
+  return moveVm(vms, a, vmIdx, nrg)                                  // move vm to the next atom offset & decrease energy for mut atom
 }
 /**
  * Moves VM from one atom to another if possible and updates related
  * vm.offs array & vm.map. It gets aOffs and calc destination offset
  * using dir. If dir is not set, then it uses vmDir of atom.
  */
-function moveVm(vms, a, vmIdx, aOffs, energy = 0, dir = NO_DIR) {
-  const newIdx = updateNrg(vms, vmIdx, energy)
-  if (newIdx < 0) return newIdx                                      // VM was removed
+function moveVm(vms, a, vmIdx, energy = 0, dir = NO_DIR) {
+  vmIdx = energy ? updateNrg(vms, vmIdx, energy) : vmIdx
+  if (vmIdx < 0) return vmIdx                                        // VM was removed
   const d = dir !== NO_DIR ? dir : vmDir(a)                          // if dir is not set, then we use vmDir of atom
+  if (d === NO_DIR) return vmIdx                                     // if dir is not set, then we can't move VM
+  const aOffs = toOffs(vms.offs[vmIdx])                              // gets offset of the current VM on a current atom
   const dstOffs = offs(aOffs, d)
-  if (d === NO_DIR || !get(vms.w, dstOffs)) return newIdx            // move VM dir is not set or destination atom doesn't exist
-  if (dstOffs === toOffs(vms.offs[vmIdx])) {
+  if (!get(vms.w, dstOffs)) return vmIdx                             // move VM dir is not set or destination atom doesn't exist
+  // TODO: this is impossible scenario, we have to remove this check!!!
+  if (dstOffs === aOffs) {
     return -1                                                        // this is rare case, where destination atom offs is the same like before the move
   }
-  const m = vms.map
-  let md = m[dstOffs]
-  if (md === undefined) md = m[dstOffs] = UInt32Array.create(1)
-  else if (md.end()) md = m[dstOffs] = md.double()
+  const map = vms.map
+  let md = map[dstOffs]
+  if (!md) md = map[dstOffs] = UInt32Array.create(1)
+  else if (md.end()) md = map[dstOffs] = md.double()
   md.add(vmIdx)                                                      // sets dst VM index
-  const o = vms.offs[vmIdx]
-  md = m[toOffs(o)]
+
+  md = map[aOffs]
   md.del(md.index(vmIdx))                                            // removed VM old offset index
-  if (md.i === 0) delete m[toOffs(o)]
-  vms.offs[vmIdx] = vm(dstOffs, nrg(o))                              // sets VM new offset index
-  return newIdx
+  if (md.i === 0) delete map[aOffs]
+  vms.offs[vmIdx] = vm(dstOffs, nrg(vms.offs[vmIdx]))                // sets VM new offset index
+  return vmIdx
 }
 
 /**
@@ -317,22 +316,30 @@ export function addVm(vms, o, energy) {
  */
 function delVm(vms, idx) {
   const offs = vms.offs
-  if (idx < offs.i - 1) {                                            // remove 1 vm from offs requires update of associated map
-    const o = toOffs(offs[offs.i - 1])                               // get offset of last VM in the offs array
-    const indexes = vms.map[o]
-    if (indexes) {
-      const i = indexes.index(offs.i - 1)
-      if (i >= 0) indexes[i] = idx
+  const map = vms.map
+  if (idx >= offs.i) return                                          // idx is greater than last VM index, so we can't delete it
+  //
+  // Because we will replace a VM with index "idx" by the last VM in the vms.offs, we have to update association of map[toOffs(offs[offs.i - 1])]
+  //
+  const lastVmOffs = toOffs(offs[offs.i - 1])                        // gets offset of the last VM in the vms.offs array, which we will move to new index "idx"
+  const lastVmsIndexes = map[lastVmOffs]                             // gets array of VMs indexes in vms.offs for the atom, with offset "lastVmOffs" (1 atom may have many VMs)
+  if (lastVmsIndexes) {
+    const lastIdx = lastVmsIndexes.index(offs.i - 1)                 // gets index of last VM in the vms.offs array
+    if (lastIdx >= 0) lastVmsIndexes[lastIdx] = idx                  // updates the index of the last VM, which we will move to index "idx"
+  }
+  //
+  // Secondly, we have to update map for VM with index "idx"
+  //
+  const vmOffs = toOffs(offs[idx])                                   // gets offset of the VM with index "idx"
+  const vmsIndexes = map[vmOffs]                                     // gets all vms indexes in vms.offs for the atom, with offset vmOffs (1 atom may have many VMs)
+  if (vmsIndexes) {
+    const i = vmsIndexes.index(idx)                                  // gets index of an element within VMs indexes array we are going to delete
+    if (i >= 0) {
+      vmsIndexes.del(i)                                              // remove VM index from the map
+      if (vmsIndexes.i === 0) delete map[vmOffs]                     // there are no other vms on this offset
     }
   }
-  const o = toOffs(offs[idx])
-  offs.del(idx)                                                      // removes vm from vm offs array
-  const indexes = vms.map[o]
-  if (indexes === undefined) return
-  const i = indexes.index(idx)
-  if (i < 0) return
-  indexes.del(i)                                                     // remove VM index from the map
-  if (indexes.i === 0) delete vms.map[o]                             // there are no other vms on this offset
+  offs.del(idx)                                                      // removes vm with index "idx", by replacing it by last vm in a vms.offs array
 }
 
 /**

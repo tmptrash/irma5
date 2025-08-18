@@ -8,7 +8,7 @@ import './global'
 import World, { put } from './world.js'
 import { rnd, ATOM_MOV, ATOM_FIX, ATOM_SPL, ATOM_CON, ATOM_JOB, ATOM_REP, ATOM_MUT, UInt64Array
 } from './shared'
-import { rndType, rndMov, rndFix, rndSpl, rndCon, rndRep, rndJob, rndMut, mov } from './atom'
+import { rndType, rndMov, rndFix, rndSpl, rndCon, rndRep, rndJob, rndMut } from './atom'
 import VMs, { ticks, vm, set } from './vms.js'
 import Title from './plugins/title.js'
 import Buttons from './plugins/buttons.js'
